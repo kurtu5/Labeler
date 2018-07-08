@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class GuiM(Model):
+class GuiM(MVPBase.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.windows_showable = {}

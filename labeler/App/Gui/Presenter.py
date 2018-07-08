@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from MVPBase.Presenter import Presenter
 
 class GuiP(Presenter):
     def __init__(self, *args, **kwargs):

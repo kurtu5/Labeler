@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from MVPBase.View import View
 
 class GuiV(View):
     def __init__(self, *args, **kwargs):
