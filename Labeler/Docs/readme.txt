@@ -1,6 +1,27 @@
+Problems:
+	Turning a big flat jupyter notebook of my initial MVP attempt(that worked) into seperate folders/files for
+		organization.   imports to glue this code together are killing me.
+
+	My MVP implementation is weak and needs better separation and I can work on that when I figure out how to
+		handle imports
+
+	Features beyond just showing images in the Gui are not implemented yet.
+
+	Unit tests are being held up by my poor understanding of python3.6 importing
+
+Basic structure.
+Labler is the package to be run as python -m Labeler
+	App exists to separate code
+		MVPBase contains base classes for the MVP framework
+		All other subdirs are MVP derived classes to implement MVP for the App
+			Example; Gui draws main win, has Menubar, has StatusBar
+			         Labeler is the window where you label
+			         Options is the options window
+                                 ... and etc ...
+		
+
 .
 ├── bin
-├── l
 ├── Labeler
 │   ├── App
 │   │   ├── _App.py
