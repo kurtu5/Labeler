@@ -12,11 +12,14 @@ sys.path.insert(0, path)
 
 import MVPBase
 
+testdata = os.path.normpath(
+        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
+
 class Model(MVPBase.ModelBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
     def start(self):
 #         print('labeler i should tell gui that im showable'
-        self.other_models['images'].load_images('data/unclassified/')
+        self.other_models['images'].load_images(testdata)
         

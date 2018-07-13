@@ -12,7 +12,10 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class View(MVPBase.ViewBase):
+class Model(MVPBase.ModelBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print(f'Iamges Init: Pkg:{__package__}  Cls:{__class__}' )
+    
+    def start(self):
+#         print('testM i should tell gui that im showable')
+        pass

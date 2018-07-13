@@ -15,4 +15,7 @@ import MVPBase
 class View(MVPBase.ViewBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print(f'Iamges Init: Pkg:{__package__}  Cls:{__class__}' )
+        """ Setup basic window manager """
+        self.main = self.tk.LabelFrame(self.root, text="test main")
+        self.main.grid(column=0, row=0, sticky='nsew')
+        self.main.grid_columnconfigure(0, weight=1)

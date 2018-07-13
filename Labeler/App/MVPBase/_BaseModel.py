@@ -3,7 +3,7 @@
 class ModelBase(object):
     def __init__(self, name, other_models = None):
         """ Base model stores list of related models """
-        print(f'Init: {__package__}  {__class__}' )
+#        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
         self.presenter = None
         self.name = name
         self.other_models = {}  # or just set to equal

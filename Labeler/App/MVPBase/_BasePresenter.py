@@ -3,7 +3,7 @@
 class PresenterBase(object):
     def __init__(self, view, model):
         """ Set bdirection connections with View and Model """
-#         print(f'view={view}, model={model}')
+#        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
         self.view = view
         self.view.presenter = self
         self.model = model

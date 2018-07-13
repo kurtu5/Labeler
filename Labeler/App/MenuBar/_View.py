@@ -33,3 +33,4 @@ class View(MVPBase.ViewBase):
             self.filemenu.add_command(label='Exit', command=self.presenter.closeapp)
             self.viewmenu.add_command(label='Test', command=lambda: self.presenter.show_window('test'))
             self.viewmenu.add_command(label='Labeler', command=lambda: self.presenter.show_window('labeler'))
+            self.viewmenu.add_command(label='Generic', command=lambda: self.presenter.show_window('generic'))

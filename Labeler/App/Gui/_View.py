@@ -17,8 +17,6 @@ class View(MVPBase.ViewBase):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
 
-        print(f"---inside guiview({self.__class__})", 'geometry' in dir(self.root) )
-
 # set in super        self.root = root # tk.Tk() 1 col 1 row; holds main
         self.root.grid_columnconfigure(0, weight=1) # have main fill on resize
         self.root.grid_rowconfigure(0, weight=1)

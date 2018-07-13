@@ -11,6 +11,7 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 import MVPBase
+from tkinter.font import Font
 
 class View(MVPBase.ViewBase):
     def __init__(self, *args, **kwargs):
@@ -36,19 +37,19 @@ class View(MVPBase.ViewBase):
         
 #         self.canvas = tk.Canvas()
         # Top frame
-        self.top_frame = tk.Frame(self.main)
+        self.top_frame = self.tk.Frame(self.main)
         self.top_frame.grid(column=0, row=0, sticky='ew')  # fill space
         self.top_frame.grid_columnconfigure(0, weight=1) # allow child to widen
 
         # Bottom
-        self.bottom_frame = tk.Frame(self.main)
+        self.bottom_frame = self.tk.Frame(self.main)
         self.bottom_frame.grid(column=0, row=1, sticky='nsew')
         self.bottom_frame.grid_columnconfigure(0, weight=1) # allow child to fill xy
         self.bottom_frame.grid_rowconfigure(0, weight=1)
 
 #         parent.grid_propagate=(0)
 
-        tk.Label(self.top_frame, text='example topframe content').grid(sticky='ew')
+        self.tk.Label(self.top_frame, text='example topframe content').grid(sticky='ew')
 #         tk.Label(self.bottom_frame, text='example').grid(sticky='nsew')
 
         self.canvas_frame = self.debugFrame(self.bottom_frame, text='image')
@@ -56,15 +57,15 @@ class View(MVPBase.ViewBase):
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid()
 
-        self.xscrollbar = tkc.AutoScrollbar(self.canvas_frame, orient='horizontal')
+        self.xscrollbar = self.tkc.AutoScrollbar(self.canvas_frame, orient='horizontal')
         self.xscrollbar.grid(column=0, row=1, sticky='ew')
 #         self.xscrollbar.grid_remove()
 
-        self.yscrollbar = tkc.AutoScrollbar(self.canvas_frame, orient='vertical')
+        self.yscrollbar = self.tkc.AutoScrollbar(self.canvas_frame, orient='vertical')
         self.yscrollbar.grid(column=1, row=0, sticky='ns')
 
 
-        self.canvas = tk.Canvas(self.canvas_frame,
+        self.canvas = self.tk.Canvas(self.canvas_frame,
                         xscrollcommand=self.xscrollbar.set,
                         yscrollcommand=self.yscrollbar.set)
         
@@ -79,6 +80,6 @@ class View(MVPBase.ViewBase):
 #         controller.mcs[LabelerMC].update_label_widgets()
     def debugFrame(self, parent, text, on=True):
         if self.debug == True:
-            return tk.LabelFrame(parent, text=text)
+            return self.tk.LabelFrame(parent, text=text)
         elif self.debug == False:
-            return tk.Frame(parent)
+            return self.tk.Frame(parent)

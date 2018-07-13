@@ -15,6 +15,8 @@ import tkCustom as tkc
 
 class ViewBase(object):
     def __init__(self, root):
+#        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
+
         """ Create empty bind class to store toggelabe binds and set parent tk object """
         # non dynamic start
         self.bind = tkc.Bind()
@@ -23,8 +25,6 @@ class ViewBase(object):
         self.presenter = None
         self.root = root
         
-        print("inside baseview", 'geometry' in dir(self.root), f'id(root)={id(root)}')
-
     def start(self):
         pass
     

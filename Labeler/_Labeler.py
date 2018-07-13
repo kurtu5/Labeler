@@ -15,6 +15,5 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    print(f"main() called")
     app = App()
     app.run()

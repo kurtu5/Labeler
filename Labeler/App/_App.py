@@ -1,6 +1,3 @@
-import tkinter as tk
-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -11,14 +8,14 @@ suffix = ''
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-import tkCustom
+import tkinter as tk
 import Gui
 import MenuBar
 import LabelerWindow
+import TestWindow
+import GenericWindow
 
-#from .TestWindow import *
 import Images
-#from .LabelerWindow import *
 
 class App(object):
     def __init__(self):
@@ -29,8 +26,6 @@ class App(object):
         self.root = tk.Tk()
 
         # Gui to handle all main window operations
-        print("inside app", 'geometry' in dir(self.root) )
-
         self.guiM = Gui.Model('gui')
         self.guiV = Gui.View(self.root)
         self.guiP = Gui.Presenter(self.guiV, self.guiM)
@@ -41,9 +36,14 @@ class App(object):
         self.menuP = MenuBar.Presenter(self.menuV, self.menuM)
         
         # Testing window
-#        self.testM = TestWindow.Model('test', {'gui': self.guiM})
-#        self.testV = TestWindow.View(self.guiV.window)
-#        self.testP = TestWindow.Presenter(self.testV, self.testM)
+        self.testM = TestWindow.Model('test', {'gui': self.guiM})
+        self.testV = TestWindow.View(self.guiV.window)
+        self.testP = TestWindow.Presenter(self.testV, self.testM)
+
+        # Generic
+        self.genM = GenericWindow.Model('generic', {'gui': self.guiM})
+        self.genV = GenericWindow.View(self.guiV.window)
+        self.genP = GenericWindow.Presenter(self.genV, self.genM)
         
         # Image labeling window
         self.imagesM = Images.Model('images')
@@ -52,7 +52,7 @@ class App(object):
         self.labelerP = LabelerWindow.Presenter(self.labelerV, self.labelerM)
         
         # Config model when implemented should handle the first page to show
-        self.guiM.window_current('labeler')
+#        self.guiM.window_current('labeler')
         
     def run(self):
         """ Start the application """

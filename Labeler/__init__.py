@@ -1,4 +1,4 @@
-print(f'import Labeler __init__ __name__={__name__}')
+#print(f'import LabelerPkg __init__ __name__={__name__}')
 
 # Make import work like include(./../pkg)
 import os, sys

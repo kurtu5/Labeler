@@ -11,5 +11,4 @@ sys.path.insert(0, path)
 from _Labeler import main
 
 if __name__ == "__main__":
-    print('dir=======', dir(Labeler))
-    Labeler.main()
+    main()
