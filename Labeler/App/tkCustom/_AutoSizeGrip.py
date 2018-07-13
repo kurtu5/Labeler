@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#import tkinter as tk
+from tkinter import ttk
 
 class AutoSizegrip(ttk.Sizegrip):
     def __init__(self, parent, root, *args, **kwargs):

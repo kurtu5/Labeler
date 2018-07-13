@@ -1,5 +1,17 @@
-from Labeler.App.MenuBar.Model import Model
-from Labeler.App.MenuBar.View import View
-from Labeler.App.MenuBar.Presenter import Presenter
+print(f'import MenuBar __init__ __name__={__name__}')
 
-__all__ = ['Model', 'View', 'Presenter']
+# Make import work like include(./../pkg)
+import os, sys
+try:
+    file = __file__
+except:
+    file = sys.argv[0]
+suffix = ''
+path=os.path.dirname(os.path.abspath(__file__)) + suffix
+sys.path.insert(0, path)
+
+from _Model import Model
+from _View import View
+from _Presenter import Presenter
+
+#__all__ = ['Model', 'View', 'Presenter']

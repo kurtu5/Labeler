@@ -1,20 +1,17 @@
+# -*- coding: utf-8 -*-
+
 # Make import work like include(./../pkg)
 import os, sys
 try:
     file = __file__
 except:
     file = sys.argv[0]
-suffix = ''
+suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from App import App
+import MVPBase
 
-def main(args=None):
-    """The main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
-    print(f"main() called")
-    app = App()
-    app.run()
+class View(MVPBase.ViewBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

@@ -1,12 +1,18 @@
 # Bullshit to allow "python blah/blah/file.py"
-import sys
-sys.path = [''] + sys.path
+import os, sys
+try:
+    file = __file__
+except:
+    file = sys.argv[0]
+suffix = '\\..'
+path=os.path.dirname(os.path.abspath(__file__)) + suffix
+sys.path.insert(0, path)
 
 #from ..Base import Base
 
 
 #from Labeler.App.MVPBase.Model import Model
-import Labeler.App.MVPBase as B
+import MVPBase
 #
 #class Test(Model):
 #    def __init__(self, *args, **kwargs):

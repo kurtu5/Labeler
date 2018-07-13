@@ -1,3 +1,4 @@
+# Bullshit to allow "python blah/blah/file.py"
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -8,13 +9,8 @@ suffix = ''
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from App import App
+import Labeler
+Labeler.main()
 
-def main(args=None):
-    """The main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
-    print(f"main() called")
-    app = App()
-    app.run()
+# Do some tests
+#Labeler.main()

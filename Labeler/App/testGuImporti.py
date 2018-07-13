@@ -8,13 +8,7 @@ suffix = ''
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from App import App
+# See if I can import derived classes
+import Gui
 
-def main(args=None):
-    """The main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
-    print(f"main() called")
-    app = App()
-    app.run()
+# Do some tests

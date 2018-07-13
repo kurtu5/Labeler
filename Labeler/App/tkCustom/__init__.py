@@ -10,8 +10,10 @@ suffix = ''
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from _Model import Model
-from _View import View
-from _Presenter import Presenter
+from _Bind import Bind
+from _AutoScrollBar import AutoScrollbar
+from _AutoSizeGrip import AutoSizegrip
+from _StatusBar import StatusBar
+from _Debug import D
 
 #__all__ = ['Model', 'View', 'Presenter']

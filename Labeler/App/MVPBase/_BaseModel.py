@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Model(object):
+class ModelBase(object):
     def __init__(self, name, other_models = None):
         """ Base model stores list of related models """
         print(f'Init: {__package__}  {__class__}' )

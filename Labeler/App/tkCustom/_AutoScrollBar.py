@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import tkinter as tk
 
 class AutoScrollbar(tk.Scrollbar):
 #     def __init__(self):

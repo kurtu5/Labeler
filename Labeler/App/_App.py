@@ -1,9 +1,23 @@
-#import tkinter as tk
-#import Labeler.App.Gui as Gui
-from .Gui import *
-#from .MenuBar import *
+import tkinter as tk
+
+
+# Make import work like include(./../pkg)
+import os, sys
+try:
+    file = __file__
+except:
+    file = sys.argv[0]
+suffix = ''
+path=os.path.dirname(os.path.abspath(__file__)) + suffix
+sys.path.insert(0, path)
+
+import tkCustom
+import Gui
+import MenuBar
+import LabelerWindow
+
 #from .TestWindow import *
-#from .Images import *
+import Images
 #from .LabelerWindow import *
 
 class App(object):
@@ -15,6 +29,8 @@ class App(object):
         self.root = tk.Tk()
 
         # Gui to handle all main window operations
+        print("inside app", 'geometry' in dir(self.root) )
+
         self.guiM = Gui.Model('gui')
         self.guiV = Gui.View(self.root)
         self.guiP = Gui.Presenter(self.guiV, self.guiM)
@@ -25,9 +41,9 @@ class App(object):
         self.menuP = MenuBar.Presenter(self.menuV, self.menuM)
         
         # Testing window
-        self.testM = TestWindow.Model('test', {'gui': self.guiM})
-        self.testV = TestWindow.View(self.guiV.window)
-        self.testP = TestWindow.Presenter(self.testV, self.testM)
+#        self.testM = TestWindow.Model('test', {'gui': self.guiM})
+#        self.testV = TestWindow.View(self.guiV.window)
+#        self.testP = TestWindow.Presenter(self.testV, self.testM)
         
         # Image labeling window
         self.imagesM = Images.Model('images')
@@ -41,4 +57,5 @@ class App(object):
     def run(self):
         """ Start the application """
         self.start()
+      
         self.root.mainloop()

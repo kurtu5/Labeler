@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Observable:
+class ObservableBase:
     def __init__(self, initialValue=None):
         self.data = initialValue
         self.callbacks = {}

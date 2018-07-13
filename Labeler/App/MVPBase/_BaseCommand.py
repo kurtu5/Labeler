@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-class Interactor(object):
+class CommandBase(object):
     pass

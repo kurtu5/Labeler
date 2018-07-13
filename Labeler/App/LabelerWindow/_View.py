@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
+
+# Make import work like include(./../pkg)
+import os, sys
+try:
+    file = __file__
+except:
+    file = sys.argv[0]
+suffix = '\\..'
+path=os.path.dirname(os.path.abspath(__file__)) + suffix
+sys.path.insert(0, path)
+
 import MVPBase
 
-class View(MVPBase.View):
+class View(MVPBase.ViewBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -45,11 +56,11 @@ class View(MVPBase.View):
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid()
 
-        self.xscrollbar = AutoScrollbar(self.canvas_frame, orient='horizontal')
+        self.xscrollbar = tkc.AutoScrollbar(self.canvas_frame, orient='horizontal')
         self.xscrollbar.grid(column=0, row=1, sticky='ew')
 #         self.xscrollbar.grid_remove()
 
-        self.yscrollbar = AutoScrollbar(self.canvas_frame, orient='vertical')
+        self.yscrollbar = tkc.AutoScrollbar(self.canvas_frame, orient='vertical')
         self.yscrollbar.grid(column=1, row=0, sticky='ns')
 
 

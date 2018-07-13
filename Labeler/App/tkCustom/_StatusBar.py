@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import tkinter as tk
 
 class StatusBar(tk.Label):
     """ Status line to indicate saved status """

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Presenter(object):
+class PresenterBase(object):
     def __init__(self, view, model):
         """ Set bdirection connections with View and Model """
 #         print(f'view={view}, model={model}')

@@ -10,11 +10,6 @@ sys.path.insert(0, path)
 
 from App import App
 
-def main(args=None):
-    """The main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
-    print(f"main() called")
-    app = App()
-    app.run()
+# Do some tests
+app = App()
+app.run()

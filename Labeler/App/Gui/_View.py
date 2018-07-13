@@ -1,9 +1,23 @@
 # -*- coding: utf-8 -*-
-from Labeler.App.MVPBase.View import View
-class View(View):
+
+# Make import work like include(./../pkg)
+import os, sys
+try:
+    file = __file__
+except:
+    file = sys.argv[0]
+suffix = '\\..'
+path=os.path.dirname(os.path.abspath(__file__)) + suffix
+sys.path.insert(0, path)
+
+import MVPBase
+
+class View(MVPBase.ViewBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
+
+        print(f"---inside guiview({self.__class__})", 'geometry' in dir(self.root) )
 
 # set in super        self.root = root # tk.Tk() 1 col 1 row; holds main
         self.root.grid_columnconfigure(0, weight=1) # have main fill on resize
@@ -26,7 +40,7 @@ class View(View):
         self.window.grid(column=0, row=0, sticky='nsew') # fill cell in main
 
         # Debugger bar
-        debug = D(self.main, 8)
+        debug = self.tkc.D(self.main, 8)
         debug.frame.grid(column=0, row=1, sticky='we')
         
         #status bar
@@ -41,10 +55,10 @@ class View(View):
         self.statusframe.grid_columnconfigure(0, weight=1)  # actual text will widen on resize
         self.statusframe.grid(column=0, row=0, sticky='we')
 
-        self.statustext = tk.Label(self.statusframe, text="some status line text")
+        self.statustext = self.tk.Label(self.statusframe, text="some status line text")
         self.statustext.pack()
         
-        self.grip = AutoSizegrip(self.statusbar, self.root)
+        self.grip = self.tkc.AutoSizegrip(self.statusbar, self.root)
         self.grip.grid(column=1, row=0, sticky='nsew')
         
         self.root.geometry('1500x800+50+50')
@@ -56,9 +70,9 @@ class View(View):
         
     def debugFrame(self, parent, text, on=True):
         if self.debug == True:
-            return tk.LabelFrame(parent, text=text)
+            return self.tk.LabelFrame(parent, text=text)
         elif self.debug == False:
-            return tk.Frame(parent)
+            return self.tk.Frame(parent)
         
     def start(self, *a, **kw):
         pass
