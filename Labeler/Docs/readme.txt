@@ -98,9 +98,40 @@ Labler is the package to be run as python -m Labeler
 # OOP Strategy
 ## Overview
 ### Desc
-https://wiki.wxpython.org/ModelViewPresenter   good overview in wx  and shows V<->P event Interactor class
-http://wiki.c2.com/?ModelViewPresenter   simple descrip
-http://duganchen.ca/mvp-with-pyqt-with-a-model-layer/   I dont like this really because events are connected in the main initilization instead of being encapsulated in a generic interactor class.... but perhaps i take the gtsignal concept and put it into a Interactor
+https://wiki.wxpython.org/ModelViewPresenter   
+    good overview in wx  and shows V<->P event Interactor class
+    doesnt talk about Command
+    
+    View has getters/setters to update itself that the presenter sets
+    
+    Interactor is istalled by presenter and knows view ( instance exists outside presenter class)
+        I think its called Mediator Pattern and allows several things(Presenters) to register with it
+        it handles event processing to
+        updateModel()
+        # purpose it to make presenter agnostic as to the type of view
+        
+    Presenter has generic update() from model that the view calls
+       in case of multiple calls to update there is a updatingalready=True
+        clause to ignore concurrent updates
+        has updatemodel()
+        
+    Command is like Interactor, but glues events from model up to presenter
+        it just sets what in the model is watched and what presenter methods
+        to call if changes occur?
+        # purpose is to make presenter agnositc about the model?
+        # not to sure what these are aside from do/undo operations on Model?
+        # lets just try to have a seperation between presenters and models
+        
+    Model also has getters/setters that the presenter sets/gets and these can
+        trigger observers to run presernter generic update()
+    
+
+    
+http://wiki.c2.com/?ModelViewPresenter   simple descrip Command pattern
+http://duganchen.ca/mvp-with-pyqt-with-a-model-layer/  
+     I dont like this really because events are connected in the main
+      initilization instead of being encapsulated in a generic interactor
+       class.... but perhaps i take the gtsignal concept and put it into a Interactor
 
 
 MVP

@@ -11,7 +11,6 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 import MVPBase
-Observable = MVPBase.ObservableBase
 
 class Presenter(MVPBase.PresenterBase):
     def __init__(self, *args, **kwargs):

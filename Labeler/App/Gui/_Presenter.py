@@ -11,17 +11,18 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 import MVPBase
-Observable = MVPBase.ObservableBase
 
 class Presenter(MVPBase.PresenterBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Deals with setting/unsetting binds and window management """
         self.start()
-        self.window_current = Observable()
-        self.window_current.addCallback(self.window_show)
-        self.model.statustext = Observable()
-        self.model.statustext.addCallback(self.status_text)
+        self.window_currert = None
+        self.model.statustext = None
+#        self.window_current = Observable()
+#        self.window_current.addCallback(self.window_show)
+#        self.model.statustext = Observable()
+#        self.model.statustext.addCallback(self.status_text)
     
     def start(self):
         super().start()

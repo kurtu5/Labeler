@@ -14,8 +14,6 @@ import MVPBase
 from tkCustom._Debug import D
 from PIL import ImageTk, Image
  
-Observable = MVPBase.ObservableBase
-
 class Presenter(MVPBase.PresenterBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

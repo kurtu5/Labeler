@@ -13,9 +13,9 @@ sys.path.insert(0, path)
 from MVPBase._BaseModel import ModelBase
 from MVPBase._BaseView import ViewBase
 from MVPBase._BasePresenter import PresenterBase
-from MVPBase._BaseCommand import CommandBase
-from MVPBase._BaseInteractor import InteractorBase
-from MVPBase._BaseObservable import ObservableBase
+from MVPBase._Command import Command
+from MVPBase._Interactor import Interactor
+from MVPBase._Observable import Observable
 #
 #__all__ = [
 #        'Model',
