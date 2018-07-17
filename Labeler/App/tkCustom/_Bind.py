@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Bind:
+class Bind(object):
     """ Wraps tkinter bind to allow easy toggleing of bind active state """
     def __init__(self):
         self.registry = {}
@@ -9,9 +9,10 @@ class Bind:
 #         print('--------------------------------------------------')
 #         print(f'bind_register(parent={parent.winfo_id()}, sequence={sequence}, func={func}, add={add}, funcid = None, active=False):')
         """ store desired binds in registry """
-        index = f'bind_{len(self.registry)}'
-        self.registry[index]=[parent, sequence, func, add, None, False]
-        return index
+        bind_id = f'bind_{len(self.registry)}'
+        self.registry[bind_id]=[parent, sequence, func, add, None, False]
+        self.activate(bind_id, True)
+        return bind_id
 
     def isactive(self, bind_id):
         return self.registry[bind_id][5]

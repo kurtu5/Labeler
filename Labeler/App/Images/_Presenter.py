@@ -12,6 +12,6 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class Presenter(MVPBase.PresenterBase):
+class Presenter(MVPBase.BasePresenter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

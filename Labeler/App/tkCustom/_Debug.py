@@ -23,7 +23,14 @@ class D():
        
     @staticmethod
     def ebug(txt):
-        D.listbox.config(bg='lightgrey')
+#        D.listbox.config(bg='lightgrey')
         D.listbox.insert(0, txt)
-        D.listbox.after(30, lambda: D.listbox.config(bg='white'))# -*- coding: utf-8 -*-
+        size = D.listbox.size()
+        for index in range(size):
+            D.listbox.itemconfig(index, {'fg': 'black'})
+        D.listbox.itemconfig(0, {'fg': 'red'})
+
+        def debug_listbox_flash_off():
+            D.listbox.itemconfig(0, {'fg': '#500000'})
+        D.listbox.after(600, debug_listbox_flash_off )
 

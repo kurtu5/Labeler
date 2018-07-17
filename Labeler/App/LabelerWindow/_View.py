@@ -12,11 +12,14 @@ sys.path.insert(0, path)
 
 import MVPBase
 from tkinter.font import Font
+from PIL import ImageTk, Image
 
-class View(MVPBase.ViewBase):
+
+class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+        self.image_id = None   # Canvas image id
+        self.image_orig = None # PIL.Image
         self.debug = False
 
 #         self.controller = controller 
@@ -24,9 +27,9 @@ class View(MVPBase.ViewBase):
         
         self.font = Font(size=24)
         self.default_scale = 0.2
-        self.scale = 1.0;   # Initial Image scale
-        self.scale_xloc = 0
-        self.scale_yloc = 0
+#        self.scale = 1.0;   # Initial Image scale
+#        self.scale_xloc = 0
+#        self.scale_yloc = 0
 
         self.main = self.debugFrame(self.root, text="labler main")
         self.main.grid(column=0, row=0, sticky='nsew')
@@ -78,6 +81,62 @@ class View(MVPBase.ViewBase):
 
 #         self.create_label_widgets()   # let the models
 #         controller.mcs[LabelerMC].update_label_widgets()
+        
+    def scroll(self, amount):
+        self.canvas.yview_scroll(amount, "units")
+        
+    def image_load(self, file):
+#        self.scale = self.default_scale
+        self.image_orig = Image.open(file)
+        
+    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
+        #delete and redraw if scaled
+        if self.image_id:
+            self.canvas.delete(self.image_id)
+        
+        # Conditionaly scale
+        if scale != 1.0:
+            # Do stuff to center zoomed in middle
+            cw = self.canvas.winfo_reqwidth()  
+            ch = self.canvas.winfo_reqheight()
+            x = scale_xloc
+            y = scale_yloc
+            cx = self.canvas.canvasx(x)
+            cy = self.canvas.canvasy(y)
+            hcw = self.canvas.winfo_width() / 2
+            hch = self.canvas.winfo_height() / 2
+            px = (cx - hcw) / cw
+            py = (cy - hch) / ch
+            #D.ebug(f'cw,ch = {cw},{ch},  x,y = {x}, {y}, cx,cy = {cx},{cy}, hcw,hch={hcw},{hch},  px,py = {px*100:.0f},{py*100:.0f} ')
+       
+            iw, ih = self.image_orig.size
+            size = int(iw * scale), int(ih * scale)
+            img = ImageTk.PhotoImage(self.image_orig.resize(size))
+
+            self.image_id = self.canvas.create_image(0, 0, anchor='nw', image=img)
+        else:
+#             print("not scaling image")
+            px = 0
+            py = 0
+            img = ImageTk.PhotoImage(self.image_orig)
+            self.image_id = self.canvas.create_image(0,0, anchor='nw', image=img)
+
+        self.canvas.image = img
+        self.canvas.config(scrollregion=(0,0, img.width(), img.height()))
+        self.canvas.config(height=img.height(), width=img.width())
+        # Reset scrollbars
+        self.canvas.xview('moveto', px)
+        self.canvas.yview('moveto', py)  
+ 
+        
+        
+        
+        
+        
+        
+    def get_root(self):
+        return self.main
+    
     def debugFrame(self, parent, text, on=True):
         if self.debug == True:
             return self.tk.LabelFrame(parent, text=text)

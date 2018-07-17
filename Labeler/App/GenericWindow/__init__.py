@@ -13,3 +13,5 @@ sys.path.insert(0, path)
 from GenericWindow._Model import Model
 from GenericWindow._View import View
 from GenericWindow._Presenter import Presenter
+from GenericWindow._Interactor import Interactor
+from GenericWindow._Observer import Observer

@@ -114,7 +114,8 @@ https://wiki.wxpython.org/ModelViewPresenter
        in case of multiple calls to update there is a updatingalready=True
         clause to ignore concurrent updates
         has updatemodel()
-        
+    
+    Observable???
     Command is like Interactor, but glues events from model up to presenter
         it just sets what in the model is watched and what presenter methods
         to call if changes occur?

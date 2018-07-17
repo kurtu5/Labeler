@@ -13,13 +13,16 @@ sys.path.insert(0, path)
 import re
 import MVPBase
 
-class Model(MVPBase.ModelBase):
+class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.path = None
         self.index = None
         self.images = None
         self.current_image = None
+        
+    def start(self, *args, **kwargs):
+        super().start(*args, **kwargs)
 
     def load_images(self, path):
         self.path = path

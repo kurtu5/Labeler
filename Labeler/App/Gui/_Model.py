@@ -12,18 +12,25 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class Model(MVPBase.ModelBase):
+class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.windows_showable = {}
-        self.windowname_current = None
+        self.window_map = {}  # name => root
+        self.window_current = None
+        self.status_text = None
     
-    def window_showable_add(self, windowname, widget):
-        self.windows_showable[windowname] = widget
-        
-    def window_current(self, windowname):
-#         print(f'windowname is now {windowname}')
-        self.presenter.window_current.set(self.windows_showable[windowname])
+    def start(self, *args, **kwargs):
+        super().start(*args, **kwargs)
+        self.app_exit = self.observer.observe_as('app_exit', False)
+        self.window_current = self.observer.observe_as('window_current', False)
+        self.status_text = self.observer.observe_as('status_text')
 
-    def closeapp(self):
-        self.presenter.closeapp()
+    def window_add(self, name, root):
+        self.window_map[name] = root
+        
+    def window_show(self, name):
+        self.window_current.set(name)
+
+    def app_exit(self):
+        # TODO add sanity checking to see if things need to be saved
+        self.app_exit.set(True)

@@ -13,3 +13,5 @@ sys.path.insert(0, path)
 from TestWindow._Model import Model
 from TestWindow._View import View
 from TestWindow._Presenter import Presenter
+from TestWindow._Interactor import Interactor
+from TestWindow._Observer import Observer

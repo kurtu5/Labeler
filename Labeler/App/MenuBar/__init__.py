@@ -13,5 +13,7 @@ sys.path.insert(0, path)
 from MenuBar._Model import Model
 from MenuBar._View import View
 from MenuBar._Presenter import Presenter
+from MenuBar._Interactor import Interactor
+from MenuBar._Observer import Observer
 
 #__all__ = ['Model', 'View', 'Presenter']

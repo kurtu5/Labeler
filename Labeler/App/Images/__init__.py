@@ -11,7 +11,7 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 from Images._Model import Model
-from Images._View import View
-from Images._Presenter import Presenter
-
-#__all__ = ['Model', 'View', 'Presenter']
+#from Images._View import View
+#from Images._Presenter import Presenter
+#from Images._Interactor import Interactor
+#from Images._Observer import Observer

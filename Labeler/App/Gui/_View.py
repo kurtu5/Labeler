@@ -12,7 +12,7 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class View(MVPBase.ViewBase):
+class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
@@ -74,3 +74,14 @@ class View(MVPBase.ViewBase):
         
     def start(self, *a, **kw):
         pass
+    
+    # Methods for presenter to call
+    def window_show(self, window_root):
+        print("gui view win show")
+        window_root.tkraise()
+        
+    def status_text_set(self, text):
+        self.statustext.config(text=text)
+
+    def app_exit(self):
+        self.root.destroy()

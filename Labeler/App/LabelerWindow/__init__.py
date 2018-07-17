@@ -13,5 +13,7 @@ sys.path.insert(0, path)
 from LabelerWindow._Model import Model
 from LabelerWindow._View import View
 from LabelerWindow._Presenter import Presenter
+from LabelerWindow._Interactor import Interactor
+from LabelerWindow._Observer import Observer
 
 #__all__ = ['Model', 'View', 'Presenter']

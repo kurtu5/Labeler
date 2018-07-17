@@ -13,5 +13,7 @@ sys.path.insert(0, path)
 from Gui._Model import Model
 from Gui._View import View
 from Gui._Presenter import Presenter
+from Gui._Interactor import Interactor
+from Gui._Observer import Observer
 
 #__all__ = ['Model', 'View', 'Presenter']

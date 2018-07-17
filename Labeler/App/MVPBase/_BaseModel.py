@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-class ModelBase(object):
+class BaseModel(object):
     def __init__(self, name, other_models = None):
         """ Base model stores list of related models """
 #        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
-        self.presenter = None
+        self.observer = None
         self.name = name
         self.other_models = {}  # or just set to equal
         if other_models:
@@ -15,5 +15,5 @@ class ModelBase(object):
     def add_model(self, name, instance):
         self.other_models[name]=instance
       
-    def start(self):
-        pass
+    def start(self, observer):
+        self.observer = observer

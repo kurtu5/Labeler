@@ -13,7 +13,7 @@ sys.path.append(path)
 import tkinter as tk
 import tkCustom as tkc
 
-class ViewBase(object):
+class BaseView(object):
     def __init__(self, root):
 #        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
 
@@ -22,7 +22,7 @@ class ViewBase(object):
         self.bind = tkc.Bind()
         self.tk = tk
         self.tkc = tkc
-        self.presenter = None
+#        self.presenter = None   # this should not exist
         self.root = root
         
     def start(self):

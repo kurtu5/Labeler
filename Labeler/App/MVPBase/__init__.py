@@ -10,12 +10,11 @@ suffix = ''
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from MVPBase._BaseModel import ModelBase
-from MVPBase._BaseView import ViewBase
-from MVPBase._BasePresenter import PresenterBase
-from MVPBase._Command import Command
-from MVPBase._Interactor import Interactor
-from MVPBase._Observable import Observable
+from MVPBase._BaseModel import BaseModel
+from MVPBase._BaseView import BaseView
+from MVPBase._BasePresenter import BasePresenter
+from MVPBase._BaseInteractor import BaseInteractor
+from MVPBase._BaseObserver import BaseObserver
 #
 #__all__ = [
 #        'Model',
