@@ -17,7 +17,7 @@ class Model(MVPBase.BaseModel):
         super().__init__(*args, **kwargs)
         
     def app_exit(self):
-        self.other_models['gui'].app_exit.set(True)
+        self.others['gui'].app_exit.set(True)
         
     def window_show(self, window_name):
-        self.other_models['gui'].window_current.set(window_name)
+        self.others['gui'].window_current.set(window_name)

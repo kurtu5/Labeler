@@ -21,6 +21,6 @@ class Presenter(MVPBase.BasePresenter):
     
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        self.model.other_models['gui'].window_add('labeler', self.view.get_root())
+        self.model.others['gui'].window_add('labeler', self.view.get_root())
 
   

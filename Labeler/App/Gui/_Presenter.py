@@ -36,7 +36,6 @@ class Presenter(MVPBase.BasePresenter):
         
     # As directed by model when window_current changes
     def on_window_show(self, window_name):
-        print("show win", self.model.window_map)
         self.view.window_show(self.model.window_map[window_name])
         
     def on_status_text(self, text):

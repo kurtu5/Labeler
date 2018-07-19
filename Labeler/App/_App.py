@@ -35,14 +35,14 @@ class App(object):
 
         # Menu for Gui
         self.menuO = MenuBar.Observer()
-        self.menuM = MenuBar.Model('menu', {'gui': self.guiM})
+        self.menuM = MenuBar.Model('menu', [self.guiM])
         self.menuV = MenuBar.View(self.root)
         self.menuI = MenuBar.Interactor()
         self.menuP = MenuBar.Presenter(self.menuV, self.menuI, self.menuM, self.menuO)
         
 #        # Testing window
         self.testO = TestWindow.Observer()
-        self.testM = TestWindow.Model('test', {'gui': self.guiM})
+        self.testM = TestWindow.Model('test', [self.guiM])
         self.testV = TestWindow.View(self.guiV.window)
         self.testI = TestWindow.Interactor()
         self.testP = TestWindow.Presenter(self.testV, self.testI, self.testM, self.testO)
@@ -55,14 +55,14 @@ class App(object):
         # Image labeling window
         self.imagesM = Images.Model('images')
         self.labelerO = LabelerWindow.Observer()
-        self.labelerM = LabelerWindow.Model('labeler', {'gui': self.guiM, 'images': self.imagesM})
+        self.labelerM = LabelerWindow.Model('labeler', [self.guiM, self.imagesM])
         self.labelerV = LabelerWindow.View(self.guiV.window)
         self.labelerI = LabelerWindow.Interactor()
         self.labelerP = LabelerWindow.Presenter(self.labelerV, self.labelerI, self.labelerM, self.labelerO)
 
         # Options labeling window
         self.optionsO = OptionsWindow.Observer()
-        self.optionsM = OptionsWindow.Model('options', {'gui': self.guiM, 'images': self.imagesM})
+        self.optionsM = OptionsWindow.Model('options', [self.guiM, self.imagesM])
         self.optionsV = OptionsWindow.View(self.guiV.window)
         self.optionsI = OptionsWindow.Interactor()
         self.optionsP = OptionsWindow.Presenter(self.optionsV, self.optionsI, self.optionsM, self.optionsO)

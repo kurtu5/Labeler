@@ -21,7 +21,7 @@ class Presenter(MVPBase.BasePresenter):
     
     def start(self):
         super().start()
-        self.model.other_models['gui'].window_add('test', self.view.get_root())
+        self.model.others['gui'].window_add('test', self.view.get_root())
 
     
     ### View Interactor event handlers

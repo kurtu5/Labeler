@@ -22,5 +22,5 @@ class Model(MVPBase.BaseModel):
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         #         print('labeler i should tell gui that im showable'
-        self.other_models['images'].load_images(testdata)
+        self.others['images'].load_images(testdata)
         

@@ -32,18 +32,18 @@ class Presenter(MVPBase.BasePresenter):
         self.labels = {}  # When controller loads image, should set this from csv
 
          # Let guiM know im showable
-        self.model.other_models['gui'].window_add('labeler', self.view.get_root())
+        self.model.others['gui'].window_add('labeler', self.view.get_root())
         self.image_load()
         self.image_show()
 
     def image_load(self):
-        self.image_file = self.model.other_models['images'].current_image
-        self.image_index = self.model.other_models['images'].index
+        self.image_file = self.model.others['images'].current_image
+        self.image_index = self.model.others['images'].index
         self.view.image_load(self.image_file)
     
     def image_show(self):
         # Update status string
-        self.model.other_models['gui'].status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
+        self.model.others['gui'].status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
         self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
         
     def on_scale(self, scale, event):
@@ -78,11 +78,11 @@ class Presenter(MVPBase.BasePresenter):
         if event.keysym == 'Up':
             self.on_scroll(-2)
         if event.keysym == 'Right':
-            self.model.other_models['images'].next() 
+            self.model.others['images'].next() 
             self.image_load()
             self.image_show()
         if event.keysym == 'Left':
-            self.model.other_models['images'].prev()
+            self.model.others['images'].prev()
             self.image_load()
             self.image_show()
         # Pass to shortcut to check if one was used
