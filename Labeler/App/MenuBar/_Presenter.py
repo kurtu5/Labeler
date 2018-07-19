@@ -18,7 +18,7 @@ class Presenter(MVPBase.BasePresenter):
         super().__init__(*args, **kwargs)
         self.start()
 
-    def start(self):  
+    def start(self):
         super().start()
 
     def on_app_exit(self):

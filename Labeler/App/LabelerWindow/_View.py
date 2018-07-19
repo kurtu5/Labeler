@@ -22,7 +22,7 @@ class View(MVPBase.BaseView):
         self.image_orig = None # PIL.Image
         self.debug = False
 
-#         self.controller = controller 
+#         self.controller = controller
         self.label_widgets = {}
 
         self.font = Font(size=24)
@@ -46,7 +46,7 @@ class View(MVPBase.BaseView):
         # Conditionaly scale
         if scale != 1.0:
             # Do stuff to center zoomed in middle
-            cw = self.canvas.winfo_reqwidth()  
+            cw = self.canvas.winfo_reqwidth()
             ch = self.canvas.winfo_reqheight()
             x = scale_xloc
             y = scale_yloc
@@ -75,7 +75,7 @@ class View(MVPBase.BaseView):
         self.canvas.config(height=img.height(), width=img.width())
         # Reset scrollbars
         self.canvas.xview('moveto', px)
-        self.canvas.yview('moveto', py)  
+        self.canvas.yview('moveto', py)
 
 
 
@@ -173,6 +173,6 @@ class View(MVPBase.BaseView):
         self.yscrollbar.config(command=self.canvas.yview)
 
 #         self.create_label_widgets()   # let the models
-#         controller.mcs[LabelerMC].update_label_widgets()        
+#         controller.mcs[LabelerMC].update_label_widgets()
 
         self.create_label_widgets()

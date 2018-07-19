@@ -69,7 +69,7 @@ class Presenter(MVPBase.BasePresenter):
         elif event.num == 4 or event.delta == 120:
             amount -= 1
 #         print("scroll by ", amount)
-        self.on_scroll(amount)      
+        self.on_scroll(amount)
 
     def on_keyevent(self, event):
         D.ebug(f'event={event}')
@@ -78,7 +78,7 @@ class Presenter(MVPBase.BasePresenter):
         if event.keysym == 'Up':
             self.on_scroll(-2)
         if event.keysym == 'Right':
-            self.model.others['images'].next() 
+            self.model.others['images'].next()
             self.image_load()
             self.image_show()
         if event.keysym == 'Left':
@@ -98,11 +98,11 @@ class Presenter(MVPBase.BasePresenter):
                 has_feature = 1
             # Label it 0 otherwise
             elif self.labels[key] == 1:
-                has_feature = 0        
+                has_feature = 0
             # If the Shift modifier set as unknown
-        if key.isupper() and key.lower() in self.shortcuts_labels:            
-            has_feature = -1        
-            key = key.lower()      
+        if key.isupper() and key.lower() in self.shortcuts_labels:
+            has_feature = -1
+            key = key.lower()
         if has_feature != None:
             self.labels[key] = has_feature
             self.view.set_label_widget(key, has_feature)

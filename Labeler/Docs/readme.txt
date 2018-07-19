@@ -98,7 +98,7 @@ Labler is the package to be run as python -m Labeler
 # OOP Strategy
 ## Overview
 ### Desc
-https://wiki.wxpython.org/ModelViewPresenter   
+https://wiki.wxpython.org/ModelViewPresenter
     good overview in wx  and shows V<->P event Interactor class
     doesnt talk about Command
 
@@ -129,7 +129,7 @@ https://wiki.wxpython.org/ModelViewPresenter
 
 
 http://wiki.c2.com/?ModelViewPresenter   simple descrip Command pattern
-http://duganchen.ca/mvp-with-pyqt-with-a-model-layer/  
+http://duganchen.ca/mvp-with-pyqt-with-a-model-layer/
      I dont like this really because events are connected in the main
       initilization instead of being encapsulated in a generic interactor
        class.... but perhaps i take the gtsignal concept and put it into a Interactor
@@ -197,13 +197,13 @@ MVP
          instantiate all views into views{}
              each view is given its presenter
 
-         # Start things?   i.e. at instantiation a model have know the class of its presenter but it may have had to tell that presenter to do soething at start, but that class may not have been instantiated at the model's time of instantiation 
+         # Start things?   i.e. at instantiation a model have know the class of its presenter but it may have had to tell that presenter to do soething at start, but that class may not have been instantiated at the model's time of instantiation
 
          mainloop()
 
 ##  Example things going on;
 
-      guimodel defaults to labelerview as the current window and also has set lablerM as is_active 
+      guimodel defaults to labelerview as the current window and also has set lablerM as is_active
       current_window is monitored guiP
         it then tells guiview to raise the window
       GuiP registers escape to close window

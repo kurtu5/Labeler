@@ -35,7 +35,7 @@ class BaseObserver(object):
         obs = self._observed_name_map[name]
         observed = self._observed_map[obs]['callBacks']
         if func not in observed:
-            raise Exception(f'Function: {func}, Doesn\'t exist in callBacks.')     
+            raise Exception(f'Function: {func}, Doesn\'t exist in callBacks.')
         observed.remove(func)
 
     def _callback_all_do(self, obs):

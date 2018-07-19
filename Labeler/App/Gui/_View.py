@@ -32,7 +32,7 @@ class View(MVPBase.BaseView):
         self.root.grid_propagate(0)
         self.debug=False
         #main
-        self.main=self.debugFrame(self.root, text='main')  # has 1 col and 2 rows; w and s  
+        self.main=self.debugFrame(self.root, text='main')  # has 1 col and 2 rows; w and s
         self.main.grid_columnconfigure(0, weight=1)  # widen both w and s
         self.main.grid_rowconfigure(0, weight=1)  # heighten only w
 #         self.main.grid_rowconfigure(1, weight=0)

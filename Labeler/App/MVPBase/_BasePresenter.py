@@ -16,7 +16,7 @@ class BasePresenter(object):
     def start(self):
 #        print("PPPPPPPPPPP P, M, V, I, O", self, self.model, self.view,self.interactor,self.observer)
         """ Start M,V and P and then couple them """
-        # Start view 
+        # Start view
         # Since it can generate events, it doesn't need
         # to know about the Interactor instance
         self.view.start()
@@ -28,6 +28,6 @@ class BasePresenter(object):
         # instance to do so.
         self.model.start(self.observer)
         # Finish Coupling model events to presenter callbacks
-        self.observer.start(self) 
+        self.observer.start(self)
 
         # Derived Presenter will then start()

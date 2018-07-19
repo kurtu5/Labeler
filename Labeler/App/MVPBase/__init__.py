@@ -19,7 +19,7 @@ from MVPBase._BaseObserver import BaseObserver
 #__all__ = [
 #        'Model',
 #        'View',
-#        'Presenter',     
+#        'Presenter',
 #        'Command',
 #        'Interactor',
 #        'Observable'
