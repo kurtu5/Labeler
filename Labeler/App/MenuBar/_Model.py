@@ -15,9 +15,9 @@ import MVPBase
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
     def app_exit(self):
         self.others['gui'].app_exit.set(True)
-        
+
     def window_show(self, window_name):
         self.others['gui'].window_current.set(window_name)

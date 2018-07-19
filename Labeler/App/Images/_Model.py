@@ -20,7 +20,7 @@ class Model(MVPBase.BaseModel):
         self.index = None
         self.images = None
         self.current_image = None
-        
+
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 
@@ -34,7 +34,7 @@ class Model(MVPBase.BaseModel):
         self.index = self.index + 1 if self.index < len(self.images) - 1 else 0
         self.current_image = f'{self.path}\\{self.images[self.index]}'
         return self.current_image
-    
+
     def prev(self):
         self.index = self.index - 1 if self.index > 0 else len(self.images) - 1
         self.current_image = f'{self.path}\\{self.images[self.index]}'

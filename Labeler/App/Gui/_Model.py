@@ -18,7 +18,7 @@ class Model(MVPBase.BaseModel):
         self.window_map = {}  # name => root
         self.window_current = None
         self.status_text = None
-    
+
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         self.app_exit = self.observer.observe_as('app_exit', False)
@@ -27,7 +27,7 @@ class Model(MVPBase.BaseModel):
 
     def window_add(self, name, root):
         self.window_map[name] = root
-        
+
     def window_show(self, name):
         self.window_current.set(name)
 

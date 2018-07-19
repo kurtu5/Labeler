@@ -17,16 +17,16 @@ import MVPBase
 class Interactor(MVPBase.BaseInteractor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
     # called by mvpbase_presenter.start()
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         # now view and presenter are coupled
         self.callback_register_all()
-        
+
     def callback_register_all(self):
         presenter = self.presenter
-        
+
         bind1 = self.view.bind.register(
                 self.view.root, '<Key>',
                 lambda event: self.presenter.on_keypress(event.keysym),

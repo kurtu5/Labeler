@@ -21,7 +21,7 @@ import Images
 class App(object):
     def __init__(self):
         self.root = None
-   
+
     def start(self):
         # I don't think I need further access to instances, but I'll save them anyway
         self.root = tk.Tk()
@@ -39,7 +39,7 @@ class App(object):
         self.menuV = MenuBar.View(self.root)
         self.menuI = MenuBar.Interactor()
         self.menuP = MenuBar.Presenter(self.menuV, self.menuI, self.menuM, self.menuO)
-        
+
 #        # Testing window
         self.testO = TestWindow.Observer()
         self.testM = TestWindow.Model('test', [self.guiM])
@@ -51,7 +51,7 @@ class App(object):
 #        self.genM = GenericWindow.Model('generic', {'gui': self.guiM})
 #        self.genV = GenericWindow.View(self.guiV.window)
 #        self.genP = GenericWindow.Presenter(self.genV, self.genM)
-        
+
         # Image labeling window
         self.imagesM = Images.Model('images')
         self.labelerO = LabelerWindow.Observer()
@@ -66,12 +66,12 @@ class App(object):
         self.optionsV = OptionsWindow.View(self.guiV.window)
         self.optionsI = OptionsWindow.Interactor()
         self.optionsP = OptionsWindow.Presenter(self.optionsV, self.optionsI, self.optionsM, self.optionsO)
-                
+
         # Config model when implemented should handle the first page to show
 #        self.guiM.window_current('labeler')
-        
+
     def run(self):
         """ Start the application """
         self.start()
-      
+
         self.root.mainloop()

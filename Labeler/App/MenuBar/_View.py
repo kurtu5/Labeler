@@ -21,11 +21,11 @@ class View(MVPBase.BaseView):
         self.menu = tk.Menu(self.root)
         self.filemenu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label='File', menu=self.filemenu)
-        
+
         self.viewmenu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label='View', menu=self.viewmenu)
-        
-        
+
+
     def start(self):
 #             print('============menu started')
             super().start()

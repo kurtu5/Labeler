@@ -29,14 +29,14 @@ class Presenter(MVPBase.BasePresenter):
         if ( key == 'Escape'):
             # Let the model decide what to do on app_exit
             self.model.app_exit.set(True)
-    
+
     ### Model Observer event handlers
     def on_app_exit(self):
         self.view.app_exit()
-        
+
     # As directed by model when window_current changes
     def on_window_show(self, window_name):
         self.view.window_show(self.model.window_map[window_name])
-        
+
     def on_status_text(self, text):
         self.view.status_text_set(text)

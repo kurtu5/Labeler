@@ -12,15 +12,14 @@ sys.path.insert(0, path)
 
 import MVPBase
 from tkCustom._Debug import D
- 
+
 class Presenter(MVPBase.BasePresenter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Deals with setting/unsetting binds and window management """
         self.start()
-    
+
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         self.model.others['gui'].window_add('labeler', self.view.get_root())
 
-  

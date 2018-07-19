@@ -16,7 +16,7 @@ class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
-     
+
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        
+

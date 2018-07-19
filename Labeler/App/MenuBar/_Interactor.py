@@ -17,19 +17,19 @@ import MVPBase
 class Interactor(MVPBase.BaseInteractor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
     # called by mvpbase_presenter.start()
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         # now view and presenter are coupled
         self.callback_register_all()
-        
+
     def callback_register_all(self):
         p = self.presenter
         v = self.view
         fm=v.filemenu.add_command
         fm(label='Exit', command=p.on_app_exit)
-        
+
         vm=v.viewmenu.add_command
         vm(label='Test', command=lambda: p.on_window_show('test'))
         vm(label='Labeler', command=lambda: p.on_window_show('labeler'))

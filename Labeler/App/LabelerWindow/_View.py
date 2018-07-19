@@ -24,7 +24,7 @@ class View(MVPBase.BaseView):
 
 #         self.controller = controller 
         self.label_widgets = {}
-        
+
         self.font = Font(size=24)
         self.default_scale = 0.2
 #        self.scale = 1.0;   # Initial Image scale
@@ -33,16 +33,16 @@ class View(MVPBase.BaseView):
 
     def scroll(self, amount):
         self.canvas.yview_scroll(amount, "units")
-        
+
     def image_load(self, file):
 #        self.scale = self.default_scale
         self.image_orig = Image.open(file)
-        
+
     def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
         #delete and redraw if scaled
         if self.image_id:
             self.canvas.delete(self.image_id)
-        
+
         # Conditionaly scale
         if scale != 1.0:
             # Do stuff to center zoomed in middle
@@ -57,7 +57,7 @@ class View(MVPBase.BaseView):
             px = (cx - hcw) / cw
             py = (cy - hch) / ch
             #D.ebug(f'cw,ch = {cw},{ch},  x,y = {x}, {y}, cx,cy = {cx},{cy}, hcw,hch={hcw},{hch},  px,py = {px*100:.0f},{py*100:.0f} ')
-       
+
             iw, ih = self.image_orig.size
             size = int(iw * scale), int(ih * scale)
             img = ImageTk.PhotoImage(self.image_orig.resize(size))
@@ -76,15 +76,15 @@ class View(MVPBase.BaseView):
         # Reset scrollbars
         self.canvas.xview('moveto', px)
         self.canvas.yview('moveto', py)  
- 
-        
- 
+
+
+
     def debugFrame(self, parent, text, on=True):
         if self.debug == True:
             return self.tk.LabelFrame(parent, text=text)
         elif self.debug == False:
             return self.tk.Frame(parent)
-        
+
     def set_label_widget(self, key, has_feature):
         if has_feature == 1:
             self.label_widgets[key].config(foreground="green")
@@ -108,16 +108,16 @@ class View(MVPBase.BaseView):
             self.label_widgets[k].config(foreground="grey", font=self.font)
 #            self.label_widgets[k].pack()
             self.label_widgets[k].grid()
-        
+
     def start(self):
 
         self.main = self.debugFrame(self.root, text="labler main")
         self.main.grid(column=0, row=0, sticky='nsew')
-        
+
 #         self.main.grid(column=0, row=1, sticky='nsew')  # 1 col, 2 rows; top bottom
         self.main.grid_columnconfigure(1, weight=1)  # widen middle on resize
         self.main.grid_rowconfigure(0, weight=1)     # heighten bottom on resize
-        
+
         # Left frame
         self.left_frame = self.debugFrame(self.main, text="left frame")
         self.left_frame.grid(column=0, row=0, sticky='ns')  # fill space
@@ -129,12 +129,12 @@ class View(MVPBase.BaseView):
         self.middle_frame.grid(column=1, row=0, sticky='nsew')
         self.middle_frame.grid_columnconfigure(0, weight=1) # allow child to fill xy
         self.middle_frame.grid_rowconfigure(0, weight=1)
-        
+
        # Right
         self.right_frame = self.debugFrame(self.main, text="right frame")
         self.right_frame.grid(column=2, row=0, sticky='ns')
 #        self.right_frame.grid_columnconfigure(0, weight=1)
-            
+
         # Bottom
         self.bottom_frame = self.debugFrame(self.main, text="bottom frame")
         self.bottom_frame.grid(column=0, row=1, columnspan=3, sticky='nsew')
@@ -164,15 +164,15 @@ class View(MVPBase.BaseView):
         self.canvas = self.tk.Canvas(self.canvas_frame,
                         xscrollcommand=self.xscrollbar.set,
                         yscrollcommand=self.yscrollbar.set)
-        
+
         # Binds done in presenter below
-        
+
         self.canvas.grid(row=0, column=0, sticky='nsew')
-   
+
         self.xscrollbar.config(command=self.canvas.xview)
         self.yscrollbar.config(command=self.canvas.yview)
 
 #         self.create_label_widgets()   # let the models
 #         controller.mcs[LabelerMC].update_label_widgets()        
-        
+
         self.create_label_widgets()

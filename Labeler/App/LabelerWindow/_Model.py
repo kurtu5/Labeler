@@ -18,9 +18,8 @@ testdata = os.path.normpath(
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         #         print('labeler i should tell gui that im showable'
         self.others['images'].load_images(testdata)
-        

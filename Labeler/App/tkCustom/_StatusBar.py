@@ -10,4 +10,3 @@ class StatusBar(tk.Label):
         self.grid(sticky='we', padx=2, pady=2)
     def update(self, text):
         self.config(text=text)
-    

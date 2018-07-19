@@ -13,7 +13,7 @@ sys.path.insert(0, path)
 import MVPBase
 from tkCustom._Debug import D
 from PIL import ImageTk, Image
- 
+
 class Presenter(MVPBase.BasePresenter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,7 +24,7 @@ class Presenter(MVPBase.BasePresenter):
         self.image_file = None
         self.image_index = None
         self.start()
-        
+
     def start(self):
         super().start()
         # This stuff should be pulled from model and set to model
@@ -40,12 +40,12 @@ class Presenter(MVPBase.BasePresenter):
         self.image_file = self.model.others['images'].current_image
         self.image_index = self.model.others['images'].index
         self.view.image_load(self.image_file)
-    
+
     def image_show(self):
         # Update status string
         self.model.others['gui'].status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
         self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
-        
+
     def on_scale(self, scale, event):
 #         print("scale", self.scale, "eventxy", event.x, event.y)
         if scale == 1:
@@ -55,10 +55,10 @@ class Presenter(MVPBase.BasePresenter):
             self.scale_xloc = event.x
             self.scale_yloc = event.y
         self.image_show()
-    
+
     def on_scroll(self, amount):
         self.view.scroll(amount)
-        
+
 
     def on_mouse_wheel(self, event):
 #         print("mouse scroll","scroll",event.delta,"units")
@@ -70,7 +70,7 @@ class Presenter(MVPBase.BasePresenter):
             amount -= 1
 #         print("scroll by ", amount)
         self.on_scroll(amount)      
-        
+
     def on_keyevent(self, event):
         D.ebug(f'event={event}')
         if event.keysym == 'space' or event.keysym == 'Down':
@@ -108,5 +108,5 @@ class Presenter(MVPBase.BasePresenter):
             self.view.set_label_widget(key, has_feature)
             # set labels in model
 
-        
-        
+
+

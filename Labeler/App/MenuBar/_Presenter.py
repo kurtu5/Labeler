@@ -17,12 +17,12 @@ class Presenter(MVPBase.BasePresenter):
 #         print('menubar P init')
         super().__init__(*args, **kwargs)
         self.start()
-       
+
     def start(self):  
         super().start()
 
     def on_app_exit(self):
         self.model.app_exit()
-    
+
     def on_window_show(self, window_name):
         self.model.window_show(window_name)

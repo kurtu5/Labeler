@@ -16,7 +16,7 @@ class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
-        
+
     def start(self):
         self.main = self.tk.Frame(self.root)
         self.main.grid(column=0, row=0, sticky='nsew')

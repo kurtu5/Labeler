@@ -24,11 +24,11 @@ class BaseView(object):
         self.tkc = tkc
 #        self.presenter = None   # this should not exist
         self.root = root
-        
+
     def start(self):
         self.main = self.tk.Frame(self.root)
         self.main.grid()
         self.tk.Label(self.main, text="Override self.main in derived class start()")
-    
+
     def get_root(self):
         return self.main

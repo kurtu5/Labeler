@@ -9,13 +9,13 @@ class AutoSizegrip(ttk.Sizegrip):
         # works if you use the grid geometry manager.
         self.root = root
         self.root.bind('<Configure>', self.track)
-        
+
     def track(self, event):
         if self.root.state() == 'zoomed':
             self.grid_remove()
         else:
             self.grid()
-            
+
     def pack(self, **kw):
         raise tk.TclError("cannot use pack with this widget")
     def place(self, **kw):
