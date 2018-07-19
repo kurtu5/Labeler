@@ -20,7 +20,7 @@ class View(MVPBase.BaseView):
         super().__init__(*args, **kwargs)
         self.image_id = None   # Canvas image id
         self.image_orig = None # PIL.Image
-        self.debug = False
+        self.debug = True
 
 #         self.controller = controller 
         self.label_widgets = {}
@@ -35,27 +35,40 @@ class View(MVPBase.BaseView):
         self.main.grid(column=0, row=0, sticky='nsew')
         
 #         self.main.grid(column=0, row=1, sticky='nsew')  # 1 col, 2 rows; top bottom
-        self.main.grid_columnconfigure(0, weight=1)  # widen top and bottom on resize
-        self.main.grid_rowconfigure(1, weight=1)     # heighten bottom on resize
+        self.main.grid_columnconfigure(1, weight=1)  # widen middle on resize
+        self.main.grid_rowconfigure(0, weight=1)     # heighten bottom on resize
         
-#         self.canvas = tk.Canvas()
-        # Top frame
-        self.top_frame = self.tk.Frame(self.main)
-        self.top_frame.grid(column=0, row=0, sticky='ew')  # fill space
-        self.top_frame.grid_columnconfigure(0, weight=1) # allow child to widen
+        # Left frame
+        self.left_frame = self.debugFrame(self.main, text="left frame")
+        self.left_frame.grid(column=0, row=0, sticky='ns')  # fill space
+#        self.left_frame.grid_columnconfigure(0, weight=1) # allow child to widen
+#        self.left_frame.grid_rowconfigure(0, weight=1) # allow child to heighten
 
+        # Middle
+        self.middle_frame = self.debugFrame(self.main, text="middle frame")
+        self.middle_frame.grid(column=1, row=0, sticky='nsew')
+        self.middle_frame.grid_columnconfigure(0, weight=1) # allow child to fill xy
+        self.middle_frame.grid_rowconfigure(0, weight=1)
+        
+       # Right
+        self.right_frame = self.debugFrame(self.main, text="right frame")
+        self.right_frame.grid(column=2, row=0, sticky='ns')
+#        self.right_frame.grid_columnconfigure(0, weight=1)
+            
         # Bottom
-        self.bottom_frame = self.tk.Frame(self.main)
-        self.bottom_frame.grid(column=0, row=1, sticky='nsew')
-        self.bottom_frame.grid_columnconfigure(0, weight=1) # allow child to fill xy
-        self.bottom_frame.grid_rowconfigure(0, weight=1)
-
+        self.bottom_frame = self.debugFrame(self.main, text="bottom frame")
+        self.bottom_frame.grid(column=0, row=1, columnspan=3, sticky='nsew')
+        self.bottom_frame.grid_columnconfigure(0, weight=1)
 #         parent.grid_propagate=(0)
 
-        self.tk.Label(self.top_frame, text='example topframe content').grid(sticky='ew')
+        self.tk.Label(self.left_frame, text='example left frame content').grid(sticky='ns')
+#        self.tk.Label(self.middle_frame, text='example  middle frame content').grid(sticky='nsew')
+#        self.tk.Label(self.right_frame, text='example right frame content').grid(sticky='ns')
+
+#        self.tk.Label(self.bottom_frame, text='example bottom frame content').grid(sticky='ew')
 #         tk.Label(self.bottom_frame, text='example').grid(sticky='nsew')
 
-        self.canvas_frame = self.debugFrame(self.bottom_frame, text='image')
+        self.canvas_frame = self.debugFrame(self.middle_frame, text='image')
         self.canvas_frame.grid_columnconfigure(0, weight=1)
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid()
@@ -142,3 +155,30 @@ class View(MVPBase.BaseView):
             return self.tk.LabelFrame(parent, text=text)
         elif self.debug == False:
             return self.tk.Frame(parent)
+        
+    def set_label_widget(self, key, has_feature):
+        if has_feature == 1:
+            self.label_widgets[key].config(foreground="green")
+        if has_feature == 0:
+            self.label_widgets[key].config(foreground="red")
+        if has_feature == -1:
+            self.label_widgets[key].config(foreground="grey")
+
+    def create_label_widgets(self):
+#         shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
+        shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
+
+        for k,v in shortcuts_labels.items():
+            tmp = self.tk.Frame(self.left_frame)
+#            tmp.pack(side='left', padx=40, expand=True )
+            tmp.grid(sticky='w', padx=40)#, expand=True )
+
+            self.tk.Label(tmp,text='Key: '+k).grid()
+
+            self.label_widgets[k] = self.tk.Label(tmp, text=v)
+            self.label_widgets[k].config(foreground="grey", font=self.font)
+#            self.label_widgets[k].pack()
+            self.label_widgets[k].grid()
+        
+    def start(self):
+        self.create_label_widgets()

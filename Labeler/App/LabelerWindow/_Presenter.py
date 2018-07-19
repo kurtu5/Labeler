@@ -27,7 +27,10 @@ class Presenter(MVPBase.BasePresenter):
         
     def start(self):
         super().start()
-        
+        # This stuff should be pulled from model and set to model
+        self.shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
+        self.labels = {}  # When controller loads image, should set this from csv
+
          # Let guiM know im showable
         self.model.other_models['gui'].window_add('labeler', self.view.get_root())
         self.image_load()
@@ -82,6 +85,27 @@ class Presenter(MVPBase.BasePresenter):
             self.model.other_models['images'].prev()
             self.image_load()
             self.image_show()
+        # Pass to shortcut to check if one was used
+        self.on_keyshortcut(event)
+
+    def on_keyshortcut(self, event):
+        """ Use shortcuts to label features as 0=no 1=yes -1=unknown """
+        key = event.char
+        has_feature = None
+        if key in self.shortcuts_labels:
+#           # Label it 1 if it doesn't exist or was 0
+            if key not in self.labels or self.labels[key] == 0 or self.labels[key] == -1:
+                has_feature = 1
+            # Label it 0 otherwise
+            elif self.labels[key] == 1:
+                has_feature = 0        
+            # If the Shift modifier set as unknown
+        if key.isupper() and key.lower() in self.shortcuts_labels:            
+            has_feature = -1        
+            key = key.lower()      
+        if has_feature != None:
+            self.labels[key] = has_feature
+            self.view.set_label_widget(key, has_feature)
 
         
         
