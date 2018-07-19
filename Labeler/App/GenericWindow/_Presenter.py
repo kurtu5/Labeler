@@ -21,5 +21,15 @@ class Presenter(MVPBase.BasePresenter):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        self.model.others['gui'].window_add('labeler', self.view.get_root())
+        self.model.others['gui'].window_model_add(self.model)
+
+    ### View Interactor event handlers
+
+
+    ### Model Observer event handlers
+
+#   Use this if this is an application window
+#    def on_window_enable(self, enable):
+#         # Ingore enable unless you want to do something
+#         self.view.window_enable()
 

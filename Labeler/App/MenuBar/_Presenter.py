@@ -24,5 +24,5 @@ class Presenter(MVPBase.BasePresenter):
     def on_app_exit(self):
         self.model.app_exit()
 
-    def on_window_show(self, window_name):
-        self.model.window_show(window_name)
+    def on_window_enable(self, name):
+        self.model.others['gui'].window_model_activate(name)

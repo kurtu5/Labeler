@@ -31,7 +31,7 @@ class Interactor(MVPBase.BaseInteractor):
         fm(label='Exit', command=p.on_app_exit)
 
         vm=v.viewmenu.add_command
-        vm(label='Test', command=lambda: p.on_window_show('test'))
-        vm(label='Labeler', command=lambda: p.on_window_show('labeler'))
-        vm(label='Options', command=lambda: p.on_window_show('options'))
+        vm(label='Test', command=lambda: p.on_window_enable('test'))
+        vm(label='Labeler', command=lambda: p.on_window_enable('labeler'))
+        vm(label='Options', command=lambda: p.on_window_enable('options'))
 

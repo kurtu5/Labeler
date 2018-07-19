@@ -16,6 +16,9 @@ class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def window_enable(self):
+        self.main.tkraise()
+
     def start(self):
         self.main = self.tk.LabelFrame(self.root, text="test main")
         self.main.grid(column=0, row=0, sticky='nsew')

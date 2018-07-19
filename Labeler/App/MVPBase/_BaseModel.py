@@ -11,9 +11,13 @@ class BaseModel(object):
         if other_models:
             for other in other_models:
                 self.add_model(other)
+                
+        self.window_enabled = False
+
 
     def add_model(self, other):
         self.others[other.name]=other
 
     def start(self, observer):
         self.observer = observer
+        self.window_enabled = self.observer.observe_as('window_enable', False)

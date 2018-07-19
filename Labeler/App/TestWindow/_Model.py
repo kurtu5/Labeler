@@ -15,8 +15,9 @@ import MVPBase
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+#        self.window_enabled = False
+
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-#         print('testM i should tell gui that im showable')
-        pass
+#        self.window_enabled = self.observer.observe_as('window_enable', False)

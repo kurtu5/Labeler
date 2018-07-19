@@ -32,7 +32,7 @@ class Presenter(MVPBase.BasePresenter):
         self.labels = {}  # When controller loads image, should set this from csv
 
          # Let guiM know im showable
-        self.model.others['gui'].window_add('labeler', self.view.get_root())
+        self.model.others['gui'].window_model_add(self.model)
         self.image_load()
         self.image_show()
 
@@ -45,6 +45,15 @@ class Presenter(MVPBase.BasePresenter):
         # Update status string
         self.model.others['gui'].status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
         self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
+
+    ### View Interactor event handlers
+
+
+    ### Model Observer event handlers
+    def on_window_enable(self, enable):
+        # Ingore enable unless you want to do something
+        self.view.window_enable()
+
 
     def on_scale(self, scale, event):
 #         print("scale", self.scale, "eventxy", event.x, event.y)

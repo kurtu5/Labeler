@@ -20,3 +20,7 @@ class View(MVPBase.BaseView):
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 
+#   Use this if this is an application window
+#    def window_enable(self):
+#        self.main.tkraise()
+

@@ -109,6 +109,9 @@ class View(MVPBase.BaseView):
 #            self.label_widgets[k].pack()
             self.label_widgets[k].grid()
 
+    def window_enable(self):
+         self.main.tkraise()
+
     def start(self):
 
         self.main = self.debugFrame(self.root, text="labler main")

@@ -9,11 +9,6 @@ class BaseObserver(object):
     def callback_register_all(self):
         """ Override in derived class to define event callbacks """
         pass
-#        o = self._observer
-        # or o.somemethod(data)
-#        self.cb1 = lambda x: print(f'x={x}')
-#        self.callback_add('w1', cb1)
-
 
     def start(self, observer):
         self._observer = observer

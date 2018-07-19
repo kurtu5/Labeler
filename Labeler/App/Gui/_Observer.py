@@ -33,4 +33,5 @@ class Observer(MVPBase.BaseObserver):
 
         stext = self.callback_add('status_text', presenter.on_status_text)
 
-        foo = self.callback_add('window_current', presenter.on_window_show)
+        # If I want the gui to change is a window raised, do this
+#        foo = self.callback_add('window_model_current', presenter.on_window_show)

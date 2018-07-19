@@ -15,6 +15,12 @@ import MVPBase
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+#       Use this if this is a applicaion window
+#        self.window_enable = False
+
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
+#        Use this if this is a applicaion window
+#        self.window_enable = self.observer.observe_as('window_enable', False)
+

@@ -15,21 +15,27 @@ import MVPBase
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.window_map = {}  # name => root
-        self.window_current = None
+        self.window_model_map = {}  # model.name => model
+        self.window_model_current = None
         self.status_text = None
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         self.app_exit = self.observer.observe_as('app_exit', False)
-        self.window_current = self.observer.observe_as('window_current', False)
+        self.window_model_current = self.observer.observe_as('window_model_current')
         self.status_text = self.observer.observe_as('status_text')
 
-    def window_add(self, name, root):
-        self.window_map[name] = root
+    def window_model_add(self, model):
+        self.window_model_map[model.name] = model
 
-    def window_show(self, name):
-        self.window_current.set(name)
+    def window_model_activate(self, name):
+        # Disable any previous window
+        if self.window_model_current.get() != None:
+            self.window_model_map[name].window_enabled.set(False)
+        # Enable new window
+        self.window_model_map[name].window_enabled.set(True)
+        self.window_model_current.set(self.window_model_map[name])
+
 
     def app_exit(self):
         # TODO add sanity checking to see if things need to be saved
