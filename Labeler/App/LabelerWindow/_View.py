@@ -20,7 +20,7 @@ class View(MVPBase.BaseView):
         super().__init__(*args, **kwargs)
         self.image_id = None   # Canvas image id
         self.image_orig = None # PIL.Image
-        self.debug = True
+        self.debug = False
 
 #         self.controller = controller 
         self.label_widgets = {}
@@ -30,6 +30,86 @@ class View(MVPBase.BaseView):
 #        self.scale = 1.0;   # Initial Image scale
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
+
+    def scroll(self, amount):
+        self.canvas.yview_scroll(amount, "units")
+        
+    def image_load(self, file):
+#        self.scale = self.default_scale
+        self.image_orig = Image.open(file)
+        
+    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
+        #delete and redraw if scaled
+        if self.image_id:
+            self.canvas.delete(self.image_id)
+        
+        # Conditionaly scale
+        if scale != 1.0:
+            # Do stuff to center zoomed in middle
+            cw = self.canvas.winfo_reqwidth()  
+            ch = self.canvas.winfo_reqheight()
+            x = scale_xloc
+            y = scale_yloc
+            cx = self.canvas.canvasx(x)
+            cy = self.canvas.canvasy(y)
+            hcw = self.canvas.winfo_width() / 2
+            hch = self.canvas.winfo_height() / 2
+            px = (cx - hcw) / cw
+            py = (cy - hch) / ch
+            #D.ebug(f'cw,ch = {cw},{ch},  x,y = {x}, {y}, cx,cy = {cx},{cy}, hcw,hch={hcw},{hch},  px,py = {px*100:.0f},{py*100:.0f} ')
+       
+            iw, ih = self.image_orig.size
+            size = int(iw * scale), int(ih * scale)
+            img = ImageTk.PhotoImage(self.image_orig.resize(size))
+
+            self.image_id = self.canvas.create_image(0, 0, anchor='nw', image=img)
+        else:
+#             print("not scaling image")
+            px = 0
+            py = 0
+            img = ImageTk.PhotoImage(self.image_orig)
+            self.image_id = self.canvas.create_image(0,0, anchor='nw', image=img)
+
+        self.canvas.image = img
+        self.canvas.config(scrollregion=(0,0, img.width(), img.height()))
+        self.canvas.config(height=img.height(), width=img.width())
+        # Reset scrollbars
+        self.canvas.xview('moveto', px)
+        self.canvas.yview('moveto', py)  
+ 
+        
+ 
+    def debugFrame(self, parent, text, on=True):
+        if self.debug == True:
+            return self.tk.LabelFrame(parent, text=text)
+        elif self.debug == False:
+            return self.tk.Frame(parent)
+        
+    def set_label_widget(self, key, has_feature):
+        if has_feature == 1:
+            self.label_widgets[key].config(foreground="green")
+        if has_feature == 0:
+            self.label_widgets[key].config(foreground="red")
+        if has_feature == -1:
+            self.label_widgets[key].config(foreground="grey")
+
+    def create_label_widgets(self):
+#         shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
+        shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
+
+        for k,v in shortcuts_labels.items():
+            tmp = self.tk.Frame(self.left_frame)
+#            tmp.pack(side='left', padx=40, expand=True )
+            tmp.grid(sticky='w', padx=40)#, expand=True )
+
+            self.tk.Label(tmp,text='Key: '+k).grid()
+
+            self.label_widgets[k] = self.tk.Label(tmp, text=v)
+            self.label_widgets[k].config(foreground="grey", font=self.font)
+#            self.label_widgets[k].pack()
+            self.label_widgets[k].grid()
+        
+    def start(self):
 
         self.main = self.debugFrame(self.root, text="labler main")
         self.main.grid(column=0, row=0, sticky='nsew')
@@ -93,92 +173,6 @@ class View(MVPBase.BaseView):
         self.yscrollbar.config(command=self.canvas.yview)
 
 #         self.create_label_widgets()   # let the models
-#         controller.mcs[LabelerMC].update_label_widgets()
+#         controller.mcs[LabelerMC].update_label_widgets()        
         
-    def scroll(self, amount):
-        self.canvas.yview_scroll(amount, "units")
-        
-    def image_load(self, file):
-#        self.scale = self.default_scale
-        self.image_orig = Image.open(file)
-        
-    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
-        #delete and redraw if scaled
-        if self.image_id:
-            self.canvas.delete(self.image_id)
-        
-        # Conditionaly scale
-        if scale != 1.0:
-            # Do stuff to center zoomed in middle
-            cw = self.canvas.winfo_reqwidth()  
-            ch = self.canvas.winfo_reqheight()
-            x = scale_xloc
-            y = scale_yloc
-            cx = self.canvas.canvasx(x)
-            cy = self.canvas.canvasy(y)
-            hcw = self.canvas.winfo_width() / 2
-            hch = self.canvas.winfo_height() / 2
-            px = (cx - hcw) / cw
-            py = (cy - hch) / ch
-            #D.ebug(f'cw,ch = {cw},{ch},  x,y = {x}, {y}, cx,cy = {cx},{cy}, hcw,hch={hcw},{hch},  px,py = {px*100:.0f},{py*100:.0f} ')
-       
-            iw, ih = self.image_orig.size
-            size = int(iw * scale), int(ih * scale)
-            img = ImageTk.PhotoImage(self.image_orig.resize(size))
-
-            self.image_id = self.canvas.create_image(0, 0, anchor='nw', image=img)
-        else:
-#             print("not scaling image")
-            px = 0
-            py = 0
-            img = ImageTk.PhotoImage(self.image_orig)
-            self.image_id = self.canvas.create_image(0,0, anchor='nw', image=img)
-
-        self.canvas.image = img
-        self.canvas.config(scrollregion=(0,0, img.width(), img.height()))
-        self.canvas.config(height=img.height(), width=img.width())
-        # Reset scrollbars
-        self.canvas.xview('moveto', px)
-        self.canvas.yview('moveto', py)  
- 
-        
-        
-        
-        
-        
-        
-    def get_root(self):
-        return self.main
-    
-    def debugFrame(self, parent, text, on=True):
-        if self.debug == True:
-            return self.tk.LabelFrame(parent, text=text)
-        elif self.debug == False:
-            return self.tk.Frame(parent)
-        
-    def set_label_widget(self, key, has_feature):
-        if has_feature == 1:
-            self.label_widgets[key].config(foreground="green")
-        if has_feature == 0:
-            self.label_widgets[key].config(foreground="red")
-        if has_feature == -1:
-            self.label_widgets[key].config(foreground="grey")
-
-    def create_label_widgets(self):
-#         shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
-        shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
-
-        for k,v in shortcuts_labels.items():
-            tmp = self.tk.Frame(self.left_frame)
-#            tmp.pack(side='left', padx=40, expand=True )
-            tmp.grid(sticky='w', padx=40)#, expand=True )
-
-            self.tk.Label(tmp,text='Key: '+k).grid()
-
-            self.label_widgets[k] = self.tk.Label(tmp, text=v)
-            self.label_widgets[k].config(foreground="grey", font=self.font)
-#            self.label_widgets[k].pack()
-            self.label_widgets[k].grid()
-        
-    def start(self):
         self.create_label_widgets()

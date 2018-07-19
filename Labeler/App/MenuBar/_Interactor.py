@@ -33,5 +33,5 @@ class Interactor(MVPBase.BaseInteractor):
         vm=v.viewmenu.add_command
         vm(label='Test', command=lambda: p.on_window_show('test'))
         vm(label='Labeler', command=lambda: p.on_window_show('labeler'))
-        vm(label='Generic', command=lambda: p.on_window_show('generic'))
+        vm(label='Options', command=lambda: p.on_window_show('options'))
 

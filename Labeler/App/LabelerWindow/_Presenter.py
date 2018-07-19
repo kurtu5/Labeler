@@ -106,6 +106,7 @@ class Presenter(MVPBase.BasePresenter):
         if has_feature != None:
             self.labels[key] = has_feature
             self.view.set_label_widget(key, has_feature)
+            # set labels in model
 
         
         

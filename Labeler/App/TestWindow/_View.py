@@ -15,7 +15,8 @@ import MVPBase
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        """ Setup basic window manager """
+
+    def start(self):
         self.main = self.tk.LabelFrame(self.root, text="test main")
         self.main.grid(column=0, row=0, sticky='nsew')
         self.main.grid_columnconfigure(0, weight=1)
@@ -25,6 +26,3 @@ class View(MVPBase.BaseView):
         self.lf.grid_columnconfigure(0, weight=1)
         self.lb = self.tk.Label(self.lf, text="1 may do 2 things,  2 disables second, 3 enables it")
         self.lb.grid(sticky='ew')
-        
-    def get_root(self):
-        return self.main

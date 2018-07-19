@@ -12,10 +12,10 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class Model(MVPBase.ModelBase):
+class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    def start(self):
-#         print('testM i should tell gui that im showable')
-        pass
+    def start(self, *args, **kwargs):
+        super().start(*args, **kwargs)
+        

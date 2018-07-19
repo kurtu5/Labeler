@@ -26,8 +26,9 @@ class BaseView(object):
         self.root = root
         
     def start(self):
-        pass
+        self.main = self.tk.Frame(self.root)
+        self.main.grid()
+        self.tk.Label(self.main, text="Override self.main in derived class start()")
     
-#         self.bind_t('<sometype>', self.presenter_class.function)
-#     def start(self, presenter):
-#         pass
+    def get_root(self):
+        return self.main

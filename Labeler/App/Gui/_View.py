@@ -18,6 +18,14 @@ class View(MVPBase.BaseView):
         """ Setup basic window manager """
 
 # set in super        self.root = root # tk.Tk() 1 col 1 row; holds main
+      
+    def debugFrame(self, parent, text, on=True):
+        if self.debug == True:
+            return self.tk.LabelFrame(parent, text=text)
+        elif self.debug == False:
+            return self.tk.Frame(parent)
+        
+    def start(self, *a, **kw):
         self.root.grid_columnconfigure(0, weight=1) # have main fill on resize
         self.root.grid_rowconfigure(0, weight=1)
 #         self.root.resizable(0,0)
@@ -65,19 +73,10 @@ class View(MVPBase.BaseView):
         self.root.lift()
         self.root.focus_force()
 #         self.current_window_class = None
+
         
-    def debugFrame(self, parent, text, on=True):
-        if self.debug == True:
-            return self.tk.LabelFrame(parent, text=text)
-        elif self.debug == False:
-            return self.tk.Frame(parent)
-        
-    def start(self, *a, **kw):
-        pass
-    
     # Methods for presenter to call
     def window_show(self, window_root):
-        print("gui view win show")
         window_root.tkraise()
         
     def status_text_set(self, text):

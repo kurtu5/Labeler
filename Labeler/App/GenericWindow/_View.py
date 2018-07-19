@@ -12,10 +12,11 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class View(MVPBase.ViewBase):
+class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
-        self.main = self.tk.LabelFrame(self.root, text="test main")
-        self.main.grid(column=0, row=0, sticky='nsew')
-        self.main.grid_columnconfigure(0, weight=1)
+     
+    def start(self, *args, **kwargs):
+        super().start(*args, **kwargs)
+        
