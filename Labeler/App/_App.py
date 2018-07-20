@@ -66,9 +66,9 @@ class App(object):
         self.optionsV = OptionsWindow.View(self.guiV.window)
         self.optionsI = OptionsWindow.Interactor()
         self.optionsP = OptionsWindow.Presenter(self.optionsV, self.optionsI, self.optionsM, self.optionsO)
-
-        # Config model when implemented should handle the first page to show
-#        self.guiM.window_current('labeler')
+   
+        # Make labeler the default window
+        self.guiM.window_model_activate('labeler')
 
     def run(self):
         """ Start the application """

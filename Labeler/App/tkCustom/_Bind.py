@@ -11,7 +11,7 @@ class Bind(object):
         """ store desired binds in registry """
         bind_id = f'bind_{len(self.registry)}'
         self.registry[bind_id]=[parent, sequence, func, add, None, False]
-        self.activate(bind_id, True)
+#        self.activate(bind_id, True)
         return bind_id
 
     def isactive(self, bind_id):

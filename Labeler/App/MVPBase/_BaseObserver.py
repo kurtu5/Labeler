@@ -13,6 +13,12 @@ class BaseObserver(object):
     def start(self, observer):
         self._observer = observer
         self.callback_register_all()
+        
+    def enable(self, exclude_list):
+        pass
+    
+    def disable(self, exclude_list):
+        pass
 
     def callback_add(self, name, func):
         if name not in self._observed_name_map.keys():
@@ -55,14 +61,14 @@ class BaseObserver(object):
             self._name = name
             self._data = value
 
-        def _callback_add(self, func):
-            BaseObserver.callback_add(self._parent, self._name, func)
-
-        def _callback_del(self, func):
-            BaseObserver.callback_del(self._parent, self._name, func)
-
-        def callback_all_enable(self, enable):
-            BaseObserver.callback_all_enable(self._parent, self, enable)
+#        def _callback_add(self, func):
+#            BaseObserver.callback_add(self._parent, self._name, func)
+#
+#        def _callback_del(self, func):
+#            BaseObserver.callback_del(self._parent, self._name, func)
+#
+#        def callback_all_enable(self, enable):
+#            BaseObserver.callback_all_enable(self._parent, self, enable)
 
         def callback_all_do(self):
             BaseObserver._callback_all_do(self._parent, self)

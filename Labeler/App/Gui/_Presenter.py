@@ -22,7 +22,6 @@ class Presenter(MVPBase.BasePresenter):
 
     def start(self):
         super().start()
-#        self.view.window_show(self.model.window_map['labeler'])
 
     ### View Interactor event handlers
     def on_keypress(self, key):

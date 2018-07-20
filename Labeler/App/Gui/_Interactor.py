@@ -31,3 +31,4 @@ class Interactor(MVPBase.BaseInteractor):
                 self.view.root, '<Key>',
                 lambda event: self.presenter.on_keypress(event.keysym),
                 )
+        self.view.bind.activate_all(True)
