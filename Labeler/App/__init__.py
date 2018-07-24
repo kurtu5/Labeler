@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-#print(f'import App __init__ __name__={__name__}')
-
 # Make import work like include(./../pkg)
 import os, sys
 try:

@@ -16,7 +16,6 @@ import tkCustom as tkc
 
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
-#         print('menubarV init')
         super().__init__(*args, **kwargs)
         self.menu = tk.Menu(self.root)
         self.filemenu = tk.Menu(self.menu, tearoff=0)
@@ -27,6 +26,5 @@ class View(MVPBase.BaseView):
 
 
     def start(self):
-#             print('============menu started')
             super().start()
             self.root.config(menu=self.menu)

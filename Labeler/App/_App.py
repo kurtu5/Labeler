@@ -66,7 +66,7 @@ class App(object):
         self.optionsV = OptionsWindow.View(self.guiV.window)
         self.optionsI = OptionsWindow.Interactor()
         self.optionsP = OptionsWindow.Presenter(self.optionsV, self.optionsI, self.optionsM, self.optionsO)
-   
+
         # Make labeler the default window
         self.guiM.window_model_activate('labeler')
 

@@ -22,9 +22,10 @@ class Interactor(MVPBase.BaseInteractor):
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         # now view and presenter are coupled
-        self.callback_register_all()
+        self.event_all_activate()
 
-    def callback_register_all(self):
+    def event_all_register(self):
+        # These events are always bound and dont use interactor
         p = self.presenter
         v = self.view
         fm=v.filemenu.add_command

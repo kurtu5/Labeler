@@ -1,5 +1,3 @@
-#print(f'import Images __init__ __name__={__name__}')
-
 # Make import work like include(./../pkg)
 import os, sys
 try:

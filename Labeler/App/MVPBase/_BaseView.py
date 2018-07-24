@@ -15,7 +15,6 @@ import tkCustom as tkc
 
 class BaseView(object):
     def __init__(self, root):
-#        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
 
         """ Create empty bind class to store toggelabe binds and set parent tk object """
         # non dynamic start
@@ -28,7 +27,7 @@ class BaseView(object):
     def start(self):
         self.main = self.tk.Frame(self.root)
         self.main.grid()
-        self.tk.Label(self.main, text="Override self.main in derived class start()")
+        self.tk.Label(self.main, text="Overwrite self.main in derived class start()")
 
-    def get_root(self):
-        return self.main
+    def window_show(self):
+         self.main.tkraise()

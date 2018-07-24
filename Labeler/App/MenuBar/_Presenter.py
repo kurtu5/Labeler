@@ -14,7 +14,6 @@ import MVPBase
 
 class Presenter(MVPBase.BasePresenter):
     def __init__(self, *args, **kwargs):
-#         print('menubar P init')
         super().__init__(*args, **kwargs)
         self.start()
 

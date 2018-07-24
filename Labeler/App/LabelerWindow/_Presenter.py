@@ -35,6 +35,8 @@ class Presenter(MVPBase.BasePresenter):
         self.model.others['gui'].window_model_add(self.model)
         self.image_load()
         self.image_show()
+        self.observer.event_all_activate(True)
+
 
     def image_load(self):
         self.image_file = self.model.others['images'].current_image
@@ -51,12 +53,15 @@ class Presenter(MVPBase.BasePresenter):
 
     ### Model Observer event handlers
     def on_window_enable(self, enable):
-        # Ingore enable unless you want to do something
-        self.view.window_enable()
+        super().on_window_enable(enable)
+        self.interactor.event_all_activate()
+
+#        self.interactor.event_all_activate(enable)
+
+
 
 
     def on_scale(self, scale, event):
-#         print("scale", self.scale, "eventxy", event.x, event.y)
         if scale == 1:
             self.scale = 1.0
         else:
@@ -70,14 +75,12 @@ class Presenter(MVPBase.BasePresenter):
 
 
     def on_mouse_wheel(self, event):
-#         print("mouse scroll","scroll",event.delta,"units")
         amount = 0
         # Deal with linux and windows events
         if event.num == 5 or event.delta == -120:
             amount += 1
         elif event.num == 4 or event.delta == 120:
             amount -= 1
-#         print("scroll by ", amount)
         self.on_scroll(amount)
 
     def on_keyevent(self, event):

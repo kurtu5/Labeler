@@ -64,7 +64,6 @@ class View(MVPBase.BaseView):
 
             self.image_id = self.canvas.create_image(0, 0, anchor='nw', image=img)
         else:
-#             print("not scaling image")
             px = 0
             py = 0
             img = ImageTk.PhotoImage(self.image_orig)
@@ -109,8 +108,6 @@ class View(MVPBase.BaseView):
 #            self.label_widgets[k].pack()
             self.label_widgets[k].grid()
 
-    def window_enable(self):
-         self.main.tkraise()
 
     def start(self):
 

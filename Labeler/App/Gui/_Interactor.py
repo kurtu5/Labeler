@@ -22,13 +22,11 @@ class Interactor(MVPBase.BaseInteractor):
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
         # now view and presenter are coupled
-        self.callback_register_all()
+        self.event_all_activate()
 
-    def callback_register_all(self):
-        presenter = self.presenter
-
-        bind1 = self.view.bind.register(
-                self.view.root, '<Key>',
+    def event_all_register(self):
+        self.event_add((
+                self.view.root,
+                '<Key>',
                 lambda event: self.presenter.on_keypress(event.keysym),
-                )
-        self.view.bind.activate_all(True)
+                ))

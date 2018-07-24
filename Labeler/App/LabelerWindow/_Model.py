@@ -18,11 +18,9 @@ testdata = os.path.normpath(
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-#        self.window_enabled = False
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 #        self.window_enabled = self.observer.observe_as('window_enable', False)
 
-        #         print('labeler i should tell gui that im showable'
         self.others['images'].load_images(testdata)

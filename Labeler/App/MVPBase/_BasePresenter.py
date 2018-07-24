@@ -3,7 +3,6 @@
 class BasePresenter(object):
     def __init__(self, view, interactor, model, observer):
         """ Set instances for coupling """
-#        print(f'Init: Pkg:{__package__}  Cls:{__class__}' )
 
         # Set view and interactor to couple and process events
         self.view = view
@@ -14,7 +13,6 @@ class BasePresenter(object):
         self.observer = observer
 
     def start(self):
-#        print("PPPPPPPPPPP P, M, V, I, O", self, self.model, self.view,self.interactor,self.observer)
         """ Start M,V and P and then couple them """
         # Start view
         # Since it can generate events, it doesn't need
@@ -31,3 +29,7 @@ class BasePresenter(object):
         self.observer.start(self)
 
         # Derived Presenter will then start()
+    def on_window_enable(self, enable):
+        # Ingore enable unless you want to do something
+        if enable == True:
+            self.view.window_show()
