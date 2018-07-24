@@ -3,8 +3,7 @@ class BaseInteractor(object):
         self.view = None
         self.presenter = None
         self.event_groups = {}  # event_group => [event1,...],
-
-
+ 
     def start(self, presenter, view):
         self.presenter = presenter
         self.view = view
