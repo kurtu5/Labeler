@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 class BasePresenter(object):
     def __init__(self, view, interactor, model, observer):
         """ Set instances for coupling """
@@ -29,7 +27,14 @@ class BasePresenter(object):
         self.observer.start(self)
 
         # Derived Presenter will then start()
+
+    # This should be added for all showable windows
     def on_window_enable(self, enable):
         # Ingore enable unless you want to do something
         if enable == True:
-            self.view.window_show()
+            self.view.window_enable()
+            self.interactor.event_all_activate(True)
+            self.observer.event_all_activate(True)
+        if enable == False:
+            self.interactor.event_all_activate(False)
+            self.observer.event_all_activate(False, ['window_enable'])

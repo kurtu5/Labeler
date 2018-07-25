@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -15,9 +13,6 @@ import MVPBase
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-#        self.window_enabled = False
-
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-#        self.window_enabled = self.observer.observe_as('window_enable', False)

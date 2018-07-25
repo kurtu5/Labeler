@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -29,5 +27,5 @@ class BaseView(object):
         self.main.grid()
         self.tk.Label(self.main, text="Overwrite self.main in derived class start()")
 
-    def window_show(self):
+    def window_enable(self):
          self.main.tkraise()

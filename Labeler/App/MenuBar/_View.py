@@ -24,6 +24,7 @@ class View(MVPBase.BaseView):
         self.viewmenu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label='View', menu=self.viewmenu)
 
+        # Individual items added in Interactor
 
     def start(self):
             super().start()

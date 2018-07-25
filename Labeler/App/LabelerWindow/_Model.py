@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -12,8 +10,6 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-testdata = os.path.normpath(
-        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
 
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
@@ -21,6 +17,6 @@ class Model(MVPBase.BaseModel):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-#        self.window_enabled = self.observer.observe_as('window_enable', False)
-
+        testdata = os.path.normpath(
+        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
         self.others['images'].load_images(testdata)

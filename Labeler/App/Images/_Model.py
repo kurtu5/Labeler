@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:

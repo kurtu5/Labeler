@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -22,6 +20,3 @@ class View(MVPBase.BaseView):
         self.main.grid(column=0, row=0, sticky='nsew')
         self.main.grid_columnconfigure(0, weight=1)
         self.tk.Label(self.main, text="Options go here").grid()
-
-    def window_enable(self):
-        self.main.tkraise()

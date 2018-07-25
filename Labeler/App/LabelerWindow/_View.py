@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -10,10 +8,10 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-import MVPBase
 from tkinter.font import Font
 from PIL import ImageTk, Image
 
+import MVPBase
 
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
@@ -76,8 +74,6 @@ class View(MVPBase.BaseView):
         self.canvas.xview('moveto', px)
         self.canvas.yview('moveto', py)
 
-
-
     def debugFrame(self, parent, text, on=True):
         if self.debug == True:
             return self.tk.LabelFrame(parent, text=text)
@@ -93,7 +89,7 @@ class View(MVPBase.BaseView):
             self.label_widgets[key].config(foreground="grey")
 
     def create_label_widgets(self):
-#         shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
+#  TODO       shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
         shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
 
         for k,v in shortcuts_labels.items():
@@ -165,14 +161,14 @@ class View(MVPBase.BaseView):
                         xscrollcommand=self.xscrollbar.set,
                         yscrollcommand=self.yscrollbar.set)
 
-        # Binds done in presenter below
+        # Binds done in presenter/interacor
 
         self.canvas.grid(row=0, column=0, sticky='nsew')
 
         self.xscrollbar.config(command=self.canvas.xview)
         self.yscrollbar.config(command=self.canvas.yview)
 
-#         self.create_label_widgets()   # let the models
+#         self.create_label_widgets()   # TODO let the models
 #         controller.mcs[LabelerMC].update_label_widgets()
 
         self.create_label_widgets()

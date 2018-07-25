@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -15,9 +13,6 @@ import MVPBase
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def window_enable(self):
-        self.main.tkraise()
 
     def start(self):
         self.main = self.tk.LabelFrame(self.root, text="test main")

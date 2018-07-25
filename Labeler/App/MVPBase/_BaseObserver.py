@@ -2,27 +2,31 @@ class BaseObserver(object):
     def __init__(self):
         self._observed_name_map = {}  # obs => obs_name
 #        self._callback_map = {}  # obs_name => {'event_name1': {'enabled' = Bool, [cb1,...]}
-        self.observer = None # observer class
+        self.presenter = None # observer class
         self.event_groups = {}  # event_group => [event1,...]
 
         # Prevent unimplemented derived method from running base method
         self._base_event_all_registered_called = False
 
-    def start(self, observer):
-        self.observer = observer
+
+    def start(self, presenter):
+        self.presenter = presenter
         __class__.event_all_register(self)
         try:
             self.event_all_register()
         except:
             pass
+        # Needed for showable windows
+        self.event_group_activate('window_enable')
 
     def event_all_register(self):
         """ On start() register event_name()s """
         if self._base_event_all_registered_called == True:
             return
         self._base_event_all_registered_called = True
-        pass
-#        event_name('watchsizes', 'x_height', somecallback)
+
+        # This should be added for all showable windows
+        self.event_add(('window_enable', self.presenter.on_window_enable), 'window_enable')
 #        event_name('watchsizes', 'x_height', somecallback2)
 #        event_name('watch2', 'x_height', somecallback2)
 
@@ -96,8 +100,13 @@ class BaseObserver(object):
         obs_name = self._observed_name_map[obs]
         for event_list in self.event_groups.values():
             for event in event_list:
-                if event.obs_name == obs_name and event.is_active == True:
-                    event.func(obs._data)
+                if event.obs_name == obs_name:
+                    if event.is_active == True:
+#                        print(f'CALLING event.func(obs._data)={event.func}({obs._data})')
+                        event.func(obs._data)
+                    else:
+                        pass
+#                        print(f'NOTCALLING event.func(obs._data)={event.func}({obs._data})')
 
     class _Observed:
         def __init__(self, parent, name, value = None):

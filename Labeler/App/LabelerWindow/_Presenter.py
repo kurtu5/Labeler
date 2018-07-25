@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -19,25 +17,25 @@ class Presenter(MVPBase.BasePresenter):
         super().__init__(*args, **kwargs)
         self.default_scale = 1.0
         self.scale = self.default_scale
-        self.scale_xloc = 0
+        self.scale_xloc = 0  # TODO maybe shove these into view
         self.scale_yloc = 0
-        self.image_file = None
+        self.image_file = None  # TODO maybe only ref model for these
         self.image_index = None
         self.start()
 
     def start(self):
         super().start()
-        # This stuff should be pulled from model and set to model
+        # TODO This stuff should be pulled from model and set to model
         self.shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
-        self.labels = {}  # When controller loads image, should set this from csv
+        self.labels = {}  # TODO When controller loads image, should set this from csv
 
          # Let guiM know im showable
-        self.model.others['gui'].window_model_add(self.model)
+        self.model.others['gui'].window_model_showable(self.model)
         self.image_load()
         self.image_show()
         self.observer.event_all_activate(True)
 
-
+## TODO where do these belong?
     def image_load(self):
         self.image_file = self.model.others['images'].current_image
         self.image_index = self.model.others['images'].index
@@ -49,18 +47,6 @@ class Presenter(MVPBase.BasePresenter):
         self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
 
     ### View Interactor event handlers
-
-
-    ### Model Observer event handlers
-    def on_window_enable(self, enable):
-        super().on_window_enable(enable)
-        self.interactor.event_all_activate()
-
-#        self.interactor.event_all_activate(enable)
-
-
-
-
     def on_scale(self, scale, event):
         if scale == 1:
             self.scale = 1.0
@@ -121,4 +107,4 @@ class Presenter(MVPBase.BasePresenter):
             # set labels in model
 
 
-
+    ### Model Observer event handlers

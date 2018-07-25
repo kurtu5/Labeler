@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 class BaseModel(object):
     def __init__(self, name, other_models = None):
         """ Base model stores list of related models """
@@ -11,8 +9,8 @@ class BaseModel(object):
             for other in other_models:
                 self.add_model(other)
 
+        # Allow for showable windows
         self.window_enabled = False
-
 
     def add_model(self, other):
         self.others[other.name]=other

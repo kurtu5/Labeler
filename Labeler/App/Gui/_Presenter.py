@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -16,12 +14,12 @@ class Presenter(MVPBase.BasePresenter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Deals with setting/unsetting binds and window management """
-#        self.window_current = None
-#        self.model.statustext = None
         self.start()
 
     def start(self):
         super().start()
+        self.interactor.event_all_activate()
+        self.observer.event_all_activate()
 
     ### View Interactor event handlers
     def on_keypress(self, key):

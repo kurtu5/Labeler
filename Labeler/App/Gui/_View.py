@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -76,9 +74,6 @@ class View(MVPBase.BaseView):
 
 
     # Methods for presenter to call
-    def window_show(self, window_root):
-        window_root.tkraise()
-
     def status_text_set(self, text):
         self.statustext.config(text=text)
 

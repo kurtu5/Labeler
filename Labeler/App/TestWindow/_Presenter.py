@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Make import work like include(./../pkg)
 import os, sys
 try:
@@ -21,17 +19,9 @@ class Presenter(MVPBase.BasePresenter):
 
     def start(self):
         super().start()
-        self.model.others['gui'].window_model_add(self.model)
-
-
+         # Let guiM know im showable
+        self.model.others['gui'].window_model_showable(self.model)
 
     ### View Interactor event handlers
 
-
     ### Model Observer event handlers
-    def on_window_enable(self, enable):
-        # Ingore enable unless you want to do something
-        self.view.window_enable()
-
-
-
