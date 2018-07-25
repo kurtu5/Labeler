@@ -26,6 +26,13 @@ class Presenter(MVPBase.BasePresenter):
         if ( key == 'Escape'):
             # Let the model decide what to do on app_exit
             self.model.app_exit.set(True)
+            
+        if ( key == '1'):
+            self.model.others['gui'].window_model_activate('test')
+        if ( key == '2'):
+            self.model.others['gui'].window_model_activate('labeler')
+        if ( key == '3'):
+            self.model.others['gui'].window_model_activate('options')
 
     ### Model Observer event handlers
     def on_app_exit(self):
