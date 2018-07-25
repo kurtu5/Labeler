@@ -28,11 +28,11 @@ class Presenter(MVPBase.BasePresenter):
             self.model.app_exit.set(True)
             
         if ( key == '1'):
-            self.model.others['gui'].window_model_activate('test')
+            self.model.window_model_activate('test')
         if ( key == '2'):
-            self.model.others['gui'].window_model_activate('labeler')
+            self.model.window_model_activate('labeler')
         if ( key == '3'):
-            self.model.others['gui'].window_model_activate('options')
+            self.model.window_model_activate('options')
 
     ### Model Observer event handlers
     def on_app_exit(self):
