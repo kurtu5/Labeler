@@ -4,13 +4,24 @@ class BaseInteractor(object):
         self.presenter = None
         self.event_groups = {}  # event_group => [event1,...],
 
+        # Prevent unimplemented derived method from running base method
+        self._base_event_all_registered_called = False
+
     def start(self, presenter, view):
         self.presenter = presenter
         self.view = view
-        self.event_all_register()
+        __class__.event_all_register(self)
+        try:
+            self.event_all_register()
+        except:
+            pass
 
     def event_all_register(self):
         """ On start() register event_name()s """
+        if self._base_event_all_registered_called == True:
+            return
+        self._base_event_all_registered_called = True
+        pass
         # event_add....
 
     def event_add(self, event_tuple, event_group = None):
