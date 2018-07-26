@@ -27,6 +27,7 @@ class Observer(MVPBase.BaseObserver):
 
         self.event_add(('app_exit', close))
         self.event_add(('status_text', presenter.on_status_text))
+        self.event_add(('app_open', presenter.on_app_open))
 
         # TODO If I want the gui to change if a window raised, do this
 #        foo = self.callback_add('window_model_current', presenter.on_window_show)

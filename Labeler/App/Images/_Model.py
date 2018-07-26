@@ -9,13 +9,11 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 import re
-#import MVPBase
-#
-#class Model(MVPBase.BaseModel):
-class Model():
-    def __init__(self, name, *args, **kwargs):
+import MVPBase
+
+class Model(MVPBase.BaseModel):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = name
         self.path = None
         self.index = None
         self.images = None

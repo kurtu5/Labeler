@@ -60,7 +60,7 @@ class App(object):
         self.labelerI = LabelerWindow.Interactor()
         self.labelerP = LabelerWindow.Presenter(self.labelerV, self.labelerI, self.labelerM, self.labelerO)
 
-        # Options labeling window
+        # Options window
         self.optionsO = OptionsWindow.Observer()
         self.optionsM = OptionsWindow.Model('options', [self.guiM, self.imagesM])
         self.optionsV = OptionsWindow.View(self.guiV.window)

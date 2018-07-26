@@ -22,6 +22,7 @@ class Interactor(MVPBase.BaseInteractor):
         p = self.presenter
         v = self.view
         fm=v.filemenu.add_command
+        fm(label='Open', command=p.on_app_open)
         fm(label='Exit', command=p.on_app_exit)
 
         vm=v.viewmenu.add_command

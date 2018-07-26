@@ -9,6 +9,7 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.append(path)
 
 import tkinter as tk
+from tkinter import filedialog
 import tkCustom as tkc
 
 class BaseView(object):
@@ -29,3 +30,7 @@ class BaseView(object):
 
     def window_enable(self):
          self.main.tkraise()
+         
+    def app_open(self):
+        file = filedialog.askopenfile(parent=self.root, mode='r', title='Choose file')
+        return file

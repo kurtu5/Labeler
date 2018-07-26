@@ -70,7 +70,7 @@ class Presenter(MVPBase.BasePresenter):
         self.on_scroll(amount)
 
     def on_keyevent(self, event):
-        D.ebug(f'event={event}')
+        D.ebug(f'Labeler keyevent  event={event}  event.state={event.state}')
         if event.keysym == 'space' or event.keysym == 'Down':
             self.on_scroll(2)
         if event.keysym == 'Up':
@@ -86,25 +86,51 @@ class Presenter(MVPBase.BasePresenter):
         # Pass to shortcut to check if one was used
         self.on_keyshortcut(event)
 
+
+## deal with labeling shortcuts
+        
+    def label(self, key, has_feature = None):
+        """ set label on image and update view """
+        # Cycle throught labels
+        if has_feature == None:
+            cycle = [-1, 0, 1]
+            if key not in self.labels:
+                current = 0
+            else:
+                current = self.labels[key]
+            has_feature = cycle[(cycle.index(current)+1)%len(cycle)]
+        # Set
+        self.labels[key] = has_feature
+        self.view.set_label_widget(key, has_feature)
+        
+    # TODO this is so view specific, move to view/interactot
     def on_keyshortcut(self, event):
         """ Use shortcuts to label features as 0=no 1=yes -1=unknown """
-        key = event.char
+        control = 4
+        shift = 1
+        alt = 131072
+        state = event.state
+        key = event.keysym
+        key = key.lower()
         has_feature = None
+        # toggle if only the key was pressed
+        # control = no feature
+        # alt = unknown
+        # shift= set feature
+        D.ebug(f'event.keysym = {event.keysym}' )
+
         if key in self.shortcuts_labels:
-#           # Label it 1 if it doesn't exist or was 0
-            if key not in self.labels or self.labels[key] == 0 or self.labels[key] == -1:
+            if state & alt:
+                has_feature = -1
+            elif state & shift:
                 has_feature = 1
-            # Label it 0 otherwise
-            elif self.labels[key] == 1:
+            elif state & control:
                 has_feature = 0
-            # If the Shift modifier set as unknown
-        if key.isupper() and key.lower() in self.shortcuts_labels:
-            has_feature = -1
-            key = key.lower()
-        if has_feature != None:
-            self.labels[key] = has_feature
-            self.view.set_label_widget(key, has_feature)
-            # set labels in model
+            else:
+                has_feature = None
+            self.label(key, has_feature)
+            
+
 
 
     ### Model Observer event handlers

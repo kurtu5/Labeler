@@ -19,4 +19,5 @@ class Model(MVPBase.BaseModel):
         super().start(*args, **kwargs)
         testdata = os.path.normpath(
         "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
-        self.others['images'].load_images(testdata)
+        print("other models = ", self.other_models)
+        self.sib('images').load_images(testdata)

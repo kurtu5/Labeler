@@ -21,5 +21,5 @@ class Interactor(MVPBase.BaseInteractor):
         self.event_add((
                 self.view.root,
                 '<Key>',
-                lambda event: self.presenter.on_keypress(event.keysym),
+                lambda event: self.presenter.on_keypress(event),
                 ))

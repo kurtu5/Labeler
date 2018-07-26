@@ -20,11 +20,14 @@ class Presenter(MVPBase.BasePresenter):
         self.interactor.event_all_activate()
         self.observer.event_all_activate()
 
-    def on_app_exit(self):
-        self.model.app_exit()
-
     ### View Interactor event handlers
     def on_window_enable(self, name):
         self.model.others['gui'].window_model_activate(name)
+        
+    def on_app_open(self):
+        self.model.others['gui'].app_open()
+        
+    def on_app_exit(self):
+        self.model.others['gui'].app_exit()
 
     ### Model Observer event handlers
