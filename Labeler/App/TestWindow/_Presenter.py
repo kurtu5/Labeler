@@ -20,7 +20,7 @@ class Presenter(MVPBase.BasePresenter):
     def start(self):
         super().start()
          # Let guiM know im showable
-        self.model.others['gui'].window_model_showable(self.model)
+        self.model.sib('gui').window_model_showable(self.model)
 
     ### View Interactor event handlers
 

@@ -30,20 +30,20 @@ class Presenter(MVPBase.BasePresenter):
         self.labels = {}  # TODO When controller loads image, should set this from csv
 
          # Let guiM know im showable
-        self.model.others['gui'].window_model_showable(self.model)
+        self.model.sib('gui').window_model_showable(self.model)
         self.image_load()
         self.image_show()
         self.observer.event_all_activate(True)
 
 ## TODO where do these belong?
     def image_load(self):
-        self.image_file = self.model.others['images'].current_image
-        self.image_index = self.model.others['images'].index
+        self.image_file = self.model.sib('images').current_image
+        self.image_index = self.model.sib('images').index
         self.view.image_load(self.image_file)
 
     def image_show(self):
         # Update status string
-        self.model.others['gui'].status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
+        self.model.sib('gui').status_text.set(f'index: {self.image_index}  image: {self.image_file}  scale: {self.scale:.2f}')
         self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
 
     ### View Interactor event handlers
@@ -76,11 +76,11 @@ class Presenter(MVPBase.BasePresenter):
         if event.keysym == 'Up':
             self.on_scroll(-2)
         if event.keysym == 'Right':
-            self.model.others['images'].next()
+            self.model.sib('images').next()
             self.image_load()
             self.image_show()
         if event.keysym == 'Left':
-            self.model.others['images'].prev()
+            self.model.sib('images').prev()
             self.image_load()
             self.image_show()
         # Pass to shortcut to check if one was used
