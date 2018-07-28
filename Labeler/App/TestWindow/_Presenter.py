@@ -19,9 +19,9 @@ class Presenter(MVPBase.BasePresenter):
 
     def start(self):
         super().start()
-         # Let guiM know im showable
-        self.model.sib('gui').window_model_showable(self.model)
-
+        
+    ### Base Presenter method overrides
+    
     ### View Interactor event handlers
 
     ### Model Observer event handlers

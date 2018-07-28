@@ -19,6 +19,8 @@ class Presenter(MVPBase.BasePresenter):
         super().start()
         self.interactor.event_all_activate()
         self.observer.event_all_activate()
+        
+    ### Base Presenter method overrides
 
     ### View Interactor event handlers
     def on_window_enable(self, name):

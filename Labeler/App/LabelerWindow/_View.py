@@ -29,6 +29,11 @@ class View(MVPBase.BaseView):
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
 
+    def image_list_set(self, items):
+        self.image_listbox.delete(0, 'end')
+        for item in items:
+            self.image_listbox.insert('end', item)
+            
     def scroll(self, amount):
         self.canvas.yview_scroll(amount, "units")
 
@@ -130,7 +135,8 @@ class View(MVPBase.BaseView):
         self.right_frame = self.debugFrame(self.main, text="right frame")
         self.right_frame.grid(column=2, row=0, sticky='ns')
 #        self.right_frame.grid_columnconfigure(0, weight=1)
-
+        self.image_listbox = self.tk.Listbox(self.right_frame)
+        self.image_listbox.grid()
         # Bottom
         self.bottom_frame = self.debugFrame(self.main, text="bottom frame")
         self.bottom_frame.grid(column=0, row=1, columnspan=3, sticky='nsew')

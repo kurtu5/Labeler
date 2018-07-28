@@ -16,3 +16,7 @@ class Model(MVPBase.BaseModel):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
+        self.path_to_image_files = os.path.normpath(
+        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
+         # Let guiM know im showable
+        self.sib('gui').window_model_showable(self)

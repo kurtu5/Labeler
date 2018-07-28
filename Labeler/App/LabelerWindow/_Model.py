@@ -17,7 +17,28 @@ class Model(MVPBase.BaseModel):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        testdata = os.path.normpath(
-        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
-        print("other models = ", self.other_models)
-        self.sib('images').load_images(testdata)
+
+         # Let guiM know im showable
+        self.sib('gui').window_model_showable(self)
+    
+    def refresh_images(self):
+        self.sib('images').load_images()
+        
+    def get_image(self):
+        self.image_file = self.sib('images').image_file
+        self.image_index = self.sib('images').image_index
+    
+    def get_images(self):
+        return self.sib('images').images
+        
+    def next_image(self):
+        self.sib('images').next()
+        self.get_image()
+        
+    def prev_image(self):
+        self.sib('images').prev()
+        self.get_image()
+        
+    def status_text_update(self, text):
+        self.sib('gui').status_text.set(text)
+                

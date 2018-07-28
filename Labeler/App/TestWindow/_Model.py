@@ -16,3 +16,5 @@ class Model(MVPBase.BaseModel):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
+        # Let guiM know im showable
+        self.sib('gui').window_model_showable(self)

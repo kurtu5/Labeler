@@ -20,6 +20,9 @@ class Presenter(MVPBase.BasePresenter):
         super().start()
         self.interactor.event_all_activate()
         self.observer.event_all_activate()
+        
+    ### Base Presenter method overrides
+
     ### View Interactor event handlers
     def on_keypress(self, event):
         from tkCustom._Debug import D

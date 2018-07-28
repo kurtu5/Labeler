@@ -41,5 +41,18 @@ class Interactor(MVPBase.BaseInteractor):
 
         add((v.root.master, '<Enter>', enter_canvas), 'canvas_focus')
         add((v.root.master, '<Leave>', exit_canvas), 'canvas_focus')
+        
+        def enter_listbox(e):
+            D.ebug('enter listbox')
+            v.canvas.focus_set()
+        def exit_listbox(e):
+            D.ebug('exit listbox')
+            v.canvas.focus_set()
+            
+        add((v.image_listbox, '<Enter>', enter_listbox), 'listbox_focus')
+        add((v.image_listbox, '<Leave>', exit_listbox), 'listbox_focus')
 
         add((v.canvas, '<Key>', p.on_keyevent, True),'shortcuts')
+        
+    def image_list_set(self, items):
+        self.view.image_list_set(items)
