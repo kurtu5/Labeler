@@ -10,14 +10,10 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-class Interactor(MVPBase.BaseInteractor):
+class Observer(MVPBase.BaseObserver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-
-    def event_all_register(self):
-        self.event_add((self.view.keyEvent.signal,self.presenter.on_keypress))
-        pass
 

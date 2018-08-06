@@ -19,9 +19,9 @@ class Presenter(MVPBase.BasePresenter):
 
     def start(self):
         super().start()
-        
+
     ### Base Presenter method overrides
-    
+
     ### View Interactor event handlers
 
     ### Model Observer event handlers

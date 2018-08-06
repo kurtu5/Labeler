@@ -22,24 +22,3 @@ class Interactor(MVPBase.BaseInteractor):
 
         # All these skip interactor and are just inited here
         view = self.view
-        from tkCustom._Debug import D
-
-        def bt1e1(event):
-            D.ebug(f'button 1 first bind')
-
-        def bt1e2(event):
-            D.ebug('button 1 second bind')
-
-        def bt2e(event):
-            D.ebug(f'disable bind1_1')
-            self.view.bind.activate(self.bind1_1, False)
-
-        def bt3e(event):
-            D.ebug(f'enable bind1_1')
-            self.view.bind.activate(self.bind1_1, True)
-
-        self.bind1_1 = view.bind.register(self.view.lb, '<1>', bt1e1)
-        self.bind1_2 = view.bind.register(self.view.lb, '<1>', bt1e2, True)
-        self.bind2 = view.bind.register(self.view.lb, '<2>', bt2e)
-        self.bind3 = view.bind.register(self.view.lb, '<3>', bt3e)
-        view.bind.activate_all(active=True)

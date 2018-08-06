@@ -10,17 +10,22 @@ sys.path.insert(0, path)
 
 import MVPBase
 
+
+from PySide2.QtWidgets import QLabel, QPushButton, QWidget
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtCore import QFile
+
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def start(self):
-        self.main = self.tk.LabelFrame(self.root, text="test main")
-        self.main.grid(column=0, row=0, sticky='nsew')
-        self.main.grid_columnconfigure(0, weight=1)
-        self.tk.Label(self.main, text="bt 1 disables button 2").grid()
-        self.lf = self.tk.LabelFrame(self.main, text="bound things")
-        self.lf.grid(sticky='ew')
-        self.lf.grid_columnconfigure(0, weight=1)
-        self.lb = self.tk.Label(self.lf, text="1 may do 2 things,  2 disables second, 3 enables it")
-        self.lb.grid(sticky='ew')
+
+            # Since I have default implemetations for showable pages, do this in base?
+            path = os.path.dirname(os.path.realpath(__file__)) + "\\"
+            file = QFile(path + "test.ui")
+            file.open(QFile.ReadOnly)
+            loader = QUiLoader()
+            self.page = loader.load(file)
+            self.page_index = self.parent.stacked_widget.addWidget(self.page)
+

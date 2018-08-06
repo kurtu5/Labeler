@@ -10,6 +10,8 @@ sys.path.insert(0, path)
 
 import MVPBase
 
+from PySide2.QtWidgets import QAction
+
 class Interactor(MVPBase.BaseInteractor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,14 +20,13 @@ class Interactor(MVPBase.BaseInteractor):
         super().start(*args, **kwargs)
 
     def event_all_register(self):
-        # These events are always bound and dont use interactor
-        p = self.presenter
-        v = self.view
-        fm=v.filemenu.add_command
-        fm(label='Open', command=p.on_app_open)
-        fm(label='Exit', command=p.on_app_exit)
 
-        vm=v.viewmenu.add_command
-        vm(label='Test', command=lambda: p.on_window_enable('test'))
-        vm(label='Labeler', command=lambda: p.on_window_enable('labeler'))
-        vm(label='Options', command=lambda: p.on_window_enable('options'))
+        self.event_add((self.view.file_menu_quit.triggered, self.presenter.on_app_exit))
+
+        def on_window_enable(action):
+            self.presenter.on_window_enable(action.data())
+        self.event_add((self.view.view_menu.triggered[QAction],
+                        on_window_enable
+                        ))
+
+

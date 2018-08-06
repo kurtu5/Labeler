@@ -8,6 +8,9 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
+
+from PySide2.QtCore import QEvent, Qt
+from PySide2 import QtGui
 import MVPBase
 
 class Presenter(MVPBase.BasePresenter):
@@ -20,27 +23,32 @@ class Presenter(MVPBase.BasePresenter):
         super().start()
         self.interactor.event_all_activate()
         self.observer.event_all_activate()
-        
+
     ### Base Presenter method overrides
 
     ### View Interactor event handlers
+
+
     def on_keypress(self, event):
-        from tkCustom._Debug import D
-        D.ebug(f'GUI keypress event={event}')
-        key = event.keysym
-        if ( key == 'Escape'):
-            # Let the model decide what to do on app_exit
-            self.model.app_exit.set(True)
-            
-        if ( key == '1'):
-            self.model.window_model_activate('test')
-        if ( key == '2'):
-            self.model.window_model_activate('labeler')
-        if ( key == '3'):
-            self.model.window_model_activate('options')
-        # Control+o
-        if event.state & 4 and event.keysym=='o':
-            self.app_open()
+        if type(event) == QtGui.QKeyEvent:
+            key = event.key()
+            # Qt.Key doc for keycodes
+#            print("GUI key=", event.text())
+            if ( key == Qt.Key_Escape):
+                # Let the model decide what to do on app_exit
+#                self.model.app_exit.set(True)
+                self.model.set_app_exit()
+
+
+            if ( key == '1'):
+                self.model.window_model_activate('test')
+            if ( key == '2'):
+                self.model.window_model_activate('labeler')
+            if ( key == '3'):
+                self.model.window_model_activate('options')
+            # Control+o
+#            if event.state & 4 and event.keysym=='o':
+#                self.app_open()
 
     ### Model Observer event handlers
     def on_app_exit(self):
@@ -48,8 +56,8 @@ class Presenter(MVPBase.BasePresenter):
 
     def on_status_text(self, text):
         self.view.status_text_set(text)
-        
-    def app_open(self):
+
+    def on_app_open(self):
         file = self.view.app_open()
         self.view.status_text_set(f'app open called and got {file}')
 

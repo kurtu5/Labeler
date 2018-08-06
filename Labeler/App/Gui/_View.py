@@ -8,74 +8,97 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
+
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWidgets import QApplication, QMenu, QMenuBar, QAction, QLabel, QWidget, QLineEdit, QMainWindow
+from PySide2.QtCore import QFile, QObject, QEvent, Signal
+from PySide2 import QtCore
+from PySide2.QtWidgets import QStackedWidget, QVBoxLayout
+
 import MVPBase
 
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         """ Setup basic window manager """
+    # I could write this to add custom signals for custom events
+    class KeyEventFilter(QObject):
+        signal = Signal(QEvent)
+        def __init__(self, parent, stopHere=False, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.parent = parent
+            self.stopHere = stopHere
+            self.types = []
+            self.events = []
 
-# set in super        self.root = root # tk.Tk() 1 col 1 row; holds main
+        def eventFilter(self, obj, event):
+#            if (obj.objectName(), event.type()) not in self.events:
+#                self.events.append((obj.objectName(), event.type()))
+#                print("Some new event happened,", obj.objectName(), ",", event.type())
+#            print("parent", self.parent)
 
-    def debugFrame(self, parent, text, on=True):
-        if self.debug == True:
-            return self.tk.LabelFrame(parent, text=text)
-        elif self.debug == False:
-            return self.tk.Frame(parent)
+            if (event.type() == QEvent.KeyPress):
+#                print("emittttttttt")
+                self.signal.emit(event)
+            return self.stopHere
 
     def start(self, *a, **kw):
-        self.root.grid_columnconfigure(0, weight=1) # have main fill on resize
-        self.root.grid_rowconfigure(0, weight=1)
-#         self.root.resizable(0,0)
-        self.root.grid_propagate(0)
-        self.debug=False
-        #main
-        self.main=self.debugFrame(self.root, text='main')  # has 1 col and 2 rows; w and s
-        self.main.grid_columnconfigure(0, weight=1)  # widen both w and s
-        self.main.grid_rowconfigure(0, weight=1)  # heighten only w
-#         self.main.grid_rowconfigure(1, weight=0)
-        self.main.grid(column=0, row=0, sticky='nsew') # Fill root parent
+
+        path = os.path.dirname(os.path.realpath(__file__)) + "\\"
+        file = QFile(path + "gui.ui")
+        file.open(QFile.ReadOnly)
+        loader = QUiLoader()
+        self.window = loader.load(file)
+
+        # Global key press eventFilter.signal emits
+        self.keyEvent = self.KeyEventFilter(self.parent)
+        self.parent.installEventFilter(self.keyEvent)
+        # self.keyEvent.signal.connect(...)
+
+        self.stacked_widget = QStackedWidget()
+#        layout = QVBoxLayout()
+#        layout.addWidget(self.window.centralwidget)
+        self.window.setCentralWidget(self.stacked_widget)
+
+#        wm = QMenu("window menu")
+#        self.window.menuBar().addMenu(wm)
 
 
-        #window
-        self.window = self.debugFrame(self.main, text='window') # has 1col 1 row; new windows go here
-        self.window.grid_columnconfigure(0, weight=1) # window will widen and heighten on resize
-        self.window.grid_rowconfigure(0, weight=1)
-        self.window.grid(column=0, row=0, sticky='nsew') # fill cell in main
-
-        # Debugger bar
-        debug = self.tkc.D(self.main, 8)
-        debug.frame.grid(column=0, row=1, sticky='we')
-
-        #status bar
-        self.statusbar = self.debugFrame(self.main, text='statusbar') # has 1 row 2 col; has status text and grip
-        self.statusbar.grid_columnconfigure(0, weight=1) # status text will widen on resize
-        # self.statusbar.grid_columnconfigure(1, weight=1) # sizegrip will widen on resize
-        self.statusbar.grid(column=0, row=2, sticky='we') # widen cell in main
 
 
-        #statustext and sizegripper
-        self.statusframe = self.debugFrame(self.statusbar, text='statustext') # 1 row 1 col; has actual text
-        self.statusframe.grid_columnconfigure(0, weight=1)  # actual text will widen on resize
-        self.statusframe.grid(column=0, row=0, sticky='we')
 
-        self.statustext = self.tk.Label(self.statusframe, text="some status line text")
-        self.statustext.pack()
+        # Need main
 
-        self.grip = self.tkc.AutoSizegrip(self.statusbar, self.root)
-        self.grip.grid(column=1, row=0, sticky='nsew')
+        # Need status bar
 
-        self.root.geometry('1500x800+50+50')
+
+#        from PySide2.QtWidgets import QPushButton
+#        self.btn = QPushButton("Click Me", self.window)
+#        self.btn.move(300, 200)
+
+#        self.btn = QPushButton("Other button", self.window)
+#        self.btn.move(300, 200)
+
+#        self.label.keyPressEvent = self.keypress
+#        self.window.centralwidget
+#        self.window.centralwidget.addWidget(label)
+
+#        self.window.installEventFilter(self.root)
+#        self.window.eventFilter = self.eventFilter
+        self.window.show()
+
+#        self.root.geometry('1500x800+50+50')
 #         self.root.wm_attributes("-topmost", 1)  # Always on top
 
-        self.root.lift()
-        self.root.focus_force()
+#        self.root.lift()
+#        self.root.focus_force()
 #         self.current_window_class = None
+
 
 
     # Methods for presenter to call
     def status_text_set(self, text):
-        self.statustext.config(text=text)
+        self.window.statusbar.showMessage(text)
 
     def app_exit(self):
-        self.root.destroy()
+        self.parent.quit()

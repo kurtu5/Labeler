@@ -16,13 +16,12 @@ class Interactor(MVPBase.BaseInteractor):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        
+
     def event_all_register(self):
-        self.view.e1Button.config(command=self.change_dir)
+#        self.view.e1Button.config(command=self.change_dir)
         pass
-        
+
     def change_dir(self):
         text = self.view.e1.get()
         print(f'new dir {text}')
         self.presenter.change_dir(text)
-        

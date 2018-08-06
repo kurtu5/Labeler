@@ -11,28 +11,27 @@ class BaseInteractor(object):
         self.presenter = presenter
         self.view = view
         __class__.event_all_register(self)
-        try:
-            self.event_all_register()
-        except:
-            pass
+        self.event_all_register()
 
     def event_all_register(self):
         """ On start() register event_name()s """
         if self._base_event_all_registered_called == True:
             return
         self._base_event_all_registered_called = True
-        pass
         # event_add....
 
     def event_add(self, event_tuple, event_group = None):
         """ Register an unbount event by event group """
         event = self.event(self, *event_tuple)
+
         if event_group == None:
             event_group=f'event_group_{len(self.event_groups)}'
+
         # Create a new event_list or append
         if event_group not in self.event_groups:
             self.event_groups[event_group] = []
         self.event_groups[event_group].append(event)
+
         event.add()
         return event_group
 
@@ -49,22 +48,22 @@ class BaseInteractor(object):
 
  # Custom even class for Interactor
     class event:
-        def __init__(self, parent_class, widget, seq, func, add=False):
-            self.widget = widget
-            self.seq = seq
-            self.func = func
-            self.add_opt = add
-            self.bind_id = None
+        def __init__(self, parent_class, signal, slot):
+            self.signal = signal
+            self.slot = slot
             self.is_active = None
             self._parent_class = parent_class
 
         def add(self):
             # Bind it
-            self.bind_id = self._parent_class.view.bind.register(self.widget, self.seq, self.func, self.add_opt)
+#            self.bind_id = self._parent_class.view.bind.register(self.widget, self.seq, self.func, self.add_opt)
             # But then disable it until explicitly enabled
-#            self.activate(self.bind_id, False)
+            self.is_active = False
 
         def activate(self, enable):
-            #self.debug()
-            self.is_active=enable
-            self._parent_class.view.bind.activate(self.bind_id, enable)
+            if enable == True:
+                self.signal.connect(self.slot)
+                self.is_active = enable
+            else:
+                self.signal.disconnect(self.slot)
+                self.is_active = enable

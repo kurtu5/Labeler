@@ -16,7 +16,7 @@ class BaseModel(object):
 
     def sib(self, model_name):
         return self.other_models[model_name]
-    
+
     def add_model(self, other):
         self.others[other.name]=other
 

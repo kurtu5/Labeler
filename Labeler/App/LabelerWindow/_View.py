@@ -8,9 +8,16 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from tkinter.font import Font
-from PIL import ImageTk, Image
+from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap
+from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel
+from PySide2.QtWidgets import QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView
+from PySide2.QtGui import QTransform
 
+
+#https://github.com/tpgit/MDIImageViewer seems to do everything....
+# https://stackoverflow.com/questions/35508711/how-to-enable-pan-and-zoom-in-a-qgraphicsview
 import MVPBase
 
 class View(MVPBase.BaseView):
@@ -23,158 +30,198 @@ class View(MVPBase.BaseView):
 #         self.controller = controller
         self.label_widgets = {}
 
-        self.font = Font(size=24)
+#        self.font = Font(size=24)
         self.default_scale = 0.2
-#        self.scale = 1.0;   # Initial Image scale
+        self.scale = 1.0;   # Initial Image scale
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
 
-    def image_list_set(self, items):
-        self.image_listbox.delete(0, 'end')
-        for item in items:
-            self.image_listbox.insert('end', item)
-            
-    def scroll(self, amount):
-        self.canvas.yview_scroll(amount, "units")
+            # I could write this to add custom signals for custom events
+    class KeyEventFilter(QObject):
+        signal = Signal(QEvent)
+        def __init__(self, parent, stopHere=False, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.parent = parent
+            self.stopHere = stopHere
+            self.types = []
 
-    def image_load(self, file):
-#        self.scale = self.default_scale
-        self.image_orig = Image.open(file)
+        def eventFilter(self, obj, event):
+#            print("parent", self.parent)
+            #http://www.qtcentre.org/threads/24597-PyQt4-QGraphicsView-and-pressed-signal
+            if isinstance(obj, QGraphicsScene):
+#                print("QGraphicsScene obj detected,",event.type())
+                return False
+            if  isinstance(obj, QGraphicsView) :
+#                print("QGraphicsView obj detected,",event.type())
+                return False
+#            if (event.type() == QEvent.Type.GraphicsSceneMouseRelease ):
+#                print("Mouse release", obj, ',', obj.objectName())
+            if (event.type() == QEvent.KeyPress):
+#                print("emittttttttt")
+                self.signal.emit(event)
+            return self.stopHere
 
-    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
-        #delete and redraw if scaled
-        if self.image_id:
-            self.canvas.delete(self.image_id)
+#    def image_list_set(self, items):
+#        self.image_listbox.delete(0, 'end')
+#        for item in items:
+#            self.image_listbox.insert('end', item)
 
-        # Conditionaly scale
-        if scale != 1.0:
-            # Do stuff to center zoomed in middle
-            cw = self.canvas.winfo_reqwidth()
-            ch = self.canvas.winfo_reqheight()
-            x = scale_xloc
-            y = scale_yloc
-            cx = self.canvas.canvasx(x)
-            cy = self.canvas.canvasy(y)
-            hcw = self.canvas.winfo_width() / 2
-            hch = self.canvas.winfo_height() / 2
-            px = (cx - hcw) / cw
-            py = (cy - hch) / ch
-            #D.ebug(f'cw,ch = {cw},{ch},  x,y = {x}, {y}, cx,cy = {cx},{cy}, hcw,hch={hcw},{hch},  px,py = {px*100:.0f},{py*100:.0f} ')
+#    def scroll(self, amount):
+#        self.canvas.yview_scroll(amount, "units")
 
-            iw, ih = self.image_orig.size
-            size = int(iw * scale), int(ih * scale)
-            img = ImageTk.PhotoImage(self.image_orig.resize(size))
+#    def image_load(self, file):
+##        self.scale = self.default_scale
+#        self.image_orig = Image.open(file)
 
-            self.image_id = self.canvas.create_image(0, 0, anchor='nw', image=img)
-        else:
-            px = 0
-            py = 0
-            img = ImageTk.PhotoImage(self.image_orig)
-            self.image_id = self.canvas.create_image(0,0, anchor='nw', image=img)
+#    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
+       # old canvas redrawer
 
-        self.canvas.image = img
-        self.canvas.config(scrollregion=(0,0, img.width(), img.height()))
-        self.canvas.config(height=img.height(), width=img.width())
-        # Reset scrollbars
-        self.canvas.xview('moveto', px)
-        self.canvas.yview('moveto', py)
 
-    def debugFrame(self, parent, text, on=True):
-        if self.debug == True:
-            return self.tk.LabelFrame(parent, text=text)
-        elif self.debug == False:
-            return self.tk.Frame(parent)
+#    def set_label_widget(self, key, has_feature):
+#        if has_feature == 1:
+#            self.label_widgets[key].config(foreground="green")
+#        if has_feature == 0:
+#            self.label_widgets[key].config(foreground="red")
+#        if has_feature == -1:
+#            self.label_widgets[key].config(foreground="grey")
 
-    def set_label_widget(self, key, has_feature):
-        if has_feature == 1:
-            self.label_widgets[key].config(foreground="green")
-        if has_feature == 0:
-            self.label_widgets[key].config(foreground="red")
-        if has_feature == -1:
-            self.label_widgets[key].config(foreground="grey")
+#    def create_label_widgets(self):
+##  TODO       shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
+#        shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
+#
+#        for k,v in shortcuts_labels.items():
+#            tmp = self.tk.Frame(self.left_frame)
+##            tmp.pack(side='left', padx=40, expand=True )
+#            tmp.grid(sticky='w', padx=40)#, expand=True )
+#
+#            self.tk.Label(tmp,text='Key: '+k).grid()
+#
+#            self.label_widgets[k] = self.tk.Label(tmp, text=v)
+#            self.label_widgets[k].config(foreground="grey", font=self.font)
+##            self.label_widgets[k].pack()
+#            self.label_widgets[k].grid()
 
-    def create_label_widgets(self):
-#  TODO       shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
-        shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
+    def image_scale(self, factor):
+        self.scale = self.scale * factror
+        gv.setTransform(QTransform(self.scale,0,0,self.scale,0,0))
 
-        for k,v in shortcuts_labels.items():
-            tmp = self.tk.Frame(self.left_frame)
-#            tmp.pack(side='left', padx=40, expand=True )
-            tmp.grid(sticky='w', padx=40)#, expand=True )
 
-            self.tk.Label(tmp,text='Key: '+k).grid()
+    def image_load(self, images):
 
-            self.label_widgets[k] = self.tk.Label(tmp, text=v)
-            self.label_widgets[k].config(foreground="grey", font=self.font)
-#            self.label_widgets[k].pack()
-            self.label_widgets[k].grid()
+        gv = self.page.graphicsView
 
+        gv.setDragMode(QGraphicsView.ScrollHandDrag)
+        gv.setDragMode(QGraphicsView.RubberBandDrag)
+#        gv.shear(0.1,0.1)
+#        gv.rotate(90)
+        scene=QGraphicsScene()
+        gv.setScene(scene)
+        grid = QGridLayout()
+        gv.setLayout(grid)
+
+        num = len(images)
+        width=gv.width()
+        pixmap = None
+        rowWidth = 4
+        xCoord = 0
+        col = 0
+        for image in images:
+
+            image_reader = QImageReader()
+            image_reader.setDecideFormatFromContent(True)
+            image_reader.setFileName(image)
+#            image_reader.setScaledSize(QSize(100,100))
+            img = image_reader.read()
+            pixmap = QPixmap(img)
+            item = scene.addPixmap(pixmap)
+
+            if num != 0:
+                pixmap = pixmap.scaledToWidth(width)
+                item.setOffset(xCoord, xCoord)
+
+            col += 1
+            xCoord += 100
+
+
+#        item=QGraphicsItem()
+#        gv.setInteractive(False)
+#        print("GV isinteractive =", gv.isInteractive())
+
+
+
+    def image_list_setSelected(self, index):
+        self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Select)
+
+    def image_list_update(self, images):
+        """ Put all the images in the QListWidget """
+        size = 60
+#        self.page.listWidget.setIconSize(QSize(size,size))
+
+        for image in images:
+
+            item = QListWidgetItem()
+
+            import ntpath
+            filename=ntpath.basename(image)
+#            item.setText(f'{filename}')
+
+            widget = QWidget()
+            widgetText = QLabel(f'{filename}')
+            widgetLabels = QLabel("QWER")
+#            l = QLabel("XXX")
+#            l.setParent(item)
+
+
+#            font=QFont("Times",10, QFont.Bold)
+#            item.setFont(font)
+#            item.setSizeHint(size)
+
+
+            image_reader = QImageReader()
+            image_reader.setDecideFormatFromContent(True)
+            image_reader.setFileName(image)
+            image_reader.setScaledSize(QSize(size,size))
+            img = image_reader.read()
+            pixmap= QPixmap(img)
+#            pixmap.scaled(QSize(size,size))
+
+            icon=QIcon(pixmap)
+            widgetIcon = QLabel()
+            widgetIcon.setPixmap(pixmap)
+            widgetLayout = QHBoxLayout()
+
+
+            widgetLayout.addWidget(widgetLabels)
+            widgetLayout.addWidget(widgetIcon)
+            widgetLayout.addWidget(widgetText)
+            widgetLayout.addStretch()
+
+            widget.setLayout(widgetLayout)
+#            pixmap=icon.pixmap(100,100)
+#            item.setIcon(icon)
+#            item.setSizeHint(QSize(size,size))
+            item.setSizeHint(widget.sizeHint())
+
+
+            self.page.listWidget.addItem(item)
+            self.page.listWidget.setItemWidget(item, widget)
 
     def start(self):
+            # Since I have default implemetations for showable pages, do this in base?
+            path = os.path.dirname(os.path.realpath(__file__)) + "\\"
+            file = QFile(path + "labeler.ui")
+            file.open(QFile.ReadOnly)
+            loader = QUiLoader()
+            self.page = loader.load(file)
+            gv = self.page.graphicsView
 
-        self.main = self.debugFrame(self.root, text="labler main")
-        self.main.grid(column=0, row=0, sticky='nsew')
+            self.page_index = self.parent.stacked_widget.addWidget(self.page)
+#            size=QSize()
+#            size.boundedTo(QSize(300,300))
+#            size.expandedTo(QSize(300,300))
+#            self.page.listWidget.setIconSize(size)
+            self.page.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-#         self.main.grid(column=0, row=1, sticky='nsew')  # 1 col, 2 rows; top bottom
-        self.main.grid_columnconfigure(1, weight=1)  # widen middle on resize
-        self.main.grid_rowconfigure(0, weight=1)     # heighten bottom on resize
-
-        # Left frame
-        self.left_frame = self.debugFrame(self.main, text="left frame")
-        self.left_frame.grid(column=0, row=0, sticky='ns')  # fill space
-#        self.left_frame.grid_columnconfigure(0, weight=1) # allow child to widen
-#        self.left_frame.grid_rowconfigure(0, weight=1) # allow child to heighten
-
-        # Middle
-        self.middle_frame = self.debugFrame(self.main, text="middle frame")
-        self.middle_frame.grid(column=1, row=0, sticky='nsew')
-        self.middle_frame.grid_columnconfigure(0, weight=1) # allow child to fill xy
-        self.middle_frame.grid_rowconfigure(0, weight=1)
-
-       # Right
-        self.right_frame = self.debugFrame(self.main, text="right frame")
-        self.right_frame.grid(column=2, row=0, sticky='ns')
-#        self.right_frame.grid_columnconfigure(0, weight=1)
-        self.image_listbox = self.tk.Listbox(self.right_frame)
-        self.image_listbox.grid()
-        # Bottom
-        self.bottom_frame = self.debugFrame(self.main, text="bottom frame")
-        self.bottom_frame.grid(column=0, row=1, columnspan=3, sticky='nsew')
-        self.bottom_frame.grid_columnconfigure(0, weight=1)
-#         parent.grid_propagate=(0)
-
-        self.tk.Label(self.left_frame, text='example left frame content').grid(sticky='ns')
-#        self.tk.Label(self.middle_frame, text='example  middle frame content').grid(sticky='nsew')
-#        self.tk.Label(self.right_frame, text='example right frame content').grid(sticky='ns')
-
-#        self.tk.Label(self.bottom_frame, text='example bottom frame content').grid(sticky='ew')
-#         tk.Label(self.bottom_frame, text='example').grid(sticky='nsew')
-
-        self.canvas_frame = self.debugFrame(self.middle_frame, text='image')
-        self.canvas_frame.grid_columnconfigure(0, weight=1)
-        self.canvas_frame.grid_rowconfigure(0, weight=1)
-        self.canvas_frame.grid()
-
-        self.xscrollbar = self.tkc.AutoScrollbar(self.canvas_frame, orient='horizontal')
-        self.xscrollbar.grid(column=0, row=1, sticky='ew')
-#         self.xscrollbar.grid_remove()
-
-        self.yscrollbar = self.tkc.AutoScrollbar(self.canvas_frame, orient='vertical')
-        self.yscrollbar.grid(column=1, row=0, sticky='ns')
-
-
-        self.canvas = self.tk.Canvas(self.canvas_frame,
-                        xscrollcommand=self.xscrollbar.set,
-                        yscrollcommand=self.yscrollbar.set)
-
-        # Binds done in presenter/interacor
-
-        self.canvas.grid(row=0, column=0, sticky='nsew')
-
-        self.xscrollbar.config(command=self.canvas.xview)
-        self.yscrollbar.config(command=self.canvas.yview)
-
-#         self.create_label_widgets()   # TODO let the models
-#         controller.mcs[LabelerMC].update_label_widgets()
-
-        self.create_label_widgets()
+            # Global key press eventFilter.signal emits
+            self.keyEvent = self.KeyEventFilter(self.parent.parent)
+            self.parent.parent.installEventFilter(self.keyEvent)

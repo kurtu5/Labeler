@@ -19,17 +19,17 @@ class Presenter(MVPBase.BasePresenter):
         super().start()
         self.interactor.event_all_activate()
         self.observer.event_all_activate()
-        
+
     ### Base Presenter method overrides
 
     ### View Interactor event handlers
     def on_window_enable(self, name):
         self.model.sib('gui').window_model_activate(name)
-        
+
     def on_app_open(self):
         self.model.sib('gui').app_open()
-        
+
     def on_app_exit(self):
-        self.model.sib('gui').app_exit()
+        self.model.sib('gui').set_app_exit()
 
     ### Model Observer event handlers

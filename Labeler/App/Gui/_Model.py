@@ -40,11 +40,10 @@ class Model(MVPBase.BaseModel):
         self.window_model_current.set(name)
 
 
-    def app_exit(self):
+    def set_app_exit(self):
         # TODO add sanity checking to see if things need to be saved
         self.app_exit.set(True)
-        
+
         # TODO: is it a good idea for a model to talk to the presenter directly?
     def app_open(self):
         file = self.observer.presenter.app_open()
-        

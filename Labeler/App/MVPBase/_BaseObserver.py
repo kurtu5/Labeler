@@ -12,10 +12,8 @@ class BaseObserver(object):
     def start(self, presenter):
         self.presenter = presenter
         __class__.event_all_register(self)
-        try:
-            self.event_all_register()
-        except:
-            pass
+        self.event_all_register()
+
         # Needed for showable windows
         self.event_group_activate('window_enable')
 
