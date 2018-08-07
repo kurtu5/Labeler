@@ -8,11 +8,11 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout, QStackedLayout
+from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout, QStackedLayout, QGraphicsWidget
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap
-from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel
-from PySide2.QtWidgets import QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView
+from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF
+from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
 from PySide2.QtGui import QTransform
 
 
@@ -163,7 +163,7 @@ class View(MVPBase.BaseView):
         num = len(images)
     
         width=self.page.display.width() + 400
-        maxcol = 4
+        maxcol = 10
         if num != 0 and num < maxcol:
             maxcol = num
         colwidth = width/maxcol
@@ -192,22 +192,37 @@ class View(MVPBase.BaseView):
             self.display_layout = QGridLayout()
             self.graphicsview = QGraphicsView()
             self.display_layout.addWidget(self.graphicsview)
-            self.display_multiple_layout = QGridLayout()
+            self.display_multiple_layout = QGraphicsGridLayout()
+
             
             self.page.display.setLayout(self.display_layout)
         else:
             QWidget().setLayout(self.page.display.layout())
-            self.display_layout = QGridLayout()
-            self.display_multiple_layout = QGridLayout()
+            self.display_layout = QVBoxLayout()
+            self.display_multiple_layout = QGraphicsGridLayout()
+            
             self.graphicsview = QGraphicsView()
-
+            self.scene=QGraphicsScene()
+            self.graphicsview.setScene(self.scene)
+            
+            self.panel = QGraphicsWidget()
+            self.scene.addItem(self.panel)
+            
             self.display_layout.addWidget(self.graphicsview)
 
+            self.panel.setLayout(self.display_multiple_layout)
+#            self.graphicsview.setLayout(self.display_multiple_layout)
+            
 
-            self.graphicsview.setLayout(self.display_multiple_layout)
             
             clearLayout(self.display_multiple_layout)
             self.page.display.setLayout(self.display_layout)
+#            self.display_multiple_layout.setHorizontalSpacing(400) # forced big
+
+#            self.display_multiple_layout.setSizeConstraint(QLayout.SetMaximumSize)
+#            size = QSize(400,400)
+#            self.display_multiple_layout.setSizeHint(size)
+#            print("mult=",self.display_multiple_layout.sizeHint())
             
         for image in images:
 
@@ -231,7 +246,16 @@ class View(MVPBase.BaseView):
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
                 item = scene.addPixmap(pixmap)
 #                item.setOffset(col * colwidth, row * rowheight)
-                self.display_multiple_layout.addWidget(gv, row, col)
+                ql = QLabel("TEST")
+                ql.resize(500,500)
+                s = 50
+                rec = self.RectangleWidget(pixmap, QRectF(10,10, s,s))
+                print("Size = ", rec.size())
+                self.display_multiple_layout.addItem(rec, row, col)
+#                for i in [0,1,2,3]:
+#                    w = self.display_multiple_layout.columnMinimumWidth(i)
+#                    print(f"col {i} is w={w}")
+
             else:
                 self.display_layout.addWidget(gv, row, col)
                 scene.addPixmap(pixmap)
@@ -239,7 +263,18 @@ class View(MVPBase.BaseView):
             col += 1
  
             
-
+    class RectangleWidget(QGraphicsWidget):
+        def __init__(self, pixmap, rect, parent=None):
+            super().__init__(parent)
+            self.rect = rect
+            self.pixmap = pixmap
+            self.setMinimumSize(QSizeF(self.pixmap.size()))
+            self.setMaximumSize(QSizeF(self.pixmap.size()))
+            
+        def paint(self, painter, *args, **kwargs):
+            print('Paint Called')
+            painter.drawRect(self.rect)
+            painter.drawPixmap(0, 0, self.pixmap)
 #        self.gv.show()
 #        item=QGraphicsItem()
 #        gv.setInteractive(False)
