@@ -33,7 +33,7 @@ class Presenter(MVPBase.BasePresenter):
 ## TODO where do these belong?
     def image_update(self):
         images = self.model.get_selected_images()
-        print("show images=", images)
+#        print("show images=", images)
         self.view.image_load(images)
 
         # Update status string
@@ -78,7 +78,7 @@ class Presenter(MVPBase.BasePresenter):
             self.scale = self.default_scale
             self.model.load_images()
             images = self.model.get_all_images()
-            print(images)
+#            print(images)
             self.view.image_list_update(images)
             self.image_update()
 #            self.view.canvas.focus_set()

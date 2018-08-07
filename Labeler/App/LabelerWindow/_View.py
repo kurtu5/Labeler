@@ -8,7 +8,7 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout
+from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout, QStackedLayout
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel
@@ -105,44 +105,145 @@ class View(MVPBase.BaseView):
         self.scale = self.scale * factror
         gv.setTransform(QTransform(self.scale,0,0,self.scale,0,0))
 
+    # This works
+    def image_loade(self, images):
+        print("called")
+        l = QVBoxLayout()
+        self.page.display.setLayout(l)
+        
+        sc = QGraphicsScene()
+        sc2 = QGraphicsScene()
 
+        gv = QGraphicsView()
+        gv2 = QGraphicsView()
+        gv.setScene(sc)
+        gv2.setScene(sc2)
+        
+        l.addWidget(QLabel("START"))
+        l.addWidget(gv)
+        l.addWidget(gv2)
+        l.addWidget(QLabel("END"))
+        
+        im1=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/290836_11big.jpg"
+        im2=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/368659_12big.jpg"
+        image_reader = QImageReader()
+        image_reader.setDecideFormatFromContent(True)
+        image_reader.setFileName(im1)
+        image1 = image_reader.read()
+        image_reader.setFileName(im2)
+        image2 = image_reader.read()
+        pixmap1 = QPixmap(image1)
+        pixmap1 = pixmap1.scaledToWidth(100)
+        pixmap2 = QPixmap(image2)
+        pixmap2 = pixmap2.scaledToWidth(100)
+    
+
+        sc.addPixmap(pixmap1)
+        sc2.addPixmap(pixmap2)
+        
+        
     def image_load(self, images):
+        # https://stackoverflow.com/questions/4528347/clear-all-widgets-in-a-layout-in-pyqt
+        def clearLayout(layout):
+          while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+              child.widget().deleteLater()
 
-        gv = self.page.graphicsView
 
-        gv.setDragMode(QGraphicsView.ScrollHandDrag)
-        gv.setDragMode(QGraphicsView.RubberBandDrag)
-#        gv.shear(0.1,0.1)
-#        gv.rotate(90)
-        scene=QGraphicsScene()
-        gv.setScene(scene)
-        grid = QGridLayout()
-        gv.setLayout(grid)
+        
+        im1=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/290836_11big.jpg"
+        image_reader = QImageReader()
+        image_reader.setDecideFormatFromContent(True)
+        image_reader.setFileName(im1)
+        image1 = image_reader.read()
 
+
+        self.pixmap = None
         num = len(images)
-        width=gv.width()
-        pixmap = None
-        rowWidth = 4
-        xCoord = 0
+    
+        width=self.page.display.width() + 400
+        maxcol = 4
+        if num != 0 and num < maxcol:
+            maxcol = num
+        colwidth = width/maxcol
         col = 0
+        row = 0
+        
+        # Prescan to get max height
+        maxHeight = 0
+        maxWidth = 1
         for image in images:
 
             image_reader = QImageReader()
             image_reader.setDecideFormatFromContent(True)
             image_reader.setFileName(image)
 #            image_reader.setScaledSize(QSize(100,100))
-            img = image_reader.read()
-            pixmap = QPixmap(img)
-            item = scene.addPixmap(pixmap)
+            size = image_reader.size()
+            height = size.height()
+            width = size.width()
+            if height > maxHeight:
+                maxHeight = height
+                maxWidth = width
+        rowheight = maxHeight / ( maxWidth / colwidth )
+        
+        if num <= 1:
+            QWidget().setLayout(self.page.display.layout())
+            self.display_layout = QGridLayout()
+            self.graphicsview = QGraphicsView()
+#            self.scene = QGraphicsScene()
+            self.display_layout.addWidget(self.graphicsview)
+            self.display_multiple_layout = QGridLayout()
+            
+            self.page.display.setLayout(self.display_layout)
+        else:
+            QWidget().setLayout(self.page.display.layout())
+            self.display_layout = QGridLayout()
+            self.display_multiple_layout = QGridLayout()
+            self.graphicsview = QGraphicsView()
+            self.scene = QGraphicsScene()
+            self.graphicsview.setScene(self.scene)
+            self.display_layout.addWidget(self.graphicsview, 0,0)
+            self.qwidget=QGraphicsView()
+            self.scene.addWidget(self.qwidget)
 
-            if num != 0:
-                pixmap = pixmap.scaledToWidth(width)
-                item.setOffset(xCoord, xCoord)
+            self.qwidget.setLayout(self.display_multiple_layout)
+            
+            clearLayout(self.display_multiple_layout)
+            self.page.display.setLayout(self.display_layout)
+            
+        for image in images:
+
+            if col >= maxcol:
+                col = 0
+                row += 1
+
+            image_reader = QImageReader()
+            image_reader.setDecideFormatFromContent(True)
+            image_reader.setFileName(image)
+#            image_reader.setScaledSize(QSize(100,100))
+            img = image_reader.read()
+            
+            scene = QGraphicsScene()
+            gv = QGraphicsView()
+            gv.setScene(scene)
+
+            pixmap = QPixmap(img)
+            if num != 1:
+                print("multiimage")
+                pixmap = pixmap.scaledToWidth(colwidth - 20)
+                item = scene.addPixmap(pixmap)
+#                item.setOffset(col * colwidth, row * rowheight)
+                self.display_multiple_layout.addWidget(gv, row, col)
+            else:
+                self.display_layout.addWidget(gv, row, col)
+                scene.addPixmap(pixmap)
 
             col += 1
-            xCoord += 100
+ 
+            
 
-
+#        self.gv.show()
 #        item=QGraphicsItem()
 #        gv.setInteractive(False)
 #        print("GV isinteractive =", gv.isInteractive())
@@ -213,8 +314,20 @@ class View(MVPBase.BaseView):
             file.open(QFile.ReadOnly)
             loader = QUiLoader()
             self.page = loader.load(file)
-            gv = self.page.graphicsView
+#            gv = self.page.graphicsView
+            
 
+            
+#            self.display_layout = QGridLayout()
+#            self.display_multiple_layout = QGridLayout()
+#
+#            self.graphicsview = QGraphicsView()
+#            self.scene = QGraphicsScene()
+#            self.display_layout.addWidget(self.graphicsview)
+#            self.page.display.setLayout(self.display_layout)
+            
+
+            
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
 #            size=QSize()
 #            size.boundedTo(QSize(300,300))
