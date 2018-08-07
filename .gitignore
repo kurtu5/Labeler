@@ -2,3 +2,4 @@
 __pycache__/
 .sed_refactorer.history
 sed_refactorer.sh
+*.autosave
