@@ -191,7 +191,6 @@ class View(MVPBase.BaseView):
             QWidget().setLayout(self.page.display.layout())
             self.display_layout = QGridLayout()
             self.graphicsview = QGraphicsView()
-#            self.scene = QGraphicsScene()
             self.display_layout.addWidget(self.graphicsview)
             self.display_multiple_layout = QGridLayout()
             
@@ -201,13 +200,11 @@ class View(MVPBase.BaseView):
             self.display_layout = QGridLayout()
             self.display_multiple_layout = QGridLayout()
             self.graphicsview = QGraphicsView()
-            self.scene = QGraphicsScene()
-            self.graphicsview.setScene(self.scene)
-            self.display_layout.addWidget(self.graphicsview, 0,0)
-            self.qwidget=QGraphicsView()
-            self.scene.addWidget(self.qwidget)
 
-            self.qwidget.setLayout(self.display_multiple_layout)
+            self.display_layout.addWidget(self.graphicsview)
+
+
+            self.graphicsview.setLayout(self.display_multiple_layout)
             
             clearLayout(self.display_multiple_layout)
             self.page.display.setLayout(self.display_layout)
