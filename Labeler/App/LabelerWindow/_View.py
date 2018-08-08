@@ -10,9 +10,10 @@ sys.path.insert(0, path)
 
 from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout, QStackedLayout, QGraphicsWidget
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap
-from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF
+from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
+from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
+from PySide2.QtWidgets import QApplication
 from PySide2.QtGui import QTransform
 
 
@@ -29,12 +30,15 @@ class View(MVPBase.BaseView):
 
 #         self.controller = controller
         self.label_widgets = {}
+        
+        self.image_signal = self.ImageSignal()
 
 #        self.font = Font(size=24)
         self.default_scale = 0.2
         self.scale = 1.0;   # Initial Image scale
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
+        self.max_columns = 4 # Max cols for multimages
 
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
@@ -141,7 +145,11 @@ class View(MVPBase.BaseView):
         sc.addPixmap(pixmap1)
         sc2.addPixmap(pixmap2)
         
-        
+    class ImageSignal(QObject):
+        deselected = Signal(int)
+        def myemit(self, index):
+            self.deselected.emit(index)
+            
     def image_load(self, images):
         # https://stackoverflow.com/questions/4528347/clear-all-widgets-in-a-layout-in-pyqt
         def clearLayout(layout):
@@ -162,8 +170,8 @@ class View(MVPBase.BaseView):
         self.pixmap = None
         num = len(images)
     
-        width=self.page.display.width() + 400
-        maxcol = 10
+        width=self.page.display.width()
+        maxcol = self.max_columns
         if num != 0 and num < maxcol:
             maxcol = num
         colwidth = width/maxcol
@@ -173,7 +181,7 @@ class View(MVPBase.BaseView):
         # Prescan to get max height
         maxHeight = 0
         maxWidth = 1
-        for image in images:
+        for index, image in images.items():
 
             image_reader = QImageReader()
             image_reader.setDecideFormatFromContent(True)
@@ -224,7 +232,7 @@ class View(MVPBase.BaseView):
 #            self.display_multiple_layout.setSizeHint(size)
 #            print("mult=",self.display_multiple_layout.sizeHint())
             
-        for image in images:
+        for index, image in images.items():
 
             if col >= maxcol:
                 col = 0
@@ -249,7 +257,11 @@ class View(MVPBase.BaseView):
                 ql = QLabel("TEST")
                 ql.resize(500,500)
                 s = 50
-                rec = self.RectangleWidget(pixmap, QRectF(10,10, s,s))
+                import ntpath
+                filename=ntpath.basename(image)
+                rec = self.RectangleWidget(pixmap, filename, index)
+                rec.deselected.connect(self.image_signal.myemit)
+
                 print("Size = ", rec.size())
                 self.display_multiple_layout.addItem(rec, row, col)
 #                for i in [0,1,2,3]:
@@ -264,17 +276,64 @@ class View(MVPBase.BaseView):
  
             
     class RectangleWidget(QGraphicsWidget):
-        def __init__(self, pixmap, rect, parent=None):
+        deselected = Signal(int)
+        def __init__(self, pixmap, filename, index, parent=None):
             super().__init__(parent)
-            self.rect = rect
+#            self.rect = rect
             self.pixmap = pixmap
+            self.filename = filename
+            self.index = index
             self.setMinimumSize(QSizeF(self.pixmap.size()))
             self.setMaximumSize(QSizeF(self.pixmap.size()))
+            defaultFont = QFont("default/font-family")
+            self.label_font = defaultFont
+
             
+        def mousePressEvent(self, event):
+            print("Remove index=", self.index)
+            self.deselected.emit(self.index)
+
+            return
+            print("Hover", event.type())
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == Qt.ShiftModifier:
+                print('Shift+Click')
+            elif modifiers ==  Qt.ControlModifier:
+                print('Control+Click')
+            elif modifiers == ( Qt.ControlModifier |
+                                Qt.ShiftModifier):
+                print('Control+Shift+Click')
+            elif modifiers == ( Qt.AltModifier):
+                print('Alt')
+            else:
+                print('Click')
+            
+                
+
         def paint(self, painter, *args, **kwargs):
             print('Paint Called')
-            painter.drawRect(self.rect)
+#            painter.drawRect(self.rect)
             painter.drawPixmap(0, 0, self.pixmap)
+#            self.label_font.setColor(QColor("red"))
+            width = self.pixmap.size().width()
+            # Any width below key is size
+            font_step_size = {40:2, 60:4, 80:6, 100:8, 140:10, 160:12, 180:14, 200:16}
+            for w,s in font_step_size.items():
+                pixel_size = s
+                if width < w:
+                    break
+            print("width,pixelsize", width,pixel_size)
+            # 212 = 20  31=6
+            self.label_font.setPixelSize(pixel_size)
+            painter.setFont(self.label_font)
+#            painter.setPen(QColor("red"))
+            painter.drawText(1,self.pixmap.size().height()+pixel_size,self.filename)
+            size = QSizeF(self.pixmap.size())
+            textsize = QSizeF(0,pixel_size)
+            newsize = size + textsize
+            self.setMaximumSize(newsize)
+            self.setMinimumSize(newsize)
+
 #        self.gv.show()
 #        item=QGraphicsItem()
 #        gv.setInteractive(False)
@@ -282,8 +341,14 @@ class View(MVPBase.BaseView):
 
 
 
-    def image_list_setSelected(self, index):
-        self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Select)
+    def image_list_setSelected(self, index, select=True):
+        if select == True:
+            self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Select)
+        else:
+            self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Toggle)
+
+        
+
 
     def image_list_update(self, images):
         """ Put all the images in the QListWidget """
@@ -361,6 +426,9 @@ class View(MVPBase.BaseView):
 
             
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
+            self.page.columns_choice.setRange(1,10)
+            self.page.columns_choice.setValue(4)
+            
 #            size=QSize()
 #            size.boundedTo(QSize(300,300))
 #            size.expandedTo(QSize(300,300))

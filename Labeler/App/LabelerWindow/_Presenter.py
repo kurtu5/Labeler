@@ -32,9 +32,9 @@ class Presenter(MVPBase.BasePresenter):
 
 ## TODO where do these belong?
     def image_update(self):
-        images = self.model.get_selected_images()
+        selected_images = self.model.get_selected_images()
 #        print("show images=", images)
-        self.view.image_load(images)
+        self.view.image_load(selected_images)
 
         # Update status string
 #        status_text = f'index: {self.model.image_index} image: {self.model.image_file} scale: {self.scale:.2f}'
@@ -78,6 +78,7 @@ class Presenter(MVPBase.BasePresenter):
             self.scale = self.default_scale
             self.model.load_images()
             images = self.model.get_all_images()
+            images = list(images.values())
 #            print(images)
             self.view.image_list_update(images)
             self.image_update()
@@ -87,6 +88,10 @@ class Presenter(MVPBase.BasePresenter):
 #            self.view.image_list_set(items)
 
     ### View Interactor event handlers
+    def on_columns_choice(self, choice):
+        self.view.max_columns = choice
+        self.image_update()
+        
     def on_scale(self, scale, event):
         if scale == 1:
             self.scale = 1.0
@@ -161,7 +166,7 @@ class Presenter(MVPBase.BasePresenter):
             self.label(key, has_feature)
 
     def on_row_changed(self, row):
-        selected = self.view.page.listWidget.item(row).isSelected()
+#        selected = self.view.page.listWidget.item(row).isSelected()
 #        print(f'the item at {row} is {selected} selected')
         self.model.image_select(row)
         self.image_update()

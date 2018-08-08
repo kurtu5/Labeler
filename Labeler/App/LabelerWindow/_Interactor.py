@@ -54,7 +54,9 @@ class Interactor(MVPBase.BaseInteractor):
         self.event_add((self.view.parent.window.resized,self.presenter.image_update))
 
         self.event_add((self.view.keyEvent.signal,self.presenter.on_keypress))
-
+#        self.view.page.columns_choice.valueChanged.connect(lambda e: print("spin", e))
+        self.event_add((self.view.page.columns_choice.valueChanged, self.presenter.on_columns_choice))
+        self.event_add((self.view.image_signal.deselected, lambda index: self.view.image_list_setSelected(index, False) ))
 #        def itemClicked(item):
 #            row = item.listWidget().indexFromItem(item).row()
 #            selected = item.isSelected()

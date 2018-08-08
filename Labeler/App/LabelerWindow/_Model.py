@@ -15,7 +15,7 @@ class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.selected_indexes = set()
-        self.image_files = None
+        self.image_files = {}  # {index->image_file}
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
@@ -25,7 +25,12 @@ class Model(MVPBase.BaseModel):
 
     def load_images(self):
         self.sib('images').load_images()
-        self.image_files = self.sib('images').image_files
+        index = 0
+#        print("images model", self.sib('images').image_files)
+        for image_file in self.sib('images').image_files:
+            print("-------------image_file", index, image_file)
+            self.image_files[index] = image_file
+            index += 1
 
     def image_select(self, index):
         if index not in self.selected_indexes:
@@ -39,10 +44,12 @@ class Model(MVPBase.BaseModel):
         return self.image_files
 
     def get_selected_images(self):
-        images = []
-        for index in self.selected_indexes:
-            images.append(self.image_files[index])
-        return images
+        selected_images = {}
+        for selected_index in self.selected_indexes:
+            for index, image_file in self.image_files.items():
+                if selected_index == index:
+                    selected_images[index] = image_file
+        return selected_images
 
     # Probably don't need these.  USe the listWidget select to page through images
     def image_select_next(self):
