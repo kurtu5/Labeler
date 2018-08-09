@@ -8,6 +8,8 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
+
+from ntpath import basename
 from PySide2.QtWidgets import QLabel, QPushButton, QWidget, QGraphicsView, QGraphicsScene, QGraphicsItem, QGridLayout, QStackedLayout, QGraphicsWidget
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
@@ -19,45 +21,61 @@ from PySide2.QtGui import QTransform
 class ImageListItem(QListWidgetItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.start()
-        self.wrapping_widget = QWidget()
+        self.widget = QWidget()
         self.text_widget = QLabel()
         self.labels_widget = QLabel()
+
         self.icon_widget = QLabel()
+        self.icon_reader = QImageReader()
+        self.icon_file = None
+        self.icon_size = 60
         self.start()
-        
-    def start():
+
+    def start(self):
         widgetLayout = QHBoxLayout()
         widgetLayout.addWidget(self.labels_widget)
         widgetLayout.addWidget(self.icon_widget)
         widgetLayout.addWidget(self.text_widget)
         widgetLayout.addStretch()
-        self.wrapping_widget.setLayout(widgetLayout)
+        self.widget.setLayout(widgetLayout)
 #            pixmap=icon.pixmap(100,100)
 #            item.setIcon(icon)
 #            item.setSizeHint(QSize(size,size))
-        self.setSizeHint(self.wrapping_widget.sizeHint())
+        self.update_size()
+
+    def update_size(self):
+        self.setSizeHint(self.widget.sizeHint())
 
     def set_labels(self, labels):
         self.labels_widget.setText(labels)
-        
+        self.update_size()
+
     def set_text(self, text):
         self.text_widget.setText(text)
-        
+        self.update_size()
+
     def set_icon(self, icon_file):
-        size = 60
-        
-        image_reader = QImageReader()
-        image_reader.setDecideFormatFromContent(True)
-        image_reader.setFileName(icon_file)
-        image_reader.setScaledSize(QSize(size,size))
-        img = image_reader.read()
-        pixmap= QPixmap(img)
+        self.icon_file = icon_file
+        self.update_icon()
+        self.update_size()
+
+    def set_icon_size(self, size):
+        self.icon_size = size
+        self.update_icon()
+        self.update_size()
+
+    def update_icon(self):
+        self.icon_reader.setDecideFormatFromContent(True)
+        self.icon_reader.setFileName(self.icon_file)
+        self.icon_reader.setScaledSize(QSize(self.icon_size,self.icon_size))
+        image = self.icon_reader.read()
+        pixmap = QPixmap(image)
 #            pixmap.scaled(QSize(size,size))
 
-        icon=QIcon(pixmap)
+#        icon=QIcon(pixmap)
         self.icon_widget.setPixmap(pixmap)
-        
+
+
 class MultiImageWidget(QGraphicsWidget):
     deselected = Signal(int)
     def __init__(self, pixmap, filename, index, parent=None):
@@ -138,6 +156,61 @@ class View(MVPBase.BaseView):
 #        self.scale_yloc = 0
         self.max_columns = 4 # Max cols for multimages
         self.cached_images = {} # Cache read of image from disk
+
+    def start(self):
+            # Since I have default implemetations for showable pages, do this in base?
+            path = os.path.dirname(os.path.realpath(__file__)) + "\\"
+            file = QFile(path + "labeler.ui")
+            file.open(QFile.ReadOnly)
+            loader = QUiLoader()
+            self.page = loader.load(file)
+
+            # I could just modify the ui file.... but lets play with this
+            self.page.horizontalLayout.removeWidget(self.page.display)
+            self.page.display.close()
+            self.page.display=QStackedWidget()
+            self.page.horizontalLayout.insertWidget(1,self.page.display)
+            self.page.horizontalLayout.update()
+
+            # Layout for single images
+            self.single_image = QWidget()
+            self.single_image_layout = QGridLayout()
+            self.single_image_view = QGraphicsView()
+            self.single_image_scene = QGraphicsScene()
+            self.single_image_view.setScene(self.single_image_scene)
+            self.single_image_layout.addWidget(self.single_image_view)
+            self.single_image.setLayout(self.single_image_layout)
+
+            # Layout for multiple images
+            self.multiple_image = QWidget()
+            self.multiple_image_view_layout = QVBoxLayout()
+            self.multiple_image_layout = QGraphicsGridLayout()
+            self.multiple_image_view = QGraphicsView()
+            self.multiple_image_scene = QGraphicsScene()
+            self.multiple_image_view.setScene(self.multiple_image_scene)
+            self.panel = QGraphicsWidget()
+            self.multiple_image_scene.addItem(self.panel)
+            self.multiple_image_view_layout.addWidget(self.multiple_image_view)
+            self.panel.setLayout(self.multiple_image_layout)
+            self.multiple_image.setLayout(self.multiple_image_view_layout)
+
+            self.page.display.addWidget(self.single_image)
+            self.page.display.addWidget(self.multiple_image)
+
+            self.page_index = self.parent.stacked_widget.addWidget(self.page)
+            self.page.columns_choice.setRange(1,10)
+            self.page.columns_choice.setValue(4)
+
+#            size=QSize()
+#            size.boundedTo(QSize(300,300))
+#            size.expandedTo(QSize(300,300))
+#            self.page.listWidget.setIconSize(size)
+            self.page.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+            # Global key press eventFilter.signal emits
+            self.keyEvent = self.KeyEventFilter(self.parent.parent)
+            self.parent.parent.installEventFilter(self.keyEvent)
+
 
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
@@ -248,7 +321,7 @@ class View(MVPBase.BaseView):
             if col >= maxcol:
                 col = 0
                 row += 1
-                
+
             # Used any cached reads
             if index not in self.cached_images.keys():
                 image_reader = QImageReader()
@@ -256,13 +329,11 @@ class View(MVPBase.BaseView):
                 image_reader.setFileName(image_file)
                 self.cached_images[index] = image_reader.read()
             image = self.cached_images[index]
-            
+
             pixmap = QPixmap(image)
             if num > 1:
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
-                import ntpath
-                short_image_file=ntpath.basename(image_file)
-                rec = MultiImageWidget(pixmap, short_image_file, index)
+                rec = MultiImageWidget(pixmap, basename(image_file), index)
                 rec.deselected.connect(self.image_signal.myemit)
                 self.multiple_image_layout.addItem(rec, row, col)
             else:
@@ -288,112 +359,13 @@ class View(MVPBase.BaseView):
 
     def image_list_update(self, images):
         """ Put all the images in the QListWidget """
-        size = 60
-#        self.page.listWidget.setIconSize(QSize(size,size))
-
         for image in images:
-
-            item = QListWidgetItem()
-
-            import ntpath
-            filename=ntpath.basename(image)
-#            item.setText(f'{filename}')
-
-
-
-
-        
-            widget = QWidget()
-            widgetText = QLabel(f'{filename}')
-            widgetLabels = QLabel("QWER")
-#            l = QLabel("XXX")
-#            l.setParent(item)
-
-
-#            font=QFont("Times",10, QFont.Bold)
-#            item.setFont(font)
-#            item.setSizeHint(size)
-
-
-            image_reader = QImageReader()
-            image_reader.setDecideFormatFromContent(True)
-            image_reader.setFileName(image)
-            image_reader.setScaledSize(QSize(size,size))
-            img = image_reader.read()
-            pixmap= QPixmap(img)
-#            pixmap.scaled(QSize(size,size))
-
-            icon=QIcon(pixmap)
-            widgetIcon = QLabel()
-            widgetIcon.setPixmap(pixmap)
-            widgetLayout = QHBoxLayout()
-
-
-            widgetLayout.addWidget(widgetLabels)
-            widgetLayout.addWidget(widgetIcon)
-            widgetLayout.addWidget(widgetText)
-            widgetLayout.addStretch()
-
-            widget.setLayout(widgetLayout)
-#            pixmap=icon.pixmap(100,100)
-#            item.setIcon(icon)
-#            item.setSizeHint(QSize(size,size))
-            item.setSizeHint(widget.sizeHint())
-
+            item = ImageListItem()
+            item.set_text(f'{basename(image)}')
+            item.set_labels("QWER")
+            item.set_icon(image)
+            item.set_icon_size(60)
 
             self.page.listWidget.addItem(item)
-            self.page.listWidget.setItemWidget(item, widget)
+            self.page.listWidget.setItemWidget(item, item.widget)
 
-    def start(self):
-            # Since I have default implemetations for showable pages, do this in base?
-            path = os.path.dirname(os.path.realpath(__file__)) + "\\"
-            file = QFile(path + "labeler.ui")
-            file.open(QFile.ReadOnly)
-            loader = QUiLoader()
-            self.page = loader.load(file)
-
-            # I could just modify the ui file.... but lets play with this
-            self.page.horizontalLayout.removeWidget(self.page.display)
-            self.page.display.close()
-            self.page.display=QStackedWidget()
-            self.page.horizontalLayout.insertWidget(1,self.page.display)
-            self.page.horizontalLayout.update()
-
-            # Layout for single images
-            self.single_image = QWidget()
-            self.single_image_layout = QGridLayout()
-            self.single_image_view = QGraphicsView()
-            self.single_image_scene = QGraphicsScene()
-            self.single_image_view.setScene(self.single_image_scene)
-            self.single_image_layout.addWidget(self.single_image_view)
-            self.single_image.setLayout(self.single_image_layout)
-
-            # Layout for multiple images
-            self.multiple_image = QWidget()
-            self.multiple_image_view_layout = QVBoxLayout()
-            self.multiple_image_layout = QGraphicsGridLayout()
-            self.multiple_image_view = QGraphicsView()
-            self.multiple_image_scene = QGraphicsScene()
-            self.multiple_image_view.setScene(self.multiple_image_scene)
-            self.panel = QGraphicsWidget()
-            self.multiple_image_scene.addItem(self.panel)
-            self.multiple_image_view_layout.addWidget(self.multiple_image_view)
-            self.panel.setLayout(self.multiple_image_layout)
-            self.multiple_image.setLayout(self.multiple_image_view_layout)
-
-            self.page.display.addWidget(self.single_image)
-            self.page.display.addWidget(self.multiple_image)
-
-            self.page_index = self.parent.stacked_widget.addWidget(self.page)
-            self.page.columns_choice.setRange(1,10)
-            self.page.columns_choice.setValue(4)
-
-#            size=QSize()
-#            size.boundedTo(QSize(300,300))
-#            size.expandedTo(QSize(300,300))
-#            self.page.listWidget.setIconSize(size)
-            self.page.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
-            # Global key press eventFilter.signal emits
-            self.keyEvent = self.KeyEventFilter(self.parent.parent)
-            self.parent.parent.installEventFilter(self.keyEvent)
