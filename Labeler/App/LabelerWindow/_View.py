@@ -13,7 +13,7 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
-from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QApplication, QStackedWidget
 from PySide2.QtGui import QTransform
 
 
@@ -197,42 +197,56 @@ class View(MVPBase.BaseView):
         rowheight = maxHeight / ( maxWidth / colwidth )
         
         if num <= 1:
-            QWidget().setLayout(self.page.display.layout())
-            self.display_layout = QGridLayout()
-            self.graphicsview = QGraphicsView()
-            self.display_layout.addWidget(self.graphicsview)
-            self.display_multiple_layout = QGraphicsGridLayout()
-
-            
-            self.page.display.setLayout(self.display_layout)
+            pass
         else:
-            QWidget().setLayout(self.page.display.layout())
-            self.display_layout = QVBoxLayout()
-            self.display_multiple_layout = QGraphicsGridLayout()
-            
-            self.graphicsview = QGraphicsView()
-            self.scene=QGraphicsScene()
-            self.graphicsview.setScene(self.scene)
-            
-            self.panel = QGraphicsWidget()
-            self.scene.addItem(self.panel)
-            
-            self.display_layout.addWidget(self.graphicsview)
 
-            self.panel.setLayout(self.display_multiple_layout)
-#            self.graphicsview.setLayout(self.display_multiple_layout)
-            
-
-            
-            clearLayout(self.display_multiple_layout)
-            self.page.display.setLayout(self.display_layout)
+            pass
+        #            self.page.display.setLayout(self.display_layout)
 #            self.display_multiple_layout.setHorizontalSpacing(400) # forced big
 
 #            self.display_multiple_layout.setSizeConstraint(QLayout.SetMaximumSize)
 #            size = QSize(400,400)
 #            self.display_multiple_layout.setSizeHint(size)
 #            print("mult=",self.display_multiple_layout.sizeHint())
+        if num > 1:
+            print("multipled images. clear QGraphicsGridLayout")
+            self.page.display.setCurrentWidget(self.multiple_image)
             
+            self.multiple_image_scene.setSceneRect(self.multiple_image_scene.itemsBoundingRect())
+#            self.multiple_image_scene.setSceneRect(QRectF(0,0,0,0))
+
+            while self.multiple_image_layout.count():
+#                print("removing one")
+                self.multiple_image_layout.removeAt(0)
+                
+#            self.multiple_image_scene.clear()  
+#            print("panel children", self.panel.childItems())
+#            import pdb; pdb.set_trace() 
+                
+            for child in self.panel.childItems():
+                child.setParent(None)
+                
+
+
+#            self.multiple_image_scene = QGraphicsScene()
+#            self.multiple_image_view.setScene(self.multiple_image_scene)
+            
+#            self.panel = QGraphicsWidget()
+#            self.multiple_image_scene.addItem(self.panel)
+            
+#            self.multiple_image_view_layout.addWidget(self.multiple_image_view)
+#
+#            self.panel.setLayout(self.multiple_image_layout)
+#                  
+#            self.multiple_image.setLayout(self.multiple_image_view_layout)
+            
+            
+
+        else:
+            self.single_image_scene.clear()
+            self.page.display.setCurrentWidget(self.single_image)
+
+    
         for index, image in images.items():
 
             if col >= maxcol:
@@ -267,17 +281,21 @@ class View(MVPBase.BaseView):
 #                    self.cached_thumbs[index] = rec
 
 #                print("Size = ", rec.size())
-                self.display_multiple_layout.addItem(rec, row, col)
+
+                self.multiple_image_layout.addItem(rec, row, col)
 #                for i in [0,1,2,3]:
 #                    w = self.display_multiple_layout.columnMinimumWidth(i)
 #                    print(f"col {i} is w={w}")
-
+                # Scene only grows... reset back 
             else:
-                self.display_layout.addWidget(gv, row, col)
-                scene.addPixmap(pixmap)
+#                self.single_image_layout.addWidget(gv, row, col)
+                self.single_image_scene.addPixmap(pixmap)
 
             col += 1
- 
+        from time import sleep
+#        sleep(2)
+
+
             
     class RectangleWidget(QGraphicsWidget):
         deselected = Signal(int)
@@ -421,14 +439,45 @@ class View(MVPBase.BaseView):
             
 
             
-#            self.display_layout = QGridLayout()
-#            self.display_multiple_layout = QGridLayout()
-#
-#            self.graphicsview = QGraphicsView()
-#            self.scene = QGraphicsScene()
-#            self.display_layout.addWidget(self.graphicsview)
-#            self.page.display.setLayout(self.display_layout)
+            # I could just modify the ui file.... but lets play with this
+            self.page.horizontalLayout.removeWidget(self.page.display)
+            self.page.display.close()
+            self.page.display=QStackedWidget()
+            self.page.horizontalLayout.insertWidget(1,self.page.display)
+            self.page.horizontalLayout.update()
+
+            # Layout for single images
+            self.single_image = QWidget()
+            self.single_image_layout = QGridLayout()
+            self.single_image_view = QGraphicsView()
+            self.single_image_scene = QGraphicsScene()
+            self.single_image_view.setScene(self.single_image_scene)   
+            self.single_image_layout.addWidget(self.single_image_view)
+            self.single_image.setLayout(self.single_image_layout)
             
+            # Layout for multiple images
+            self.multiple_image = QWidget()
+            self.multiple_image_view_layout = QVBoxLayout()
+            
+            self.multiple_image_layout = QGraphicsGridLayout()
+            
+            self.multiple_image_view = QGraphicsView()
+            self.multiple_image_scene = QGraphicsScene()
+            self.multiple_image_view.setScene(self.multiple_image_scene)
+
+            self.panel = QGraphicsWidget()
+            self.multiple_image_scene.addItem(self.panel)
+            
+            self.multiple_image_view_layout.addWidget(self.multiple_image_view)
+
+            self.panel.setLayout(self.multiple_image_layout)
+                  
+            self.multiple_image.setLayout(self.multiple_image_view_layout)
+            
+            
+            
+            self.page.display.addWidget(self.single_image)
+            self.page.display.addWidget(self.multiple_image)
 
             
             self.page_index = self.parent.stacked_widget.addWidget(self.page)

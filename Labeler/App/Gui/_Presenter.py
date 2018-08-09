@@ -38,13 +38,13 @@ class Presenter(MVPBase.BasePresenter):
                 # Let the model decide what to do on app_exit
 #                self.model.app_exit.set(True)
                 self.model.set_app_exit()
+                
 
-
-            if ( key == '1'):
+            if ( event.text() == '1'):
                 self.model.window_model_activate('test')
-            if ( key == '2'):
+            if ( event.text() == '2'):
                 self.model.window_model_activate('labeler')
-            if ( key == '3'):
+            if ( event.text() == '3'):
                 self.model.window_model_activate('options')
             # Control+o
 #            if event.state & 4 and event.keysym=='o':
