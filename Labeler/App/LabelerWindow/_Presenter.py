@@ -37,7 +37,7 @@ class Presenter(MVPBase.BasePresenter):
         self.interactor.event_group_blockSignals("image_signal", True)
         selected_images = self.model.get_selected_images()
 #        print("show images=", images)
-        self.view.image_load(selected_images)
+        self.view.images_load(selected_images)
         self.interactor.event_group_blockSignals("itemSelectionChanged", False)
         self.interactor.event_group_blockSignals("image_signal", False)
         print("     finishing image_update")

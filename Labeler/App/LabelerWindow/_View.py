@@ -16,6 +16,104 @@ from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QL
 from PySide2.QtWidgets import QApplication, QStackedWidget
 from PySide2.QtGui import QTransform
 
+class ImageListItem(QListWidgetItem):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start()
+        self.wrapping_widget = QWidget()
+        self.text_widget = QLabel()
+        self.labels_widget = QLabel()
+        self.icon_widget = QLabel()
+        self.start()
+        
+    def start():
+        widgetLayout = QHBoxLayout()
+        widgetLayout.addWidget(self.labels_widget)
+        widgetLayout.addWidget(self.icon_widget)
+        widgetLayout.addWidget(self.text_widget)
+        widgetLayout.addStretch()
+        self.wrapping_widget.setLayout(widgetLayout)
+#            pixmap=icon.pixmap(100,100)
+#            item.setIcon(icon)
+#            item.setSizeHint(QSize(size,size))
+        self.setSizeHint(self.wrapping_widget.sizeHint())
+
+    def set_labels(self, labels):
+        self.labels_widget.setText(labels)
+        
+    def set_text(self, text):
+        self.text_widget.setText(text)
+        
+    def set_icon(self, icon_file):
+        size = 60
+        
+        image_reader = QImageReader()
+        image_reader.setDecideFormatFromContent(True)
+        image_reader.setFileName(icon_file)
+        image_reader.setScaledSize(QSize(size,size))
+        img = image_reader.read()
+        pixmap= QPixmap(img)
+#            pixmap.scaled(QSize(size,size))
+
+        icon=QIcon(pixmap)
+        self.icon_widget.setPixmap(pixmap)
+        
+class MultiImageWidget(QGraphicsWidget):
+    deselected = Signal(int)
+    def __init__(self, pixmap, filename, index, parent=None):
+        super().__init__(parent)
+#            self.rect = rect
+        self.pixmap = pixmap
+        self.filename = filename
+        self.index = index
+        self.setMinimumSize(QSizeF(self.pixmap.size()))
+        self.setMaximumSize(QSizeF(self.pixmap.size()))
+        defaultFont = QFont("default/font-family")
+        self.label_font = defaultFont
+
+
+    def mousePressEvent(self, event):
+        print("Remove index=", self.index)
+        self.deselected.emit(self.index)
+
+        return
+        print("Hover", event.type())
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ShiftModifier:
+            print('Shift+Click')
+        elif modifiers ==  Qt.ControlModifier:
+            print('Control+Click')
+        elif modifiers == ( Qt.ControlModifier |
+                            Qt.ShiftModifier):
+            print('Control+Shift+Click')
+        elif modifiers == ( Qt.AltModifier):
+            print('Alt')
+        else:
+            print('Click')
+
+    def paint(self, painter, *args, **kwargs):
+#            print('Paint Called')
+#            painter.drawRect(self.rect)
+        painter.drawPixmap(0, 0, self.pixmap)
+#            self.label_font.setColor(QColor("red"))
+        width = self.pixmap.size().width()
+        # Any width below key is size
+        font_step_size = {40:2, 60:4, 80:6, 100:8, 140:10, 160:12, 180:14, 200:16}
+        for w,s in font_step_size.items():
+            pixel_size = s
+            if width < w:
+                break
+#            print("width,pixelsize", width,pixel_size)
+        # 212 = 20  31=6
+        self.label_font.setPixelSize(pixel_size)
+        painter.setFont(self.label_font)
+#            painter.setPen(QColor("red"))
+        painter.drawText(1,self.pixmap.size().height()+pixel_size,self.filename)
+        size = QSizeF(self.pixmap.size())
+        textsize = QSizeF(0,pixel_size)
+        newsize = size + textsize
+        self.setMaximumSize(newsize)
+        self.setMinimumSize(newsize)
 
 #https://github.com/tpgit/MDIImageViewer seems to do everything....
 # https://stackoverflow.com/questions/35508711/how-to-enable-pan-and-zoom-in-a-qgraphicsview
@@ -40,7 +138,6 @@ class View(MVPBase.BaseView):
 #        self.scale_yloc = 0
         self.max_columns = 4 # Max cols for multimages
         self.cached_images = {} # Cache read of image from disk
-        self.cached_size = {}  # Cache size of image
 
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
@@ -112,163 +209,70 @@ class View(MVPBase.BaseView):
 #        gv.setTransform(QTransform(self.scale,0,0,self.scale,0,0))
 #
 
-
     class ImageSignal(QObject):
         deselected = Signal(int)
         def myemit(self, index):
             self.deselected.emit(index)
 
-    def image_load(self, images):
-
-        self.pixmap = None
+    def images_load(self, images):
+        """ Take list of images and display in main window """
         num = len(images)
+        if num == 0:
+            return
 
         width=self.page.display.width()
         maxcol = self.max_columns
-        if num != 0 and num < maxcol:
+        if num < maxcol:
             maxcol = num
         colwidth = width/maxcol
 
-        # Prescan to get max height
-        maxHeight = 0
-        maxWidth = 1
-        for index, image_file in images.items():
-
-            if index not in self.cached_size.keys():
-                image_reader = QImageReader()
-                image_reader.setDecideFormatFromContent(True)
-                image_reader.setFileName(image_file)
-                self.cached_size[index] = image_reader.size()
-
-            size = self.cached_size[index]
-
-            height = size.height()
-            width = size.width()
-            if height > maxHeight:
-                maxHeight = height
-                maxWidth = width
-#        rowheight = maxHeight / ( maxWidth / colwidth )
-
+        # Set proper widget for display of multiple or single images
         if num > 1:
-            print("multipled images. clear QGraphicsGridLayout")
             self.page.display.setCurrentWidget(self.multiple_image)
-
-
             # Clear the layout
             while self.multiple_image_layout.count():
                 self.multiple_image_layout.removeAt(0)
-
             # Clear the scene
             for child in self.panel.childItems():
                 child.setParent(None)
-
-            self.multiple_image_scene.setSceneRect(self.multiple_image_scene.itemsBoundingRect())
         else:
-            self.single_image_scene.clear()
             self.page.display.setCurrentWidget(self.single_image)
+            self.single_image_scene.clear()
+            self.single_image_scene.setSceneRect(self.single_image_scene.itemsBoundingRect())
 
+        # Display images or image
         row = 0
         col = -1
         for index, image_file in images.items():
-
             col += 1
             if col >= maxcol:
                 col = 0
                 row += 1
-
+                
+            # Used any cached reads
             if index not in self.cached_images.keys():
                 image_reader = QImageReader()
                 image_reader.setDecideFormatFromContent(True)
                 image_reader.setFileName(image_file)
                 self.cached_images[index] = image_reader.read()
-
             image = self.cached_images[index]
-
-            scene = QGraphicsScene()
-            gv = QGraphicsView()
-            gv.setScene(scene)
-
+            
             pixmap = QPixmap(image)
-            if num != 1:
-#                print("multiimage")
+            if num > 1:
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
-
                 import ntpath
                 short_image_file=ntpath.basename(image_file)
-
-                rec = self.RectangleWidget(pixmap, short_image_file, index)
+                rec = MultiImageWidget(pixmap, short_image_file, index)
                 rec.deselected.connect(self.image_signal.myemit)
-
                 self.multiple_image_layout.addItem(rec, row, col)
-
             else:
                 self.single_image_scene.addPixmap(pixmap)
 
+        adjusted=self.multiple_image_scene.itemsBoundingRect()
+        adjusted.adjust(0,0,0,8*row)
+        self.multiple_image_scene.setSceneRect(adjusted)
 
 
-    class RectangleWidget(QGraphicsWidget):
-        deselected = Signal(int)
-        def __init__(self, pixmap, filename, index, parent=None):
-            super().__init__(parent)
-#            self.rect = rect
-            self.pixmap = pixmap
-            self.filename = filename
-            self.index = index
-            self.setMinimumSize(QSizeF(self.pixmap.size()))
-            self.setMaximumSize(QSizeF(self.pixmap.size()))
-            defaultFont = QFont("default/font-family")
-            self.label_font = defaultFont
-
-
-        def mousePressEvent(self, event):
-            print("Remove index=", self.index)
-            self.deselected.emit(self.index)
-
-            return
-            print("Hover", event.type())
-            modifiers = QApplication.keyboardModifiers()
-            if modifiers == Qt.ShiftModifier:
-                print('Shift+Click')
-            elif modifiers ==  Qt.ControlModifier:
-                print('Control+Click')
-            elif modifiers == ( Qt.ControlModifier |
-                                Qt.ShiftModifier):
-                print('Control+Shift+Click')
-            elif modifiers == ( Qt.AltModifier):
-                print('Alt')
-            else:
-                print('Click')
-
-
-
-        def paint(self, painter, *args, **kwargs):
-#            print('Paint Called')
-#            painter.drawRect(self.rect)
-            painter.drawPixmap(0, 0, self.pixmap)
-#            self.label_font.setColor(QColor("red"))
-            width = self.pixmap.size().width()
-            # Any width below key is size
-            font_step_size = {40:2, 60:4, 80:6, 100:8, 140:10, 160:12, 180:14, 200:16}
-            for w,s in font_step_size.items():
-                pixel_size = s
-                if width < w:
-                    break
-#            print("width,pixelsize", width,pixel_size)
-            # 212 = 20  31=6
-            self.label_font.setPixelSize(pixel_size)
-            painter.setFont(self.label_font)
-#            painter.setPen(QColor("red"))
-            painter.drawText(1,self.pixmap.size().height()+pixel_size,self.filename)
-            size = QSizeF(self.pixmap.size())
-            textsize = QSizeF(0,pixel_size)
-            newsize = size + textsize
-            self.setMaximumSize(newsize)
-            self.setMinimumSize(newsize)
-
-#        self.gv.show()
-#        item=QGraphicsItem()
-#        gv.setInteractive(False)
-#        print("GV isinteractive =", gv.isInteractive())
 
 
 
@@ -278,7 +282,6 @@ class View(MVPBase.BaseView):
             self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Select)
         else:
             self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Toggle)
-
 #        print("     fin image_list_setSelected")
 
 
@@ -296,6 +299,10 @@ class View(MVPBase.BaseView):
             filename=ntpath.basename(image)
 #            item.setText(f'{filename}')
 
+
+
+
+        
             widget = QWidget()
             widgetText = QLabel(f'{filename}')
             widgetLabels = QLabel("QWER")
@@ -376,7 +383,6 @@ class View(MVPBase.BaseView):
 
             self.page.display.addWidget(self.single_image)
             self.page.display.addWidget(self.multiple_image)
-
 
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
             self.page.columns_choice.setRange(1,10)
