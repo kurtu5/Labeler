@@ -21,12 +21,12 @@ class Interactor(MVPBase.BaseInteractor):
 
     def event_all_register(self):
 
-        self.event_add((self.view.file_menu_quit.triggered, self.presenter.on_app_exit))
+        self.event_add((self.view.file_menu_quit,'triggered', self.presenter.on_app_exit))
 
         def on_window_enable(action):
+            print("on window enable")
             self.presenter.on_window_enable(action.data())
-        self.event_add((self.view.view_menu.triggered[QAction],
-                        on_window_enable
-                        ))
+        self.event_add((self.view.view_menu,('triggered', QAction), on_window_enable))
+#        self.event_add((self.view.view_menu,'triggered', on_window_enable))
 
 

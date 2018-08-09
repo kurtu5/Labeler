@@ -45,15 +45,36 @@ class BaseInteractor(object):
         for event_group in self.event_groups.keys():
             if exclusion_list == None or event_group not in exclusion_list:
                 self.event_group_activate(event_group, enable)
+                
+    def event_group_blockSignals(self, event_group, enable=True):
+        """ Conditionally activate a event group """
+        for event in self.event_groups[event_group]:
+            event.blockSignals(enable)
 
  # Custom even class for Interactor
     class event:
-        def __init__(self, parent_class, signal, slot):
-            self.signal = signal
+        def __init__(self, parent_class, widget, signal, slot):
+            self.widget = widget
+            self.signal = self.makeSignal(signal)
             self.slot = slot
-            self.is_active = None
+            self.is_active = None  # signal is connected to slot
+            self.is_blocked = None  # widget.blockedSignals set
             self._parent_class = parent_class
 
+        def makeSignal(self, signal):
+            if type(signal) == tuple:
+                signal_name, signal_type = signal
+                try:
+                    s = getattr(self.widget, signal_name)[signal_type]
+                except:
+                    raise Exception("cant make signal with type")
+            else:
+                try:
+                    s = getattr(self.widget, signal)
+                except:
+                    raise Exception("cant make signal")
+            return s
+                
         def add(self):
             # Bind it
 #            self.bind_id = self._parent_class.view.bind.register(self.widget, self.seq, self.func, self.add_opt)
@@ -67,3 +88,8 @@ class BaseInteractor(object):
             else:
                 self.signal.disconnect(self.slot)
                 self.is_active = enable
+                
+        def blockSignals(self, enable=True):
+            
+            self.widget.blockSignals(enable)
+            self.is_blocked = enable

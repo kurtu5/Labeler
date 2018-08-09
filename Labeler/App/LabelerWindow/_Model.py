@@ -28,7 +28,7 @@ class Model(MVPBase.BaseModel):
         index = 0
 #        print("images model", self.sib('images').image_files)
         for image_file in self.sib('images').image_files:
-            print("-------------image_file", index, image_file)
+#            print("-------------image_file", index, image_file)
             self.image_files[index] = image_file
             index += 1
 

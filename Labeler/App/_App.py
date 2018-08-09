@@ -92,8 +92,16 @@ class App(object):
 #        self.timer = QTimer()
 #        self.timer.timeout.connect(lambda: print("python event processing"))
 #        self.timer.start(100)
+        def except_hook(cls, exception, traceback):
+            sys.__excepthook__(cls, exception, traceback)
+        
+ 
 
+        import sys
+#        sys.excepthook = except_hook
 #        sys.exit(self.root.exec_())
-        self.parent.exec_()
-
-        print("done")
+        try:
+            self.parent.exec_()
+        except:
+            raise Exception("abnormal termination")
+        print("program ended normally")

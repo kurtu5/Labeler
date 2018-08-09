@@ -32,9 +32,15 @@ class Presenter(MVPBase.BasePresenter):
 
 ## TODO where do these belong?
     def image_update(self):
+        print("starting image_update")
+        self.interactor.event_group_blockSignals("itemSelectionChanged", True)
+        self.interactor.event_group_blockSignals("image_signal", True)
         selected_images = self.model.get_selected_images()
 #        print("show images=", images)
         self.view.image_load(selected_images)
+        self.interactor.event_group_blockSignals("itemSelectionChanged", False)
+        self.interactor.event_group_blockSignals("image_signal", False)
+        print("     finishing image_update")
 
         # Update status string
 #        status_text = f'index: {self.model.image_index} image: {self.model.image_file} scale: {self.scale:.2f}'
@@ -75,13 +81,13 @@ class Presenter(MVPBase.BasePresenter):
             self.refresh_images()
 
     def refresh_images(self):
-            self.scale = self.default_scale
-            self.model.load_images()
-            images = self.model.get_all_images()
-            images = list(images.values())
+        self.scale = self.default_scale
+        self.model.load_images()
+        images = self.model.get_all_images()
+        images = list(images.values())
 #            print(images)
-            self.view.image_list_update(images)
-            self.image_update()
+        self.view.image_list_update(images)
+        self.image_update()
 #            self.view.canvas.focus_set()
 
 

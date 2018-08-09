@@ -39,6 +39,7 @@ class View(MVPBase.BaseView):
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
         self.max_columns = 4 # Max cols for multimages
+        self.cached_thumbs = {}
 
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
@@ -159,7 +160,7 @@ class View(MVPBase.BaseView):
               child.widget().deleteLater()
 
 
-        
+        print("     inside image_load")
         im1=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/290836_11big.jpg"
         image_reader = QImageReader()
         image_reader.setDecideFormatFromContent(True)
@@ -250,7 +251,7 @@ class View(MVPBase.BaseView):
 
             pixmap = QPixmap(img)
             if num != 1:
-                print("multiimage")
+#                print("multiimage")
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
                 item = scene.addPixmap(pixmap)
 #                item.setOffset(col * colwidth, row * rowheight)
@@ -259,10 +260,13 @@ class View(MVPBase.BaseView):
                 s = 50
                 import ntpath
                 filename=ntpath.basename(image)
+#                if index not in self.cached_thumbs.keys():
+#                    print("Creating cache for index=",index)
                 rec = self.RectangleWidget(pixmap, filename, index)
                 rec.deselected.connect(self.image_signal.myemit)
+#                    self.cached_thumbs[index] = rec
 
-                print("Size = ", rec.size())
+#                print("Size = ", rec.size())
                 self.display_multiple_layout.addItem(rec, row, col)
 #                for i in [0,1,2,3]:
 #                    w = self.display_multiple_layout.columnMinimumWidth(i)
@@ -311,7 +315,7 @@ class View(MVPBase.BaseView):
                 
 
         def paint(self, painter, *args, **kwargs):
-            print('Paint Called')
+#            print('Paint Called')
 #            painter.drawRect(self.rect)
             painter.drawPixmap(0, 0, self.pixmap)
 #            self.label_font.setColor(QColor("red"))
@@ -322,7 +326,7 @@ class View(MVPBase.BaseView):
                 pixel_size = s
                 if width < w:
                     break
-            print("width,pixelsize", width,pixel_size)
+#            print("width,pixelsize", width,pixel_size)
             # 212 = 20  31=6
             self.label_font.setPixelSize(pixel_size)
             painter.setFont(self.label_font)
@@ -342,12 +346,14 @@ class View(MVPBase.BaseView):
 
 
     def image_list_setSelected(self, index, select=True):
+#        print("start image_list_setSelected")
         if select == True:
             self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Select)
         else:
             self.page.listWidget.setCurrentRow(index, QItemSelectionModel.Toggle)
 
-        
+#        print("     fin image_list_setSelected")
+
 
 
     def image_list_update(self, images):

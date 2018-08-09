@@ -97,6 +97,7 @@ class View(MVPBase.BaseView):
 
 #        self.window.installEventFilter(self.root)
 #        self.window.eventFilter = self.eventFilter
+
         self.window.show()
 
 #        self.root.geometry('1500x800+50+50')
