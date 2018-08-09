@@ -94,8 +94,8 @@ class App(object):
 #        self.timer.start(100)
         def except_hook(cls, exception, traceback):
             sys.__excepthook__(cls, exception, traceback)
-        
- 
+
+
 
         import sys
 #        sys.excepthook = except_hook

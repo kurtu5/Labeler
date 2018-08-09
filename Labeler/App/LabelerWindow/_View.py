@@ -30,7 +30,7 @@ class View(MVPBase.BaseView):
 
 #         self.controller = controller
         self.label_widgets = {}
-        
+
         self.image_signal = self.ImageSignal()
 
 #        self.font = Font(size=24)
@@ -39,7 +39,8 @@ class View(MVPBase.BaseView):
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
         self.max_columns = 4 # Max cols for multimages
-        self.cached_thumbs = {}
+        self.cached_images = {} # Cache read of image from disk
+        self.cached_size = {}  # Cache size of image
 
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
@@ -106,197 +107,105 @@ class View(MVPBase.BaseView):
 ##            self.label_widgets[k].pack()
 #            self.label_widgets[k].grid()
 
-    def image_scale(self, factor):
-        self.scale = self.scale * factror
-        gv.setTransform(QTransform(self.scale,0,0,self.scale,0,0))
+#    def image_scale(self, factor):
+#        self.scale = self.scale * factror
+#        gv.setTransform(QTransform(self.scale,0,0,self.scale,0,0))
+#
 
-    # This works
-    def image_loade(self, images):
-        print("called")
-        l = QVBoxLayout()
-        self.page.display.setLayout(l)
-        
-        sc = QGraphicsScene()
-        sc2 = QGraphicsScene()
 
-        gv = QGraphicsView()
-        gv2 = QGraphicsView()
-        gv.setScene(sc)
-        gv2.setScene(sc2)
-        
-        l.addWidget(QLabel("START"))
-        l.addWidget(gv)
-        l.addWidget(gv2)
-        l.addWidget(QLabel("END"))
-        
-        im1=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/290836_11big.jpg"
-        im2=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/368659_12big.jpg"
-        image_reader = QImageReader()
-        image_reader.setDecideFormatFromContent(True)
-        image_reader.setFileName(im1)
-        image1 = image_reader.read()
-        image_reader.setFileName(im2)
-        image2 = image_reader.read()
-        pixmap1 = QPixmap(image1)
-        pixmap1 = pixmap1.scaledToWidth(100)
-        pixmap2 = QPixmap(image2)
-        pixmap2 = pixmap2.scaledToWidth(100)
-    
-
-        sc.addPixmap(pixmap1)
-        sc2.addPixmap(pixmap2)
-        
     class ImageSignal(QObject):
         deselected = Signal(int)
         def myemit(self, index):
             self.deselected.emit(index)
-            
+
     def image_load(self, images):
-        # https://stackoverflow.com/questions/4528347/clear-all-widgets-in-a-layout-in-pyqt
-        def clearLayout(layout):
-          while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-              child.widget().deleteLater()
-
-
-        print("     inside image_load")
-        im1=r"C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/290836_11big.jpg"
-        image_reader = QImageReader()
-        image_reader.setDecideFormatFromContent(True)
-        image_reader.setFileName(im1)
-        image1 = image_reader.read()
-
 
         self.pixmap = None
         num = len(images)
-    
+
         width=self.page.display.width()
         maxcol = self.max_columns
         if num != 0 and num < maxcol:
             maxcol = num
         colwidth = width/maxcol
-        col = 0
-        row = 0
-        
+
         # Prescan to get max height
         maxHeight = 0
         maxWidth = 1
-        for index, image in images.items():
+        for index, image_file in images.items():
 
-            image_reader = QImageReader()
-            image_reader.setDecideFormatFromContent(True)
-            image_reader.setFileName(image)
-#            image_reader.setScaledSize(QSize(100,100))
-            size = image_reader.size()
+            if index not in self.cached_size.keys():
+                image_reader = QImageReader()
+                image_reader.setDecideFormatFromContent(True)
+                image_reader.setFileName(image_file)
+                self.cached_size[index] = image_reader.size()
+
+            size = self.cached_size[index]
+
             height = size.height()
             width = size.width()
             if height > maxHeight:
                 maxHeight = height
                 maxWidth = width
-        rowheight = maxHeight / ( maxWidth / colwidth )
-        
-        if num <= 1:
-            pass
-        else:
+#        rowheight = maxHeight / ( maxWidth / colwidth )
 
-            pass
-        #            self.page.display.setLayout(self.display_layout)
-#            self.display_multiple_layout.setHorizontalSpacing(400) # forced big
-
-#            self.display_multiple_layout.setSizeConstraint(QLayout.SetMaximumSize)
-#            size = QSize(400,400)
-#            self.display_multiple_layout.setSizeHint(size)
-#            print("mult=",self.display_multiple_layout.sizeHint())
         if num > 1:
             print("multipled images. clear QGraphicsGridLayout")
             self.page.display.setCurrentWidget(self.multiple_image)
-            
-            self.multiple_image_scene.setSceneRect(self.multiple_image_scene.itemsBoundingRect())
-#            self.multiple_image_scene.setSceneRect(QRectF(0,0,0,0))
 
+
+            # Clear the layout
             while self.multiple_image_layout.count():
-#                print("removing one")
                 self.multiple_image_layout.removeAt(0)
-                
-#            self.multiple_image_scene.clear()  
-#            print("panel children", self.panel.childItems())
-#            import pdb; pdb.set_trace() 
-                
+
+            # Clear the scene
             for child in self.panel.childItems():
                 child.setParent(None)
-                
 
-
-#            self.multiple_image_scene = QGraphicsScene()
-#            self.multiple_image_view.setScene(self.multiple_image_scene)
-            
-#            self.panel = QGraphicsWidget()
-#            self.multiple_image_scene.addItem(self.panel)
-            
-#            self.multiple_image_view_layout.addWidget(self.multiple_image_view)
-#
-#            self.panel.setLayout(self.multiple_image_layout)
-#                  
-#            self.multiple_image.setLayout(self.multiple_image_view_layout)
-            
-            
-
+            self.multiple_image_scene.setSceneRect(self.multiple_image_scene.itemsBoundingRect())
         else:
             self.single_image_scene.clear()
             self.page.display.setCurrentWidget(self.single_image)
 
-    
-        for index, image in images.items():
+        row = 0
+        col = -1
+        for index, image_file in images.items():
 
+            col += 1
             if col >= maxcol:
                 col = 0
                 row += 1
 
-            image_reader = QImageReader()
-            image_reader.setDecideFormatFromContent(True)
-            image_reader.setFileName(image)
-#            image_reader.setScaledSize(QSize(100,100))
-            img = image_reader.read()
-            
+            if index not in self.cached_images.keys():
+                image_reader = QImageReader()
+                image_reader.setDecideFormatFromContent(True)
+                image_reader.setFileName(image_file)
+                self.cached_images[index] = image_reader.read()
+
+            image = self.cached_images[index]
+
             scene = QGraphicsScene()
             gv = QGraphicsView()
             gv.setScene(scene)
 
-            pixmap = QPixmap(img)
+            pixmap = QPixmap(image)
             if num != 1:
 #                print("multiimage")
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
-                item = scene.addPixmap(pixmap)
-#                item.setOffset(col * colwidth, row * rowheight)
-                ql = QLabel("TEST")
-                ql.resize(500,500)
-                s = 50
-                import ntpath
-                filename=ntpath.basename(image)
-#                if index not in self.cached_thumbs.keys():
-#                    print("Creating cache for index=",index)
-                rec = self.RectangleWidget(pixmap, filename, index)
-                rec.deselected.connect(self.image_signal.myemit)
-#                    self.cached_thumbs[index] = rec
 
-#                print("Size = ", rec.size())
+                import ntpath
+                short_image_file=ntpath.basename(image_file)
+
+                rec = self.RectangleWidget(pixmap, short_image_file, index)
+                rec.deselected.connect(self.image_signal.myemit)
 
                 self.multiple_image_layout.addItem(rec, row, col)
-#                for i in [0,1,2,3]:
-#                    w = self.display_multiple_layout.columnMinimumWidth(i)
-#                    print(f"col {i} is w={w}")
-                # Scene only grows... reset back 
+
             else:
-#                self.single_image_layout.addWidget(gv, row, col)
                 self.single_image_scene.addPixmap(pixmap)
 
-            col += 1
-        from time import sleep
-#        sleep(2)
 
 
-            
     class RectangleWidget(QGraphicsWidget):
         deselected = Signal(int)
         def __init__(self, pixmap, filename, index, parent=None):
@@ -310,7 +219,7 @@ class View(MVPBase.BaseView):
             defaultFont = QFont("default/font-family")
             self.label_font = defaultFont
 
-            
+
         def mousePressEvent(self, event):
             print("Remove index=", self.index)
             self.deselected.emit(self.index)
@@ -329,8 +238,8 @@ class View(MVPBase.BaseView):
                 print('Alt')
             else:
                 print('Click')
-            
-                
+
+
 
         def paint(self, painter, *args, **kwargs):
 #            print('Paint Called')
@@ -435,10 +344,7 @@ class View(MVPBase.BaseView):
             file.open(QFile.ReadOnly)
             loader = QUiLoader()
             self.page = loader.load(file)
-#            gv = self.page.graphicsView
-            
 
-            
             # I could just modify the ui file.... but lets play with this
             self.page.horizontalLayout.removeWidget(self.page.display)
             self.page.display.close()
@@ -451,39 +357,31 @@ class View(MVPBase.BaseView):
             self.single_image_layout = QGridLayout()
             self.single_image_view = QGraphicsView()
             self.single_image_scene = QGraphicsScene()
-            self.single_image_view.setScene(self.single_image_scene)   
+            self.single_image_view.setScene(self.single_image_scene)
             self.single_image_layout.addWidget(self.single_image_view)
             self.single_image.setLayout(self.single_image_layout)
-            
+
             # Layout for multiple images
             self.multiple_image = QWidget()
             self.multiple_image_view_layout = QVBoxLayout()
-            
             self.multiple_image_layout = QGraphicsGridLayout()
-            
             self.multiple_image_view = QGraphicsView()
             self.multiple_image_scene = QGraphicsScene()
             self.multiple_image_view.setScene(self.multiple_image_scene)
-
             self.panel = QGraphicsWidget()
             self.multiple_image_scene.addItem(self.panel)
-            
             self.multiple_image_view_layout.addWidget(self.multiple_image_view)
-
             self.panel.setLayout(self.multiple_image_layout)
-                  
             self.multiple_image.setLayout(self.multiple_image_view_layout)
-            
-            
-            
+
             self.page.display.addWidget(self.single_image)
             self.page.display.addWidget(self.multiple_image)
 
-            
+
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
             self.page.columns_choice.setRange(1,10)
             self.page.columns_choice.setValue(4)
-            
+
 #            size=QSize()
 #            size.boundedTo(QSize(300,300))
 #            size.expandedTo(QSize(300,300))

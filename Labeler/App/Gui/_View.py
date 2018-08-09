@@ -21,12 +21,12 @@ class QMainWindow_S(QMainWindow):
     resized = Signal()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
     def resizeEvent(self, event):
         self.resized.emit()
         super().resizeEvent(event)
-    
-    
+
+
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,7 +60,7 @@ class View(MVPBase.BaseView):
         loader = QUiLoader()
         loader.registerCustomWidget(QMainWindow_S)
         self.window = loader.load(file)
-        
+
 
         # Global key press eventFilter.signal emits
         self.keyEvent = self.KeyEventFilter(self.parent)

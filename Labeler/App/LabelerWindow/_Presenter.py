@@ -97,7 +97,7 @@ class Presenter(MVPBase.BasePresenter):
     def on_columns_choice(self, choice):
         self.view.max_columns = choice
         self.image_update()
-        
+
     def on_scale(self, scale, event):
         if scale == 1:
             self.scale = 1.0

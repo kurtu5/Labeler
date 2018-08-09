@@ -56,7 +56,7 @@ class Interactor(MVPBase.BaseInteractor):
 #        self.view.page.columns_choice.valueChanged.connect(lambda e: print("spin", e))
         self.event_add((self.view.page.columns_choice,'valueChanged', self.presenter.on_columns_choice), "valueChanged")
         self.event_add((self.view.image_signal,'deselected', lambda index: self.view.image_list_setSelected(index, False) ), "image_signal")
-#      
+#
 #        self.event_add((self.view.page.listWidget.itemClicked,itemClicked))
 
         self.event_add((self.view.page.listWidget,'itemSelectionChanged',self.itemSelectionChanged), "itemSelectionChanged")

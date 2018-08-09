@@ -38,7 +38,7 @@ class Presenter(MVPBase.BasePresenter):
                 # Let the model decide what to do on app_exit
 #                self.model.app_exit.set(True)
                 self.model.set_app_exit()
-                
+
 
             if ( event.text() == '1'):
                 self.model.window_model_activate('test')
