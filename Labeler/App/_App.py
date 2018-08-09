@@ -45,6 +45,7 @@ class App(object):
         self.menuI = MenuBar.Interactor()
         self.menuP = MenuBar.Presenter(self.menuV, self.menuI, self.menuM, self.menuO)
 
+
 #        # Testing window
         self.testO = TestWindow.Observer()
         self.testM = TestWindow.Model('test')
@@ -104,4 +105,4 @@ class App(object):
             self.parent.exec_()
         except:
             raise Exception("abnormal termination")
-        print("program ended normally")
+#        print("program ended normally")

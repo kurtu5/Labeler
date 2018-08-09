@@ -16,6 +16,7 @@ class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.path = None
+        self.max = None  # Maximum number to load
         self.image_files = None
         self.image_index = None
         self.image_file = None
@@ -24,10 +25,13 @@ class Model(MVPBase.BaseModel):
         super().start(*args, **kwargs)
 
     def load_images(self):
-        path = self.sib('options').path_to_image_files
-        self.path = path
-        filenames = [x for x in os.listdir(f'{path}') if re.search('\.gif$|\.jpg$|\.jpeg$|\.png$',x )]
+#        path = self.sib('options').path_to_image_files
+#        self.path = path
+        print('max',self.max)
+        filenames = [x for x in os.listdir(f'{self.path}') if re.search('\.gif$|\.jpg$|\.jpeg$|\.png$',x )]
         self.image_files = [f'{self.path}\\{x}' for x in filenames]
+        if self.max != None:
+            self.image_files = self.image_files[:self.max]
 #        self.image_index = 0
 #        self.image_file = f'{self.path}\\{self.images[self.image_index]}'
 ##

@@ -44,6 +44,7 @@ class BaseInteractor(object):
         """ Activate all event_groups not in exclusion list """
         for event_group in self.event_groups.keys():
             if exclusion_list == None or event_group not in exclusion_list:
+                print("EAC",  event_group, enable)
                 self.event_group_activate(event_group, enable)
 
     def event_group_blockSignals(self, event_group, enable=True):
@@ -83,11 +84,13 @@ class BaseInteractor(object):
 
         def activate(self, enable):
             if enable == True:
-                self.signal.connect(self.slot)
-                self.is_active = enable
+                if self.is_active == False:
+                    self.signal.connect(self.slot)
+                    self.is_active = enable
             else:
-                self.signal.disconnect(self.slot)
-                self.is_active = enable
+                if self.is_active == True:
+                    self.signal.disconnect(self.slot)
+                    self.is_active = enable
 
         def blockSignals(self, enable=True):
 

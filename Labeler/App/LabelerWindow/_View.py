@@ -154,7 +154,7 @@ class View(MVPBase.BaseView):
         self.scale = 1.0;   # Initial Image scale
 #        self.scale_xloc = 0
 #        self.scale_yloc = 0
-        self.max_columns = 4 # Max cols for multimages
+        self.max_columns = None  # Set when presenter starts # Max cols for multimages
         self.cached_images = {} # Cache read of image from disk
 
     def start(self):
@@ -199,7 +199,6 @@ class View(MVPBase.BaseView):
 
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
             self.page.columns_choice.setRange(1,10)
-            self.page.columns_choice.setValue(4)
 
 #            size=QSize()
 #            size.boundedTo(QSize(300,300))
@@ -211,7 +210,10 @@ class View(MVPBase.BaseView):
             self.keyEvent = self.KeyEventFilter(self.parent.parent)
             self.parent.parent.installEventFilter(self.keyEvent)
 
-
+    def max_columns_choice(self, choice):
+        self.max_columns = choice
+        self.page.columns_choice.setValue(choice)
+        
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
         signal = Signal(QEvent)

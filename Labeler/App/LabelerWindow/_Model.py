@@ -22,6 +22,8 @@ class Model(MVPBase.BaseModel):
 
          # Let guiM know im showable
         self.sib('gui').window_model_showable(self)
+        self.max_columns = self.observer.event_gen('max_columns', 2)
+
 
     def load_images(self):
         self.sib('images').load_images()

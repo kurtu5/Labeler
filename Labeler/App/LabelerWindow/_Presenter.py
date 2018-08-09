@@ -27,12 +27,13 @@ class Presenter(MVPBase.BasePresenter):
         # TODO This stuff should be pulled from model and set to model
         self.shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
         self.labels = {}  # TODO When controller loads image, should set this from csv
-
+        self.interactor.event_all_activate(False, ['resized'])
+        self.observer.event_all_activate(False, ['window_enable'])
+        self.reconfigure()
 
 
 ## TODO where do these belong?
     def image_update(self):
-        print("starting image_update")
         self.interactor.event_group_blockSignals("itemSelectionChanged", True)
         self.interactor.event_group_blockSignals("image_signal", True)
         selected_images = self.model.get_selected_images()
@@ -40,7 +41,6 @@ class Presenter(MVPBase.BasePresenter):
         self.view.images_load(selected_images)
         self.interactor.event_group_blockSignals("itemSelectionChanged", False)
         self.interactor.event_group_blockSignals("image_signal", False)
-        print("     finishing image_update")
 
         # Update status string
 #        status_text = f'index: {self.model.image_index} image: {self.model.image_file} scale: {self.scale:.2f}'
@@ -95,7 +95,7 @@ class Presenter(MVPBase.BasePresenter):
 
     ### View Interactor event handlers
     def on_columns_choice(self, choice):
-        self.view.max_columns = choice
+        self.view.max_columns_choice(choice)
         self.image_update()
 
     def on_scale(self, scale, event):
@@ -178,3 +178,6 @@ class Presenter(MVPBase.BasePresenter):
         self.image_update()
 
     ### Model Observer event handlers
+    def reconfigure(self):
+        """ Apply new configuration options """
+        self.on_columns_choice(self.model.max_columns.get())

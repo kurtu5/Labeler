@@ -36,5 +36,6 @@ class BasePresenter(object):
             self.interactor.event_all_activate(True)
             self.observer.event_all_activate(True)
         if enable == False:
+            print("disabling events", self)
             self.interactor.event_all_activate(False)
             self.observer.event_all_activate(False, ['window_enable'])
