@@ -18,13 +18,42 @@ from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QL
 from PySide2.QtWidgets import QApplication, QStackedWidget
 from PySide2.QtGui import QTransform
 
+class LabelerWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.grid_layout = QGridLayout()
+        self.shortcuts = {} # shortcut := {'status': '', 'widget': widget}
+        self.start()
+        
+    def start(self):
+        self.setLayout(self.grid_layout)
+       
+    def set_shortcuts_labels(self, shortcuts_labels):
+        self.shortcuts = {}
+        print("label", shortcuts_labels)
+        row = -1
+        col = 0
+        for shortcut, label in shortcuts_labels.items():
+            row += 1
+            shortcut_w = QLabel(f'short={shortcut}')
+            label_w = QLabel(f'label={label}')
+            self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
+            self.grid_layout.addWidget(shortcut_w, row, col)
+            self.grid_layout.addWidget(label_w, row, col+1)
+            
+    def set_shortcuts_status(self, shortcut, status):
+        self.shortcuts[shortcut]['status'] = status
+        bold = QFont()
+        bold.setBold(True)
+        self.shortcuts[shortcut]['widget'].setFont(bold)
+            
+    
 class ImageListItem(QListWidgetItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.widget = QWidget()
         self.text_widget = QLabel()
         self.labels_widget = QLabel()
-
         self.icon_widget = QLabel()
         self.icon_reader = QImageReader()
         self.icon_file = None
@@ -167,11 +196,34 @@ class View(MVPBase.BaseView):
 
             # I could just modify the ui file.... but lets play with this
             self.page.horizontalLayout.removeWidget(self.page.display)
+            self.page.leftColumn.removeWidget(self.page.labelerWidget)
             self.page.display.close()
+            self.page.labelerWidget.close()
             self.page.display=QStackedWidget()
+            self.page.labelerWidget=LabelerWidget()
+            self.page.leftColumn.insertWidget(1,self.page.labelerWidget)
             self.page.horizontalLayout.insertWidget(1,self.page.display)
             self.page.horizontalLayout.update()
+            
 
+            class KeyPressEater(QObject):
+                keyPress = Signal(QEvent)
+
+                def eventFilter(self, obj, event):
+                    if event.type() == QEvent.KeyPress:
+                        print("Ate key press", obj, event.key())
+                        self.keyPress.emit(event)
+                        return True
+                    else:
+                        # standard event processing
+                        return QObject.eventFilter(self, obj, event)
+            from PySide2.QtWidgets import QLineEdit
+            self.test = QLineEdit()
+            self.page.leftColumn.addWidget(self.test)
+#            self.keyPressEater = KeyPressEater()
+#            self.parent.parent.installEventFilter(self.keyPressEater)
+            
+            
             # Layout for single images
             self.single_image = QWidget()
             self.single_image_layout = QGridLayout()
@@ -207,8 +259,8 @@ class View(MVPBase.BaseView):
             self.page.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
             # Global key press eventFilter.signal emits
-            self.keyEvent = self.KeyEventFilter(self.parent.parent)
-            self.parent.parent.installEventFilter(self.keyEvent)
+            self.keyEvent = self.KeyEventFilter()
+#            self.parent.parent.installEventFilter(self.keyEvent)
 
     def max_columns_choice(self, choice):
         self.max_columns = choice
@@ -216,28 +268,15 @@ class View(MVPBase.BaseView):
         
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
-        signal = Signal(QEvent)
-        def __init__(self, parent, stopHere=False, *args, **kwargs):
+        KeyPress = Signal(QEvent)
+        def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.parent = parent
-            self.stopHere = stopHere
-            self.types = []
 
         def eventFilter(self, obj, event):
-#            print("parent", self.parent)
-            #http://www.qtcentre.org/threads/24597-PyQt4-QGraphicsView-and-pressed-signal
-            if isinstance(obj, QGraphicsScene):
-#                print("QGraphicsScene obj detected,",event.type())
-                return False
-            if  isinstance(obj, QGraphicsView) :
-#                print("QGraphicsView obj detected,",event.type())
-                return False
-#            if (event.type() == QEvent.Type.GraphicsSceneMouseRelease ):
-#                print("Mouse release", obj, ',', obj.objectName())
-            if (event.type() == QEvent.KeyPress):
-#                print("emittttttttt")
-                self.signal.emit(event)
-            return self.stopHere
+            if event.type() == QEvent.KeyPress:
+                self.KeyPress.emit(event)
+                return True
+            return QObject.eventFilter(self, obj, event)
 
 #    def image_list_set(self, items):
 #        self.image_listbox.delete(0, 'end')
@@ -288,6 +327,9 @@ class View(MVPBase.BaseView):
         deselected = Signal(int)
         def myemit(self, index):
             self.deselected.emit(index)
+            
+    def labeler_widget_load(self):
+        pass
 
     def images_load(self, images):
         """ Take list of images and display in main window """

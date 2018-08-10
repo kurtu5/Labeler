@@ -16,20 +16,30 @@ class Model(MVPBase.BaseModel):
         super().__init__(*args, **kwargs)
         self.selected_indexes = set()
         self.image_files = {}  # {index->image_file}
+        self.max_columns = None
+        self.max_images = None
+        self.shortcuts_labels = None
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 
          # Let guiM know im showable
         self.sib('gui').window_model_showable(self)
-        self.max_columns = self.observer.event_gen('max_columns', 2)
+        self.max_columns = self.observer.event_gen('max_columns', 1)
+        self.max_images = self.observer.event_gen('max_images', None)
+        self.shortcuts_labels = self.observer.event_gen('shortcuts_labels', None)
 
 
     def load_images(self):
         self.sib('images').load_images()
+        images = self.sib('images').image_files
         index = 0
+        max_images = self.max_images.get()
+        if max_images != None and max_images != 0:
+            images = images[:max_images]
+            
 #        print("images model", self.sib('images').image_files)
-        for image_file in self.sib('images').image_files:
+        for image_file in images:
 #            print("-------------image_file", index, image_file)
             self.image_files[index] = image_file
             index += 1

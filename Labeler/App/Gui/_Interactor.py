@@ -18,6 +18,6 @@ class Interactor(MVPBase.BaseInteractor):
         super().start(*args, **kwargs)
 
     def event_all_register(self):
-        self.event_add((self.view.keyEvent, 'signal', self.presenter.on_keypress))
+        self.event_add((self.view.keyEvent, 'KeyPress', self.presenter.on_keypress))
         pass
 

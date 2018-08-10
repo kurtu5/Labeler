@@ -10,6 +10,7 @@ sys.path.insert(0, path)
 
 from PySide2.QtCore import QEvent, Qt
 from PySide2 import QtGui
+from PySide2.QtWidgets import QApplication
 import MVPBase
 
 class Presenter(MVPBase.BasePresenter):
@@ -29,7 +30,6 @@ class Presenter(MVPBase.BasePresenter):
         self.labels = {}  # TODO When controller loads image, should set this from csv
         self.interactor.event_all_activate(False, ['resized'])
         self.observer.event_all_activate(False, ['window_enable'])
-        self.reconfigure()
 
 
 ## TODO where do these belong?
@@ -56,6 +56,12 @@ class Presenter(MVPBase.BasePresenter):
 
 #        self.view.image_listbox.select_set(self.model.image_index)
 #        self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
+        
+    def image_list_update(self):
+        images = self.model.get_all_images()
+        images = list(images.values())
+#            print(images)
+        self.view.image_list_update(images)
 
 ## deal with labeling shortcuts
 
@@ -79,15 +85,18 @@ class Presenter(MVPBase.BasePresenter):
         super().on_window_enable(enable)
         if enable == True:
             self.refresh_images()
+            self.reconfigure()
+# TODO: remove observer?  reconfig everytime page loads
+#        if enable == False:
+#            self.observer.event_group_activate('reconfigure', True)
 
     def refresh_images(self):
-        self.scale = self.default_scale
         self.model.load_images()
-        images = self.model.get_all_images()
-        images = list(images.values())
-#            print(images)
-        self.view.image_list_update(images)
+
+        self.scale = self.default_scale
+
         self.image_update()
+        self.image_list_update()
 #            self.view.canvas.focus_set()
 
 
@@ -120,12 +129,34 @@ class Presenter(MVPBase.BasePresenter):
         self.on_scroll(amount)
 
     def on_keypress(self, event):
-        if type(event) != QtGui.QKeyEvent:
+        if event.type() != QEvent.Type.KeyPress:
             return
-        key = event.key()
-        # Qt.Key doc for keycodes
+            key = event.key()
+            # Qt.Key doc for keycodes
 #        print("In Labeler key=", event.text())
+#        print(type(event))
+#        return
+        for shortcut in self.model.shortcuts_labels.get().keys():
+            if event.text().lower() == shortcut and not event.isAutoRepeat():
+                try:
+                    info=event.hasExtendedInfo()
+                except:
+                    info = 'no info'
+                print("shortcut pressed=", shortcut, type(event), info)
+#                import pdb; pdb.set_trace()
+#                modifiers = QApplication.keyboardModifiers()
+                modifiers = event.modifiers()
+                if modifiers == Qt.ShiftModifier:
+                    print('Shift')
+                elif modifiers ==  Qt.ControlModifier:
+                    print('Control')
+                elif modifiers == ( Qt.ControlModifier |
+                                    Qt.ShiftModifier):
+                    print('Control+Shift')
+                elif modifiers == ( Qt.AltModifier):
+                    print('Alt')
 
+        return
 
 #        if event.keysym == 'space' or event.keysym == 'Down':
 #            self.on_scroll(2)
@@ -180,4 +211,6 @@ class Presenter(MVPBase.BasePresenter):
     ### Model Observer event handlers
     def reconfigure(self):
         """ Apply new configuration options """
+        self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.on_columns_choice(self.model.max_columns.get())
+        self.view.max_images = self.model.max_images.get()

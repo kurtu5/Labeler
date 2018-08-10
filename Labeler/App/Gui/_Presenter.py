@@ -33,7 +33,7 @@ class Presenter(MVPBase.BasePresenter):
         if type(event) == QtGui.QKeyEvent:
             key = event.key()
             # Qt.Key doc for keycodes
-#            print("GUI key=", event.text())
+            print("GUI key=", event.text())
             if ( key == Qt.Key_Escape):
                 # Let the model decide what to do on app_exit
 #                self.model.app_exit.set(True)

@@ -8,7 +8,7 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
-import configparser
+import json
 import MVPBase
 
 class Model(MVPBase.BaseModel):
@@ -23,20 +23,25 @@ class Model(MVPBase.BaseModel):
         self.sib('gui').window_model_showable(self)
         
         self.config_file=os.path.normpath(
-        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/config.ini")
-        self.config = configparser.ConfigParser()
+        "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/config.json")
+        self.config = None
         self.config_read()
         self.config_apply()
         
     def config_read(self):
-        self.config.read(self.config_file)
+        with open(self.config_file) as jsonfile:
+            # `json.loads` parses a string in json format
+            self.config = json.load(jsonfile)
+            
         
     def config_apply(self):
         
         # Labeler
-        self.sib('labeler').max_columns.set(int(self.config['LABELER']['max_cols']))
+        self.sib('labeler').max_columns.set(int(self.config['LABELER']['max_columns']))
+        self.sib('labeler').max_images.set(int(self.config['LABELER']['max_images']))
+        self.sib('labeler').shortcuts_labels.set(dict(self.config['LABELER']['shortcuts_labels']))
+
         # Images Model
         self.sib('images').path = self.config['IMAGES']['PathToImages']
         self.sib('images').path = os.path.normpath(self.path_to_image_files)
-        self.sib('images').max = int(self.config['IMAGES']['max'])
 

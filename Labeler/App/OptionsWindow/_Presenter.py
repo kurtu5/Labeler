@@ -24,6 +24,10 @@ class Presenter(MVPBase.BasePresenter):
     def on_window_enable(self, enable):
         super().on_window_enable(enable)
         if enable == True:
+            print("Reloading config")
+            self.model.config_read()
+            self.model.config_apply()
+            
             pass
 #            self.view.e1.config(width=len(self.model.path_to_image_files))
 #            self.view.e1.delete(0, 'end')
