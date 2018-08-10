@@ -8,6 +8,7 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
+from PySide2.QtTest import QTest
 from PySide2.QtCore import QEvent, Qt
 from PySide2 import QtGui
 from PySide2.QtWidgets import QApplication
@@ -137,14 +138,19 @@ class Presenter(MVPBase.BasePresenter):
 #        print(type(event))
 #        return
         for shortcut in self.model.shortcuts_labels.get().keys():
-            if event.text().lower() == shortcut and not event.isAutoRepeat():
-                try:
-                    info=event.hasExtendedInfo()
-                except:
-                    info = 'no info'
-                print("shortcut pressed=", shortcut, type(event), info)
+            qtkey = QTest.asciiToKey(shortcut)
+            if event.key() == qtkey and not event.isAutoRepeat():
+                print("----------------------")
+
+                for i in  ['modifiers', 'key', 'text', 'type', 'hasExtendedInfo', 'nativeScanCode', 'nativeVirtualKey','nativeModifiers']:
+                    print(f'{i}=', end="")
+                    try:
+                        print(eval(f'event.{i}()'))
+                    except:
+                        print("Not defined")
+                self.view.page.labelerWidget.set_shortcuts_status(shortcut, 1)
 #                modifiers = QApplication.keyboardModifiers()
-                modifiers = event.modifiers()
+                return
                 if modifiers == Qt.ShiftModifier:
                     print('Shift')
                 elif modifiers ==  Qt.ControlModifier:
