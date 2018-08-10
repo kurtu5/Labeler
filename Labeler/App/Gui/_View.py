@@ -13,6 +13,7 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QMenu, QMenuBar, QAction, QLabel, QWidget, QLineEdit, QMainWindow
 from PySide2.QtCore import QFile, QObject, QEvent, Signal
 from PySide2 import QtCore
+from PySide2.QtGui import QWindow
 from PySide2.QtWidgets import QStackedWidget, QVBoxLayout
 
 import MVPBase
@@ -26,7 +27,7 @@ class QMainWindow_S(QMainWindow):
         self.resized.emit()
         super().resizeEvent(event)
 
-
+import time
 class View(MVPBase.BaseView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,14 +37,16 @@ class View(MVPBase.BaseView):
         KeyPress = Signal(QEvent)
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+            self.last_keypress = time.time()
+
             
         def eventFilter(self, obj, event):
-            if event.type() == QEvent.KeyPress:
-                print("gui key pressssssssssssssssssssssss")
+            if event.type() == QEvent.KeyPress and isinstance(obj, QWindow):
+#                print(obj, event.text(), "GUI---------")
                 self.KeyPress.emit(event)
                 return False
-            return False
-#            return QObject.eventFilter(self, obj, event)
+#            return False
+            return QObject.eventFilter(self, obj, event)
 
     def start(self, *a, **kw):
 
@@ -58,7 +61,6 @@ class View(MVPBase.BaseView):
         # Global key press eventFilter.signal emits
         self.keyEvent = self.KeyEventFilter()
         self.parent.installEventFilter(self.keyEvent)
-        print(self.keyEvent, self.parent)
         # self.keyEvent.signal.connect(...)
 
         self.stacked_widget = QStackedWidget()

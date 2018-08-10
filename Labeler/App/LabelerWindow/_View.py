@@ -16,8 +16,8 @@ from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
 from PySide2.QtWidgets import QApplication, QStackedWidget
-from PySide2.QtGui import QTransform
-
+from PySide2.QtGui import QTransform, QWindow
+import time
 class LabelerWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +30,7 @@ class LabelerWidget(QWidget):
        
     def set_shortcuts_labels(self, shortcuts_labels):
         self.shortcuts = {}
-        print("label", shortcuts_labels)
+#        print("label", shortcuts_labels)
         row = -1
         col = 0
         for shortcut, label in shortcuts_labels.items():
@@ -205,25 +205,6 @@ class View(MVPBase.BaseView):
             self.page.horizontalLayout.insertWidget(1,self.page.display)
             self.page.horizontalLayout.update()
             
-
-            class KeyPressEater(QObject):
-                keyPress = Signal(QEvent)
-
-                def eventFilter(self, obj, event):
-                    if event.type() == QEvent.KeyPress:
-                        print("Ate key press", obj, event.key())
-                        self.keyPress.emit(event)
-                        return True
-                    else:
-                        # standard event processing
-                        return QObject.eventFilter(self, obj, event)
-            from PySide2.QtWidgets import QLineEdit
-            self.test = QLineEdit()
-            self.page.leftColumn.addWidget(self.test)
-#            self.keyPressEater = KeyPressEater()
-#            self.parent.parent.installEventFilter(self.keyPressEater)
-            
-            
             # Layout for single images
             self.single_image = QWidget()
             self.single_image_layout = QGridLayout()
@@ -260,7 +241,7 @@ class View(MVPBase.BaseView):
 
             # Global key press eventFilter.signal emits
             self.keyEvent = self.KeyEventFilter()
-#            self.parent.parent.installEventFilter(self.keyEvent)
+            self.parent.parent.installEventFilter(self.keyEvent)
 
     def max_columns_choice(self, choice):
         self.max_columns = choice
@@ -273,9 +254,12 @@ class View(MVPBase.BaseView):
             super().__init__(*args, **kwargs)
 
         def eventFilter(self, obj, event):
-            if event.type() == QEvent.KeyPress:
+            if event.type() == QEvent.KeyPress and isinstance(obj, QWindow):
+
+#                print(obj, event.text(), "LABLER-------------")
                 self.KeyPress.emit(event)
-                return True
+                return False
+#            return False
             return QObject.eventFilter(self, obj, event)
 
 #    def image_list_set(self, items):

@@ -143,7 +143,6 @@ class Presenter(MVPBase.BasePresenter):
                 except:
                     info = 'no info'
                 print("shortcut pressed=", shortcut, type(event), info)
-#                import pdb; pdb.set_trace()
 #                modifiers = QApplication.keyboardModifiers()
                 modifiers = event.modifiers()
                 if modifiers == Qt.ShiftModifier:
