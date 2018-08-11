@@ -148,18 +148,36 @@ class Presenter(MVPBase.BasePresenter):
                         print(eval(f'event.{i}()'))
                     except:
                         print("Not defined")
-                self.view.page.labelerWidget.set_shortcuts_status(shortcut, 1)
-#                modifiers = QApplication.keyboardModifiers()
-                return
+                        
+        # set if only the key was pressed
+        # control = no feature
+        # alt = toggle
+        # shift= unknown feature
+                modifiers = event.modifiers()
+                # Unknown 0
                 if modifiers == Qt.ShiftModifier:
                     print('Shift')
+                    self.set_labels(shortcut, has_feature = 0)
+                # No Feature -1  
                 elif modifiers ==  Qt.ControlModifier:
                     print('Control')
+                    self.set_labels(shortcut, has_feature = -1)
+
+                # Unsure -10
                 elif modifiers == ( Qt.ControlModifier |
                                     Qt.ShiftModifier):
                     print('Control+Shift')
+                    self.set_labels(shortcut, has_feature = -10)
+
+                # Toggle 
                 elif modifiers == ( Qt.AltModifier):
                     print('Alt')
+                    self.set_labels(shortcut, toggle = True)
+                # Has feature 1
+                else:
+                    print('Vanilla')
+                    self.set_labels(shortcut, has_feature = 1)
+
 
         return
 
@@ -179,33 +197,21 @@ class Presenter(MVPBase.BasePresenter):
 #        self.on_keyshortcut(event)
 
 
+    def set_labels(self, feature, has_feature = None, toggle = None):
+        """ set label on image and update view """
+        # Cycle through labels
+#        if toggle == True:
+#            cycle = [-1, 0, 1]
+#            if key not in self.labels:
+#                current = 0
+#            else:
+#                current = self.labels[key]
+#            has_feature = cycle[(cycle.index(current)+1)%len(cycle)]
+        # Set
+#        self.labels[key] = has_feature
+        self.view.page.labelerWidget.set_shortcuts_status(feature, has_feature)
 
-    # TODO this is so view specific, move to view/interactot
-    def on_keyshortcut(self, event):
-        """ Use shortcuts to label features as 0=no 1=yes -1=unknown """
-        control = 4
-        shift = 1
-        alt = 131072
-        state = event.state
-        key = event.keysym
-        key = key.lower()
-        has_feature = None
-        # toggle if only the key was pressed
-        # control = no feature
-        # alt = unknown
-        # shift= set feature
-        D.ebug(f'event.keysym = {event.keysym}' )
 
-        if key in self.shortcuts_labels:
-            if state & alt:
-                has_feature = -1
-            elif state & shift:
-                has_feature = 1
-            elif state & control:
-                has_feature = 0
-            else:
-                has_feature = None
-            self.label(key, has_feature)
 
     def on_row_changed(self, row):
 #        selected = self.view.page.listWidget.item(row).isSelected()

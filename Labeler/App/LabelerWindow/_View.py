@@ -16,13 +16,22 @@ from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
 from PySide2.QtWidgets import QApplication, QStackedWidget
-from PySide2.QtGui import QTransform, QWindow
+from PySide2.QtGui import QTransform, QWindow, QPalette, QColor
+
+
 import time
 class LabelerWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.grid_layout = QGridLayout()
         self.shortcuts = {} # shortcut := {'status': '', 'widget': widget}
+        
+        self.pal = QPalette()
+
+        self.feature_has = QColor(Qt.green)
+        self.feature_hasnt = QColor(Qt.red)
+        self.feature_unknown = QColor(Qt.gray)
+        self.feature_unsure = QColor(Qt.blue)
         self.start()
         
     def start(self):
@@ -37,6 +46,8 @@ class LabelerWidget(QWidget):
             row += 1
             shortcut_w = QLabel(f'short={shortcut}')
             label_w = QLabel(f'label={label}')
+            self.pal.setColor(QPalette.WindowText, self.feature_unknown)
+            shortcut_w.setPalette(self.pal)
             self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
             self.grid_layout.addWidget(shortcut_w, row, col)
             self.grid_layout.addWidget(label_w, row, col+1)
@@ -45,7 +56,16 @@ class LabelerWidget(QWidget):
         self.shortcuts[shortcut]['status'] = status
         bold = QFont()
         bold.setBold(True)
-        self.shortcuts[shortcut]['widget'].setFont(bold)
+        has_feature = status
+        if has_feature == 1:
+            self.pal.setColor(QPalette.WindowText, self.feature_has)
+        if has_feature == 0:
+            self.pal.setColor(QPalette.WindowText, self.feature_unknown)
+        if has_feature == -1:
+            self.pal.setColor(QPalette.WindowText, self.feature_hasnt)
+        if has_feature == -10:
+            self.pal.setColor(QPalette.WindowText, self.feature_unsure)
+        self.shortcuts[shortcut]['widget'].setPalette(self.pal)
             
     
 class ImageListItem(QListWidgetItem):
@@ -262,29 +282,14 @@ class View(MVPBase.BaseView):
 #            return False
             return QObject.eventFilter(self, obj, event)
 
-#    def image_list_set(self, items):
-#        self.image_listbox.delete(0, 'end')
-#        for item in items:
-#            self.image_listbox.insert('end', item)
 
 #    def scroll(self, amount):
 #        self.canvas.yview_scroll(amount, "units")
-
-#    def image_load(self, file):
-##        self.scale = self.default_scale
-#        self.image_orig = Image.open(file)
 
 #    def image_update(self, scale=1, scale_xloc=0, scale_yloc=0):
        # old canvas redrawer
 
 
-#    def set_label_widget(self, key, has_feature):
-#        if has_feature == 1:
-#            self.label_widgets[key].config(foreground="green")
-#        if has_feature == 0:
-#            self.label_widgets[key].config(foreground="red")
-#        if has_feature == -1:
-#            self.label_widgets[key].config(foreground="grey")
 
 #    def create_label_widgets(self):
 ##  TODO       shortcuts_labels = controller.models[LabelerModel].shortcuts_labels
