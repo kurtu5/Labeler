@@ -214,10 +214,16 @@ class Presenter(MVPBase.BasePresenter):
         length = len(selected_images)
         if length == 0:
             return
-        print("length", length)
+
         for item in self.view.page.listWidget.selectedItems():
             item.set_shortcuts_status(feature, has_feature)
             self.model.image_labels_set(item.index, feature, has_feature)
+       
+        # graphicsitems suck and i should replace them?
+#        for i in range (0,self.view.multiple_image_layout.count()):
+#                graphicsitem = self.view.multiple_image_layout.itemAt(0)
+#                graphicsitem.label()
+#        for graphicsitem in self.multiple_image_layout
         self.view.page.labelerWidget.set_shortcuts_status(feature, has_feature)
 
 

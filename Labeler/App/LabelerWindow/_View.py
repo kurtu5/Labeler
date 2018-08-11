@@ -16,7 +16,7 @@ from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
 from PySide2.QtWidgets import QApplication, QStackedWidget
-from PySide2.QtGui import QTransform, QWindow, QPalette, QColor
+from PySide2.QtGui import QTransform, QWindow, QPalette, QColor, QPainter
 
 
 import time
@@ -213,6 +213,8 @@ class MultiImageWidget(QGraphicsWidget):
         else:
             print('Click')
 
+
+        
     def paint(self, painter, *args, **kwargs):
 #            print('Paint Called')
 #            painter.drawRect(self.rect)
@@ -236,6 +238,7 @@ class MultiImageWidget(QGraphicsWidget):
         newsize = size + textsize
         self.setMaximumSize(newsize)
         self.setMinimumSize(newsize)
+
 
 #https://github.com/tpgit/MDIImageViewer seems to do everything....
 # https://stackoverflow.com/questions/35508711/how-to-enable-pan-and-zoom-in-a-qgraphicsview
