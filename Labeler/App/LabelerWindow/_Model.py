@@ -23,7 +23,12 @@ class Model(MVPBase.BaseModel):
         self.shortcuts_labels = None
         
     def image_labels_set(self, index, feature, has_feature):
+        if index not in self.image_labels:
+            self.image_labels[index] = {}
+#        if feature not in self.image_labels[index]:
+        self.image_labels[index][feature] = has_feature
         pass
+        # load from cvs and set image_labels
         
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
@@ -48,6 +53,8 @@ class Model(MVPBase.BaseModel):
 #            print("-------------image_file", index, image_file)
             self.image_files[index] = image_file
             index += 1
+            
+        print("load image features from csv")
 
     def image_select(self, index):
         if index not in self.selected_indexes:

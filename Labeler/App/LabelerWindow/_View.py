@@ -36,6 +36,7 @@ class FeatureStyle:
         self.hasnt = QColor(Qt.red)
         self.unknown = QColor(Qt.gray)
         self.unsure = QColor(Qt.blue)
+        self.conflicting = QColor(Qt.black)
     
 class LabelerWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -79,6 +80,8 @@ class LabelerWidget(QWidget):
             self.pal.setColor(QPalette.WindowText, self.feature.hasnt)
         if has_feature == -10:
             self.pal.setColor(QPalette.WindowText, self.feature.unsure)
+        if has_feature == 'conflicting':
+            self.pal.setColor(QPalette.WindowText, self.feature.conflicting)
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)
             
     
@@ -142,7 +145,6 @@ class ImageListItem(QListWidgetItem):
             self.pal.setColor(QPalette.Text, self.feature.unsure)
 
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)
-        print(self.shortcuts[shortcut]['widget'])
         
     def update_size(self):
         self.setSizeHint(self.widget.sizeHint())
@@ -195,7 +197,7 @@ class MultiImageWidget(QGraphicsWidget):
 
 
     def mousePressEvent(self, event):
-        print("Remove index=", self.index)
+#        print("Remove index=", self.index)
         self.deselected.emit(self.index)
 
         return

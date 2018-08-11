@@ -29,6 +29,7 @@ class Presenter(MVPBase.BasePresenter):
         # TODO This stuff should be pulled from model and set to model
         self.shortcuts_labels = {"q": "feat1", "w": "feat2", "e": "feat3", "r": "other"}
         self.labels = {}  # TODO When controller loads image, should set this from csv
+
         self.interactor.event_all_activate(False, ['resized'])
         self.observer.event_all_activate(False, ['window_enable'])
 
@@ -42,6 +43,36 @@ class Presenter(MVPBase.BasePresenter):
         self.view.images_load(selected_images)
         self.interactor.event_group_blockSignals("itemSelectionChanged", False)
         self.interactor.event_group_blockSignals("image_signal", False)
+        
+        # Update labelerwidget to reflect current features
+        self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
+
+        features = {}
+        for shortcut in self.model.shortcuts_labels.get().keys():
+            features[shortcut] = None
+        # Go through all selected and see if they have different features for each feature
+        for index in selected_images.keys():
+            print('selected index', index)
+            if index in self.model.image_labels:
+                print("this is selected and in model")
+                for feature in features:
+                    print('check feature', feature)
+
+                    if feature not in self.model.image_labels[index]:
+                        break
+                    val = self.model.image_labels[index][feature]
+                    print('its in model as', val)
+                    if features[feature] == None:
+                        features[feature] = val
+                    elif features[feature] != val:
+                        features[feature] = 'conflicting'
+        print('features loop')
+        for feature in features:
+            if features[feature] == None:
+                features[feature] = 0
+            print('features', feature, features[feature])
+            self.view.page.labelerWidget.set_shortcuts_status(feature, features[feature] )
+        
 
         # Update status string
 #        status_text = f'index: {self.model.image_index} image: {self.model.image_file} scale: {self.scale:.2f}'
@@ -130,54 +161,37 @@ class Presenter(MVPBase.BasePresenter):
         self.on_scroll(amount)
 
     def on_keypress(self, event):
-        if event.type() != QEvent.Type.KeyPress:
-            return
-            key = event.key()
-            # Qt.Key doc for keycodes
-#        print("In Labeler key=", event.text())
-#        print(type(event))
-#        return
+        
         for shortcut in self.model.shortcuts_labels.get().keys():
             qtkey = QTest.asciiToKey(shortcut)
             if event.key() == qtkey and not event.isAutoRepeat():
-#                print("----------------------")
-#
-#                for i in  ['modifiers', 'key', 'text', 'type', 'hasExtendedInfo', 'nativeScanCode', 'nativeVirtualKey','nativeModifiers']:
-#                    print(f'{i}=', end="")
-#                    try:
-#                        print(eval(f'event.{i}()'))
-#                    except:
-#                        print("Not defined")
-                        
-        # set if only the key was pressed
-        # control = no feature
-        # alt = toggle
-        # shift= unknown feature
+#          
                 modifiers = event.modifiers()
                 # Unknown 0
                 if modifiers == Qt.ShiftModifier:
 #                    print('Shift')
-                    self.set_labels(shortcut, has_feature = 0)
+                    self.update_features(shortcut, has_feature = 0)
                 # No Feature -1  
                 elif modifiers ==  Qt.ControlModifier:
 #                    print('Control')
-                    self.set_labels(shortcut, has_feature = -1)
+                    self.update_features(shortcut, has_feature = -1)
 
                 # Unsure -10
                 elif modifiers == ( Qt.ControlModifier |
                                     Qt.ShiftModifier):
 #                    print('Control+Shift')
-                    self.set_labels(shortcut, has_feature = -10)
+                    self.update_features(shortcut, has_feature = -10)
 
                 # Toggle 
                 elif modifiers == ( Qt.AltModifier):
 #                    print('Alt')
-                    self.set_labels(shortcut, toggle = True)
+                    self.update_features(shortcut, toggle = True)
                 # Has feature 1
                 else:
 #                    print('Vanilla')
-                    self.set_labels(shortcut, has_feature = 1)
-
+                    self.update_features(shortcut, has_feature = 1)
+        if event.key() == Qt.Key_Space:
+            print("model image_labels=", self.model.image_labels)
 
         return
 
@@ -197,8 +211,8 @@ class Presenter(MVPBase.BasePresenter):
 #        self.on_keyshortcut(event)
 
 
-    def set_labels(self, feature, has_feature = None, toggle = None):
-        """ set label on image and update view """
+    def update_features(self, feature, has_feature = None, toggle = None):
+        """ set feature on image(s) and update view """
         # Cycle through labels
 #        if toggle == True:
 #            cycle = [-1, 0, 1]
