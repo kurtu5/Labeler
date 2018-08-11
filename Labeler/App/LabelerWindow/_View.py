@@ -20,6 +20,23 @@ from PySide2.QtGui import QTransform, QWindow, QPalette, QColor
 
 
 import time
+
+class FeatureStyle:
+    has = None
+    hasnt = None
+    unknown = None
+    unsure = None
+    _init_already = False
+    
+    def __init__(self):
+        if self._init_already == True:
+            return
+        self._init_already = True
+        self.has = QColor(Qt.green)
+        self.hasnt = QColor(Qt.red)
+        self.unknown = QColor(Qt.gray)
+        self.unsure = QColor(Qt.blue)
+    
 class LabelerWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,11 +44,8 @@ class LabelerWidget(QWidget):
         self.shortcuts = {} # shortcut := {'status': '', 'widget': widget}
         
         self.pal = QPalette()
+        self.feature = FeatureStyle()
 
-        self.feature_has = QColor(Qt.green)
-        self.feature_hasnt = QColor(Qt.red)
-        self.feature_unknown = QColor(Qt.gray)
-        self.feature_unsure = QColor(Qt.blue)
         self.start()
         
     def start(self):
@@ -46,7 +60,7 @@ class LabelerWidget(QWidget):
             row += 1
             shortcut_w = QLabel(f'short={shortcut}')
             label_w = QLabel(f'label={label}')
-            self.pal.setColor(QPalette.WindowText, self.feature_unknown)
+            self.pal.setColor(QPalette.WindowText, self.feature.unknown)
             shortcut_w.setPalette(self.pal)
             self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
             self.grid_layout.addWidget(shortcut_w, row, col)
@@ -58,13 +72,13 @@ class LabelerWidget(QWidget):
         bold.setBold(True)
         has_feature = status
         if has_feature == 1:
-            self.pal.setColor(QPalette.WindowText, self.feature_has)
+            self.pal.setColor(QPalette.WindowText, self.feature.has)
         if has_feature == 0:
-            self.pal.setColor(QPalette.WindowText, self.feature_unknown)
+            self.pal.setColor(QPalette.WindowText, self.feature.unknown)
         if has_feature == -1:
-            self.pal.setColor(QPalette.WindowText, self.feature_hasnt)
+            self.pal.setColor(QPalette.WindowText, self.feature.hasnt)
         if has_feature == -10:
-            self.pal.setColor(QPalette.WindowText, self.feature_unsure)
+            self.pal.setColor(QPalette.WindowText, self.feature.unsure)
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)
             
     
@@ -72,17 +86,27 @@ class ImageListItem(QListWidgetItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.widget = QWidget()
+        self.shortcuts = {}
+        self.shortcuts_labels = {}
+        self.feature = FeatureStyle()
+        self.pal = QPalette()
+
         self.text_widget = QLabel()
-        self.labels_widget = QLabel()
+
+        self.labels_widget = QWidget()
         self.icon_widget = QLabel()
         self.icon_reader = QImageReader()
+        
         self.icon_file = None
         self.icon_size = 60
+        self.index = None
         self.start()
 
     def start(self):
         widgetLayout = QHBoxLayout()
         widgetLayout.addWidget(self.labels_widget)
+        self.shorcutLayout = QVBoxLayout()
+        self.labels_widget.setLayout(self.shorcutLayout)
         widgetLayout.addWidget(self.icon_widget)
         widgetLayout.addWidget(self.text_widget)
         widgetLayout.addStretch()
@@ -92,12 +116,43 @@ class ImageListItem(QListWidgetItem):
 #            item.setSizeHint(QSize(size,size))
         self.update_size()
 
+    def set_shortcuts_labels(self, shortcuts_labels):
+        self.shortcuts = {}
+
+        for shortcut in shortcuts_labels.keys():
+            shortcut_w = QLabel(f'{shortcut}')
+            self.pal.setColor(QPalette.Text, self.feature.unknown)
+            shortcut_w.setPalette(self.pal)
+
+            self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
+            self.shorcutLayout.addWidget(shortcut_w)
+        self.update_size()
+        
+    def set_shortcuts_status(self, shortcut, status):
+        self.shortcuts[shortcut]['status'] = status
+
+        has_feature = status
+        if has_feature == 1:
+            self.pal.setColor(QPalette.Text, self.feature.has)
+        if has_feature == 0:
+            self.pal.setColor(QPalette.Text, self.feature.unknown)
+        if has_feature == -1:
+            self.pal.setColor(QPalette.Text, self.feature.hasnt)
+        if has_feature == -10:
+            self.pal.setColor(QPalette.Text, self.feature.unsure)
+
+        self.shortcuts[shortcut]['widget'].setPalette(self.pal)
+        print(self.shortcuts[shortcut]['widget'])
+        
     def update_size(self):
         self.setSizeHint(self.widget.sizeHint())
-
+        
+    def set_index(self, index):
+        self.index = index
+        
     def set_labels(self, labels):
-        self.labels_widget.setText(labels)
-        self.update_size()
+        self.set_shortcuts_labels(labels)
+#        self.update_size()
 
     def set_text(self, text):
         self.text_widget.setText(text)
@@ -390,12 +445,13 @@ class View(MVPBase.BaseView):
 
 
 
-    def image_list_update(self, images):
+    def image_list_update(self, images, shortcuts):
         """ Put all the images in the QListWidget """
-        for image in images:
+        for index, image in images.items():
             item = ImageListItem()
             item.set_text(f'{basename(image)}')
-            item.set_labels("QWER")
+            item.set_shortcuts_labels(shortcuts)
+            item.set_index(index)
             item.set_icon(image)
             item.set_icon_size(60)
 

@@ -60,9 +60,9 @@ class Presenter(MVPBase.BasePresenter):
         
     def image_list_update(self):
         images = self.model.get_all_images()
-        images = list(images.values())
+
 #            print(images)
-        self.view.image_list_update(images)
+        self.view.image_list_update(images, self.model.shortcuts_labels.get())
 
 ## deal with labeling shortcuts
 
@@ -140,14 +140,14 @@ class Presenter(MVPBase.BasePresenter):
         for shortcut in self.model.shortcuts_labels.get().keys():
             qtkey = QTest.asciiToKey(shortcut)
             if event.key() == qtkey and not event.isAutoRepeat():
-                print("----------------------")
-
-                for i in  ['modifiers', 'key', 'text', 'type', 'hasExtendedInfo', 'nativeScanCode', 'nativeVirtualKey','nativeModifiers']:
-                    print(f'{i}=', end="")
-                    try:
-                        print(eval(f'event.{i}()'))
-                    except:
-                        print("Not defined")
+#                print("----------------------")
+#
+#                for i in  ['modifiers', 'key', 'text', 'type', 'hasExtendedInfo', 'nativeScanCode', 'nativeVirtualKey','nativeModifiers']:
+#                    print(f'{i}=', end="")
+#                    try:
+#                        print(eval(f'event.{i}()'))
+#                    except:
+#                        print("Not defined")
                         
         # set if only the key was pressed
         # control = no feature
@@ -156,26 +156,26 @@ class Presenter(MVPBase.BasePresenter):
                 modifiers = event.modifiers()
                 # Unknown 0
                 if modifiers == Qt.ShiftModifier:
-                    print('Shift')
+#                    print('Shift')
                     self.set_labels(shortcut, has_feature = 0)
                 # No Feature -1  
                 elif modifiers ==  Qt.ControlModifier:
-                    print('Control')
+#                    print('Control')
                     self.set_labels(shortcut, has_feature = -1)
 
                 # Unsure -10
                 elif modifiers == ( Qt.ControlModifier |
                                     Qt.ShiftModifier):
-                    print('Control+Shift')
+#                    print('Control+Shift')
                     self.set_labels(shortcut, has_feature = -10)
 
                 # Toggle 
                 elif modifiers == ( Qt.AltModifier):
-                    print('Alt')
+#                    print('Alt')
                     self.set_labels(shortcut, toggle = True)
                 # Has feature 1
                 else:
-                    print('Vanilla')
+#                    print('Vanilla')
                     self.set_labels(shortcut, has_feature = 1)
 
 
@@ -209,6 +209,10 @@ class Presenter(MVPBase.BasePresenter):
 #            has_feature = cycle[(cycle.index(current)+1)%len(cycle)]
         # Set
 #        self.labels[key] = has_feature
+        selected_images = self.model.get_selected_images()
+        for item in self.view.page.listWidget.selectedItems():
+            print("item=",item)
+            item.set_shortcuts_status(feature, has_feature)
         self.view.page.labelerWidget.set_shortcuts_status(feature, has_feature)
 
 
