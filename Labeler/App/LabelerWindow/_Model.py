@@ -10,16 +10,21 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-
+#class Features:
+    
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.selected_indexes = set()
         self.image_files = {}  # {index->image_file}
+        self.image_labels = {} # {index->labels}
         self.max_columns = None
         self.max_images = None
         self.shortcuts_labels = None
-
+        
+    def image_labels_set(self, index, feature, has_feature):
+        pass
+        
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 

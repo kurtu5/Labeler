@@ -209,10 +209,15 @@ class Presenter(MVPBase.BasePresenter):
 #            has_feature = cycle[(cycle.index(current)+1)%len(cycle)]
         # Set
 #        self.labels[key] = has_feature
+        
         selected_images = self.model.get_selected_images()
+        length = len(selected_images)
+        if length == 0:
+            return
+        print("length", length)
         for item in self.view.page.listWidget.selectedItems():
-            print("item=",item)
             item.set_shortcuts_status(feature, has_feature)
+            self.model.image_labels_set(item.index, feature, has_feature)
         self.view.page.labelerWidget.set_shortcuts_status(feature, has_feature)
 
 
