@@ -54,8 +54,16 @@ class LabelerWidget(QWidget):
        
     def set_shortcuts_labels(self, shortcuts_labels):
         self.shortcuts = {}
-#        print("label", shortcuts_labels)
-        row = -1
+        self.grid_layout.addWidget(QLabel("Key Combos"), 0,0,1,0)
+        self.grid_layout.addWidget(QLabel("None"), 1,0,)
+        self.grid_layout.addWidget(QLabel("Yes"), 1,1,)
+        self.grid_layout.addWidget(QLabel("Shift"), 2,0,)
+        self.grid_layout.addWidget(QLabel("No"), 2,1,)
+        self.grid_layout.addWidget(QLabel("Control"), 3,0,)
+        self.grid_layout.addWidget(QLabel("Not set"), 3,1,)
+        self.grid_layout.addWidget(QLabel("Control+Shift"), 4,0,)
+        self.grid_layout.addWidget(QLabel("Unsure"), 4,1,)
+        row = 4
         col = 0
         for shortcut, label in shortcuts_labels.items():
             row += 1
@@ -78,7 +86,7 @@ class LabelerWidget(QWidget):
             self.pal.setColor(QPalette.WindowText, self.feature.unknown)
         if has_feature == -1:
             self.pal.setColor(QPalette.WindowText, self.feature.hasnt)
-        if has_feature == -10:
+        if has_feature == 10:
             self.pal.setColor(QPalette.WindowText, self.feature.unsure)
         if has_feature == 'conflicting':
             self.pal.setColor(QPalette.WindowText, self.feature.conflicting)
@@ -141,7 +149,7 @@ class ImageListItem(QListWidgetItem):
             self.pal.setColor(QPalette.Text, self.feature.unknown)
         if has_feature == -1:
             self.pal.setColor(QPalette.Text, self.feature.hasnt)
-        if has_feature == -10:
+        if has_feature == 10:
             self.pal.setColor(QPalette.Text, self.feature.unsure)
 
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)

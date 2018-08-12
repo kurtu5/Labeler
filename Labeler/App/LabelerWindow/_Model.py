@@ -10,24 +10,62 @@ sys.path.insert(0, path)
 
 import MVPBase
 
-#class Features:
+class FeatureState:
+    yes = 1
+    no = -1
+    unset = 0
+    unsure = 10
+    
+class Features:
+    def __init__(self, shortcuts_labels):
+        self.state = FeatureState
+        self.feature_states = {}
+        self.shortcuts_labels = shortcuts_labels
+        
+    def set(self, shortcut, state):
+        if shortcut not in self.shortcuts_labels:
+            raise Exception("not a valid shortcut")
+        # check if state is valid?
+        self.feature_states[shortcut] = state
+        
+    def get(self, shortcut):
+        if shortcut not in self.shortcuts_labels:
+            raise Exception("not a valid shortcut")
+        if shortcut not in self.feature_states:
+            return self.state.unset
+        else:
+            return self.feature_states[shortcut]
+    
+    def get_all_by_name(self):
+        """ r """
+        nameStates = {}
+        for shortcut, feature_name in self.shortcuts_labels.items():
+            state = self.get(shortcut)
+            nameStates[feature_name] = state
+        return nameStates
     
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.State = FeatureState
         self.selected_indexes = set()
         self.image_files = {}  # {index->image_file}
-        self.image_labels = {} # {index->labels}
+        self.image_features = {} # {index->Features}
         self.max_columns = None
         self.max_images = None
         self.shortcuts_labels = None
         
-    def image_labels_set(self, index, feature, has_feature):
-        if index not in self.image_labels:
-            self.image_labels[index] = {}
-#        if feature not in self.image_labels[index]:
-        self.image_labels[index][feature] = has_feature
-        pass
+    def image_feature_get(self, index, shortcut):
+           if index not in self.image_features:
+               return self.State.unset
+           else:
+               return self.image_features[index].get(shortcut)
+            
+    def image_feature_set(self, index, shortcut, state):
+        if index not in self.image_features:
+            self.image_features[index] = Features(self.shortcuts_labels.get())
+        self.image_features[index].set(shortcut, state)
+
         # load from cvs and set image_labels
         
     def start(self, *args, **kwargs):
@@ -40,6 +78,12 @@ class Model(MVPBase.BaseModel):
         self.shortcuts_labels = self.observer.event_gen('shortcuts_labels', None)
 
 
+    def save_images(self):
+        print("save current feature state")
+#        self.image_features.get
+        for index, feature in self.image_features.items():
+            print(self.image_files[index], feature.get_all_by_name())
+        
     def load_images(self):
         self.sib('images').load_images()
         images = self.sib('images').image_files

@@ -50,27 +50,23 @@ class Presenter(MVPBase.BasePresenter):
         features = {}
         for shortcut in self.model.shortcuts_labels.get().keys():
             features[shortcut] = None
+#        print("unset features are", features)
         # Go through all selected and see if they have different features for each feature
         for index in selected_images.keys():
-            print('selected index', index)
-            if index in self.model.image_labels:
-                print("this is selected and in model")
-                for feature in features:
-                    print('check feature', feature)
-
-                    if feature not in self.model.image_labels[index]:
-                        break
-                    val = self.model.image_labels[index][feature]
-                    print('its in model as', val)
-                    if features[feature] == None:
-                        features[feature] = val
-                    elif features[feature] != val:
-                        features[feature] = 'conflicting'
-        print('features loop')
+            for feature in features:
+                val = self.model.image_feature_get(index, feature)
+#                print('its in model as and features as',feature, val, features[feature])
+                if features[feature] == None:
+                    features[feature] = val
+                elif features[feature] != val:
+                    features[feature] = 'conflicting'
+#            print("     features is now", features)
+                        
+#        print('features loop')
         for feature in features:
             if features[feature] == None:
-                features[feature] = 0
-            print('features', feature, features[feature])
+                features[feature] = self.model.State.unset
+#            print('features', feature, features[feature])
             self.view.page.labelerWidget.set_shortcuts_status(feature, features[feature] )
         
 
@@ -118,6 +114,9 @@ class Presenter(MVPBase.BasePresenter):
         if enable == True:
             self.refresh_images()
             self.reconfigure()
+        if enable == False:
+            self.model.save_images()
+
 # TODO: remove observer?  reconfig everytime page loads
 #        if enable == False:
 #            self.observer.event_group_activate('reconfigure', True)
@@ -161,35 +160,23 @@ class Presenter(MVPBase.BasePresenter):
         self.on_scroll(amount)
 
     def on_keypress(self, event):
-        
+        State = self.model.State
         for shortcut in self.model.shortcuts_labels.get().keys():
             qtkey = QTest.asciiToKey(shortcut)
             if event.key() == qtkey and not event.isAutoRepeat():
 #          
                 modifiers = event.modifiers()
-                # Unknown 0
                 if modifiers == Qt.ShiftModifier:
-#                    print('Shift')
-                    self.update_features(shortcut, has_feature = 0)
-                # No Feature -1  
+                    self.update_features(shortcut, feature = State.no)
                 elif modifiers ==  Qt.ControlModifier:
-#                    print('Control')
-                    self.update_features(shortcut, has_feature = -1)
-
-                # Unsure -10
+                    self.update_features(shortcut, feature = State.unset)
                 elif modifiers == ( Qt.ControlModifier |
                                     Qt.ShiftModifier):
-#                    print('Control+Shift')
-                    self.update_features(shortcut, has_feature = -10)
-
-                # Toggle 
-                elif modifiers == ( Qt.AltModifier):
-#                    print('Alt')
-                    self.update_features(shortcut, toggle = True)
-                # Has feature 1
+                    self.update_features(shortcut, feature = State.unsure)
+#                elif modifiers == ( Qt.AltModifier):
+#                    self.update_features(shortcut, toggle = True)
                 else:
-#                    print('Vanilla')
-                    self.update_features(shortcut, has_feature = 1)
+                    self.update_features(shortcut, feature = State.yes)
         if event.key() == Qt.Key_Space:
             print("model image_labels=", self.model.image_labels)
 
@@ -211,8 +198,9 @@ class Presenter(MVPBase.BasePresenter):
 #        self.on_keyshortcut(event)
 
 
-    def update_features(self, feature, has_feature = None, toggle = None):
+    def update_features(self, shortcut, feature = None, toggle = None):
         """ set feature on image(s) and update view """
+
         # Cycle through labels
 #        if toggle == True:
 #            cycle = [-1, 0, 1]
@@ -230,15 +218,15 @@ class Presenter(MVPBase.BasePresenter):
             return
 
         for item in self.view.page.listWidget.selectedItems():
-            item.set_shortcuts_status(feature, has_feature)
-            self.model.image_labels_set(item.index, feature, has_feature)
+            item.set_shortcuts_status(shortcut, feature)
+            self.model.image_feature_set(item.index, shortcut, feature)
        
         # graphicsitems suck and i should replace them?
 #        for i in range (0,self.view.multiple_image_layout.count()):
 #                graphicsitem = self.view.multiple_image_layout.itemAt(0)
 #                graphicsitem.label()
 #        for graphicsitem in self.multiple_image_layout
-        self.view.page.labelerWidget.set_shortcuts_status(feature, has_feature)
+        self.view.page.labelerWidget.set_shortcuts_status(shortcut, feature)
 
 
 
