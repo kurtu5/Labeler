@@ -40,6 +40,7 @@ class Model(MVPBase.BaseModel):
         self.sib('labeler').max_columns.set(int(self.config['LABELER']['max_columns']))
         self.sib('labeler').max_images.set(int(self.config['LABELER']['max_images']))
         self.sib('labeler').shortcuts_labels.set(dict(self.config['LABELER']['shortcuts_labels']))
+        self.sib('labeler').label_file = self.config['LABELER']['labelFile']
 
         # Images Model
         self.sib('images').path = self.config['IMAGES']['PathToImages']

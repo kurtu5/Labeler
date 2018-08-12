@@ -8,6 +8,9 @@ suffix = '\\..'
 path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
+import pandas as pd
+import json
+import numpy as np
 import MVPBase
 
 class FeatureState:
@@ -54,6 +57,7 @@ class Model(MVPBase.BaseModel):
         self.max_columns = None
         self.max_images = None
         self.shortcuts_labels = None
+        self.label_file = None
         
     def image_feature_get(self, index, shortcut):
            if index not in self.image_features:
@@ -81,23 +85,57 @@ class Model(MVPBase.BaseModel):
     def save_images(self):
         print("save current feature state")
 #        self.image_features.get
+        index_list = []
+        features_list = []
         for index, feature in self.image_features.items():
-            print(self.image_files[index], feature.get_all_by_name())
+            print("saving images as", self.image_files[index], feature.get_all_by_name())
+            index_list.append(self.image_files[index])
+            features_list.append(feature.get_all_by_name())
+        df = pd.DataFrame(features_list, index=index_list)
+        df.to_json(self.label_file, orient='index')
+        file = 'dynamicDF.csv'
+        obj = None
+        with open(self.label_file) as f:
+            obj = json.load(f)
+        
+        outfile = open(self.label_file, "w")
+        outfile.write(json.dumps(obj, indent=4, sort_keys=True))
+        outfile.close()
         
     def load_images(self):
         self.sib('images').load_images()
         images = self.sib('images').image_files
+        print("imags from mode", images)
         index = 0
         max_images = self.max_images.get()
         if max_images != None and max_images != 0:
             images = images[:max_images]
-            
+        import os.path
+        if os.path.isfile(self.label_file):
+            df = pd.read_json(self.label_file, orient='index')
+        else:
+            df = pd.DataFrame()
+        print(df)
+        
 #        print("images model", self.sib('images').image_files)
         for image_file in images:
 #            print("-------------image_file", index, image_file)
+            if image_file in df.index:
+                for shortcut, name in self.shortcuts_labels.get().items():
+                    state = df.loc[image_file, name]
+                    if np.isnan(state):
+                        state = self.State.unset
+                    self.image_feature_set(index, shortcut, state)
+            else:
+                for shortcut, name in self.shortcuts_labels.get().items():
+                    state = self.State.unset
+                    self.image_feature_set(index, shortcut, state)
+
             self.image_files[index] = image_file
+#            self.image_features[index] = {}
             index += 1
             
+        print(fr"-------------images as stored in labeler {self.image_files[1]}")
         print("load image features from csv")
 
     def image_select(self, index):

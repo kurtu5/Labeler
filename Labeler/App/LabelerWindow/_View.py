@@ -68,7 +68,7 @@ class LabelerWidget(QWidget):
         for shortcut, label in shortcuts_labels.items():
             row += 1
             shortcut_w = QLabel(f'short={shortcut}')
-            label_w = QLabel(f'label={label}')
+            label_w = QLabel(f'{label}')
             self.pal.setColor(QPalette.WindowText, self.feature.unknown)
             shortcut_w.setPalette(self.pal)
             self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
@@ -458,12 +458,17 @@ class View(MVPBase.BaseView):
 
 
 
-    def image_list_update(self, images, shortcuts):
+    def image_list_update(self, images, shortcuts, features):
         """ Put all the images in the QListWidget """
+        
+        self.page.listWidget.clear()
         for index, image in images.items():
             item = ImageListItem()
             item.set_text(f'{basename(image)}')
             item.set_shortcuts_labels(shortcuts)
+            feature = features[index]
+            for shortcut in shortcuts.keys():
+                item.set_shortcuts_status(shortcut, feature.get(shortcut))
             item.set_index(index)
             item.set_icon(image)
             item.set_icon_size(60)

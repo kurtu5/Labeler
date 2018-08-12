@@ -89,7 +89,7 @@ class Presenter(MVPBase.BasePresenter):
         images = self.model.get_all_images()
 
 #            print(images)
-        self.view.image_list_update(images, self.model.shortcuts_labels.get())
+        self.view.image_list_update(images, self.model.shortcuts_labels.get(),self.model.image_features)
 
 ## deal with labeling shortcuts
 
