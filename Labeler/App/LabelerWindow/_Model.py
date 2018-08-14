@@ -18,19 +18,19 @@ class FeatureState:
     no = -1
     unset = 0
     unsure = 10
-    
+
 class Features:
     def __init__(self, shortcuts_labels):
         self.state = FeatureState
         self.feature_states = {}
         self.shortcuts_labels = shortcuts_labels
-        
+
     def set(self, shortcut, state):
         if shortcut not in self.shortcuts_labels:
             raise Exception("not a valid shortcut")
         # check if state is valid?
         self.feature_states[shortcut] = state
-        
+
     def get(self, shortcut):
         if shortcut not in self.shortcuts_labels:
             raise Exception("not a valid shortcut")
@@ -38,7 +38,7 @@ class Features:
             return self.state.unset
         else:
             return self.feature_states[shortcut]
-    
+
     def get_all_by_name(self):
         """ r """
         nameStates = {}
@@ -46,7 +46,7 @@ class Features:
             state = self.get(shortcut)
             nameStates[feature_name] = state
         return nameStates
-    
+
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,20 +58,7 @@ class Model(MVPBase.BaseModel):
         self.max_images = None
         self.shortcuts_labels = None
         self.label_file = None
-        
-    def image_feature_get(self, index, shortcut):
-           if index not in self.image_features:
-               return self.State.unset
-           else:
-               return self.image_features[index].get(shortcut)
-            
-    def image_feature_set(self, index, shortcut, state):
-        if index not in self.image_features:
-            self.image_features[index] = Features(self.shortcuts_labels.get())
-        self.image_features[index].set(shortcut, state)
 
-        # load from cvs and set image_labels
-        
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 
@@ -82,13 +69,28 @@ class Model(MVPBase.BaseModel):
         self.shortcuts_labels = self.observer.event_gen('shortcuts_labels', None)
 
 
+
+    def image_feature_get(self, index, shortcut):
+           if index not in self.image_features:
+               return self.State.unset
+           else:
+               return self.image_features[index].get(shortcut)
+
+    def image_feature_set(self, index, shortcut, state):
+        if index not in self.image_features:
+            self.image_features[index] = Features(self.shortcuts_labels.get())
+        self.image_features[index].set(shortcut, state)
+
+        # load from cvs and set image_labels
+
+
     def save_images(self):
         print("save current feature state")
 #        self.image_features.get
         index_list = []
         features_list = []
         for index, feature in self.image_features.items():
-            print("saving images as", self.image_files[index], feature.get_all_by_name())
+#            print("saving images as", self.image_files[index], feature.get_all_by_name())
             index_list.append(self.image_files[index])
             features_list.append(feature.get_all_by_name())
         df = pd.DataFrame(features_list, index=index_list)
@@ -97,15 +99,15 @@ class Model(MVPBase.BaseModel):
         obj = None
         with open(self.label_file) as f:
             obj = json.load(f)
-        
+
         outfile = open(self.label_file, "w")
         outfile.write(json.dumps(obj, indent=4, sort_keys=True))
         outfile.close()
-        
+
     def load_images(self):
         self.sib('images').load_images()
         images = self.sib('images').image_files
-        print("imags from mode", images)
+#        print("imags from mode", images)
         index = 0
         max_images = self.max_images.get()
         if max_images != None and max_images != 0:
@@ -115,8 +117,8 @@ class Model(MVPBase.BaseModel):
             df = pd.read_json(self.label_file, orient='index')
         else:
             df = pd.DataFrame()
-        print(df)
-        
+#        print(df)
+
 #        print("images model", self.sib('images').image_files)
         for image_file in images:
 #            print("-------------image_file", index, image_file)
@@ -134,17 +136,31 @@ class Model(MVPBase.BaseModel):
             self.image_files[index] = image_file
 #            self.image_features[index] = {}
             index += 1
-            
-        print(fr"-------------images as stored in labeler {self.image_files[1]}")
-        print("load image features from csv")
+
+#        print(fr"-------------images as stored in labeler {self.image_files[1]}")
+#        print("load image features from csv")
+
+
+    def image_select_by_status(self, index, shortcut, status):
+        if status == self.image_feature_get(index, shortcut):
+            self.image_select(index)
+
+    def images_select_by_status(self, shortcut, status):
+        for index in self.image_files.keys():
+            self.image_select_by_status(index, shortcut, status)
 
     def image_select(self, index):
         if index not in self.selected_indexes:
             self.selected_indexes.add(index)
 
+
     def image_deselect(self, index):
         if index in self.selected_indexes:
             self.selected_indexes.remove(index)
+
+    def images_deselect_all(self):
+        for index in self.image_files.keys():
+            self.image_deselect(index)
 
     def get_all_images(self):
         return self.image_files

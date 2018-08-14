@@ -21,21 +21,21 @@ class Model(MVPBase.BaseModel):
         "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/")
          # Let guiM know im showable
         self.sib('gui').window_model_showable(self)
-        
+
         self.config_file=os.path.normpath(
         "C:/Users/kurt/Documents/fast.ai/fastai/courses/dl1/test_data/classified/config.json")
         self.config = None
         self.config_read()
         self.config_apply()
-        
+
     def config_read(self):
         with open(self.config_file) as jsonfile:
             # `json.loads` parses a string in json format
             self.config = json.load(jsonfile)
-            
-        
+
+
     def config_apply(self):
-        
+
         # Labeler
         self.sib('labeler').max_columns.set(int(self.config['LABELER']['max_columns']))
         self.sib('labeler').max_images.set(int(self.config['LABELER']['max_images']))

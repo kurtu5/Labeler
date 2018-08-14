@@ -46,7 +46,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="selectionWidget">
        <property name="text">
         <string>Show images with out label</string>
        </property>

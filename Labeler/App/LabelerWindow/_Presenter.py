@@ -9,7 +9,7 @@ path=os.path.dirname(os.path.abspath(__file__)) + suffix
 sys.path.insert(0, path)
 
 from PySide2.QtTest import QTest
-from PySide2.QtCore import QEvent, Qt
+from PySide2.QtCore import QEvent, Qt, Slot
 from PySide2 import QtGui
 from PySide2.QtWidgets import QApplication
 import MVPBase
@@ -43,7 +43,7 @@ class Presenter(MVPBase.BasePresenter):
         self.view.images_load(selected_images)
         self.interactor.event_group_blockSignals("itemSelectionChanged", False)
         self.interactor.event_group_blockSignals("image_signal", False)
-        
+
         # Update labelerwidget to reflect current features
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
 
@@ -61,14 +61,14 @@ class Presenter(MVPBase.BasePresenter):
                 elif features[feature] != val:
                     features[feature] = 'conflicting'
 #            print("     features is now", features)
-                        
+
 #        print('features loop')
         for feature in features:
             if features[feature] == None:
                 features[feature] = self.model.State.unset
 #            print('features', feature, features[feature])
             self.view.page.labelerWidget.set_shortcuts_status(feature, features[feature] )
-        
+
 
         # Update status string
 #        status_text = f'index: {self.model.image_index} image: {self.model.image_file} scale: {self.scale:.2f}'
@@ -84,7 +84,7 @@ class Presenter(MVPBase.BasePresenter):
 
 #        self.view.image_listbox.select_set(self.model.image_index)
 #        self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
-        
+
     def image_list_update(self):
         images = self.model.get_all_images()
 
@@ -134,6 +134,14 @@ class Presenter(MVPBase.BasePresenter):
 #            self.view.image_list_set(items)
 
     ### View Interactor event handlers
+
+    def on_selection(self, shortcuts_status):
+        self.model.images_deselect_all()
+        for shortcut, status in shortcuts_status.items():
+            self.model.images_select_by_status(shortcut, status)
+        self.image_list_update()
+        self.image_update()
+
     def on_columns_choice(self, choice):
         self.view.max_columns_choice(choice)
         self.image_update()
@@ -164,7 +172,7 @@ class Presenter(MVPBase.BasePresenter):
         for shortcut in self.model.shortcuts_labels.get().keys():
             qtkey = QTest.asciiToKey(shortcut)
             if event.key() == qtkey and not event.isAutoRepeat():
-#          
+#
                 modifiers = event.modifiers()
                 if modifiers == Qt.ShiftModifier:
                     self.update_features(shortcut, feature = State.no)
@@ -211,7 +219,7 @@ class Presenter(MVPBase.BasePresenter):
 #            has_feature = cycle[(cycle.index(current)+1)%len(cycle)]
         # Set
 #        self.labels[key] = has_feature
-        
+
         selected_images = self.model.get_selected_images()
         length = len(selected_images)
         if length == 0:
@@ -220,7 +228,7 @@ class Presenter(MVPBase.BasePresenter):
         for item in self.view.page.listWidget.selectedItems():
             item.set_shortcuts_status(shortcut, feature)
             self.model.image_feature_set(item.index, shortcut, feature)
-       
+
         # graphicsitems suck and i should replace them?
 #        for i in range (0,self.view.multiple_image_layout.count()):
 #                graphicsitem = self.view.multiple_image_layout.itemAt(0)
@@ -240,5 +248,6 @@ class Presenter(MVPBase.BasePresenter):
     def reconfigure(self):
         """ Apply new configuration options """
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
+        self.view.page.selectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.on_columns_choice(self.model.max_columns.get())
         self.view.max_images = self.model.max_images.get()

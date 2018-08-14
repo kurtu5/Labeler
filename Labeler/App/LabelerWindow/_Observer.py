@@ -16,7 +16,7 @@ class Observer(MVPBase.BaseObserver):
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
-        
+
     def event_all_register(self):
         self.event_add(('max_columns', lambda x: self.presenter.reconfigure()), 'reconfigure')
         self.event_add(('max_images', lambda x: self.presenter.reconfigure()), 'reconfigure')

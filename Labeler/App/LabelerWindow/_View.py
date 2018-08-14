@@ -15,11 +15,48 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QFont, QIcon, QImageReader, QPixmap, QFont, QColor
 from PySide2.QtCore import QFile, QSize, QEvent, QObject, Signal, QItemSelectionModel, QRectF, QSizeF, Qt, Signal
 from PySide2.QtWidgets import QLayout, QFormLayout, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QAbstractItemView, QGraphicsGridLayout
-from PySide2.QtWidgets import QApplication, QStackedWidget
+from PySide2.QtWidgets import QApplication, QStackedWidget, QCheckBox
 from PySide2.QtGui import QTransform, QWindow, QPalette, QColor, QPainter
 
 
 import time
+
+class SelectionWidget(QWidget):
+    select = Signal(dict)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.selected = {}  # shortcut => {widget => checked}
+        self.start()
+
+    def start(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.addWidget(QLabel("Select images without features set"), 0,0,1,0)
+        self.setLayout(self.grid_layout)
+        self.selectionButton=QPushButton("Select")
+        self.selectionButton.clicked.connect(self.emitter)
+
+    def emitter(self):
+#        print("emit a signal")
+        shortcut_emit = {}
+        for shortcut, checked_w in self.selected.items():
+#            print(f'{shortcut}={checked_w.isChecked()}')
+            shortcut_emit[shortcut] = checked_w.isChecked()
+        self.select.emit(shortcut_emit)
+
+    def set_shortcuts_labels(self, shortcuts_labels):
+        col = 0
+        row = 1
+        for shortcut, label in shortcuts_labels.items():
+            row += 1
+            checked_w = QCheckBox()
+            label_w = QLabel(f'{label}')
+            self.selected[shortcut] = checked_w
+#            self.pal.setColor(QPalette.WindowText, self.feature.unknown)
+#            shortcut_w.setPalette(self.pal)
+#            self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
+            self.grid_layout.addWidget(checked_w, row, col)
+            self.grid_layout.addWidget(label_w, row, col+1)
+        self.grid_layout.addWidget(self.selectionButton)
 
 class FeatureStyle:
     has = None
@@ -27,7 +64,7 @@ class FeatureStyle:
     unknown = None
     unsure = None
     _init_already = False
-    
+
     def __init__(self):
         if self._init_already == True:
             return
@@ -37,21 +74,21 @@ class FeatureStyle:
         self.unknown = QColor(Qt.gray)
         self.unsure = QColor(Qt.blue)
         self.conflicting = QColor(Qt.black)
-    
+
 class LabelerWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.grid_layout = QGridLayout()
         self.shortcuts = {} # shortcut := {'status': '', 'widget': widget}
-        
+
         self.pal = QPalette()
         self.feature = FeatureStyle()
 
         self.start()
-        
+
     def start(self):
         self.setLayout(self.grid_layout)
-       
+
     def set_shortcuts_labels(self, shortcuts_labels):
         self.shortcuts = {}
         self.grid_layout.addWidget(QLabel("Key Combos"), 0,0,1,0)
@@ -74,7 +111,7 @@ class LabelerWidget(QWidget):
             self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
             self.grid_layout.addWidget(shortcut_w, row, col)
             self.grid_layout.addWidget(label_w, row, col+1)
-            
+
     def set_shortcuts_status(self, shortcut, status):
         self.shortcuts[shortcut]['status'] = status
         bold = QFont()
@@ -91,8 +128,8 @@ class LabelerWidget(QWidget):
         if has_feature == 'conflicting':
             self.pal.setColor(QPalette.WindowText, self.feature.conflicting)
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)
-            
-    
+
+
 class ImageListItem(QListWidgetItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,7 +144,7 @@ class ImageListItem(QListWidgetItem):
         self.labels_widget = QWidget()
         self.icon_widget = QLabel()
         self.icon_reader = QImageReader()
-        
+
         self.icon_file = None
         self.icon_size = 60
         self.index = None
@@ -138,7 +175,7 @@ class ImageListItem(QListWidgetItem):
             self.shortcuts[shortcut] = {'status': '', 'widget': shortcut_w  }
             self.shorcutLayout.addWidget(shortcut_w)
         self.update_size()
-        
+
     def set_shortcuts_status(self, shortcut, status):
         self.shortcuts[shortcut]['status'] = status
 
@@ -153,13 +190,13 @@ class ImageListItem(QListWidgetItem):
             self.pal.setColor(QPalette.Text, self.feature.unsure)
 
         self.shortcuts[shortcut]['widget'].setPalette(self.pal)
-        
+
     def update_size(self):
         self.setSizeHint(self.widget.sizeHint())
-        
+
     def set_index(self, index):
         self.index = index
-        
+
     def set_labels(self, labels):
         self.set_shortcuts_labels(labels)
 #        self.update_size()
@@ -209,7 +246,7 @@ class MultiImageWidget(QGraphicsWidget):
         self.deselected.emit(self.index)
 
         return
-        print("Hover", event.type())
+#        print("Hover", event.type())
         modifiers = QApplication.keyboardModifiers()
         if modifiers == Qt.ShiftModifier:
             print('Shift+Click')
@@ -224,7 +261,7 @@ class MultiImageWidget(QGraphicsWidget):
             print('Click')
 
 
-        
+
     def paint(self, painter, *args, **kwargs):
 #            print('Paint Called')
 #            painter.drawRect(self.rect)
@@ -284,15 +321,21 @@ class View(MVPBase.BaseView):
 
             # I could just modify the ui file.... but lets play with this
             self.page.horizontalLayout.removeWidget(self.page.display)
-            self.page.leftColumn.removeWidget(self.page.labelerWidget)
             self.page.display.close()
+            self.page.display=QStackedWidget()  # DisplayWidget
+            self.page.horizontalLayout.insertWidget(1,self.page.display)
+
+            self.page.leftColumn.removeWidget(self.page.labelerWidget)
             self.page.labelerWidget.close()
-            self.page.display=QStackedWidget()
             self.page.labelerWidget=LabelerWidget()
             self.page.leftColumn.insertWidget(1,self.page.labelerWidget)
-            self.page.horizontalLayout.insertWidget(1,self.page.display)
-            self.page.horizontalLayout.update()
-            
+
+            self.page.leftColumn.removeWidget(self.page.selectionWidget)
+            self.page.selectionWidget.close()
+            self.page.selectionWidget=SelectionWidget()
+            self.page.leftColumn.insertWidget(2,self.page.selectionWidget)
+#            self.page.horizontalLayout.update()
+
             # Layout for single images
             self.single_image = QWidget()
             self.single_image_layout = QGridLayout()
@@ -334,7 +377,7 @@ class View(MVPBase.BaseView):
     def max_columns_choice(self, choice):
         self.max_columns = choice
         self.page.columns_choice.setValue(choice)
-        
+
             # I could write this to add custom signals for custom events
     class KeyEventFilter(QObject):
         KeyPress = Signal(QEvent)
@@ -384,7 +427,7 @@ class View(MVPBase.BaseView):
         deselected = Signal(int)
         def myemit(self, index):
             self.deselected.emit(index)
-            
+
     def labeler_widget_load(self):
         pass
 
@@ -460,7 +503,7 @@ class View(MVPBase.BaseView):
 
     def image_list_update(self, images, shortcuts, features):
         """ Put all the images in the QListWidget """
-        
+
         self.page.listWidget.clear()
         for index, image in images.items():
             item = ImageListItem()

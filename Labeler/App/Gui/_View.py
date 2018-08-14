@@ -39,7 +39,7 @@ class View(MVPBase.BaseView):
             super().__init__(*args, **kwargs)
             self.last_keypress = time.time()
 
-            
+
         def eventFilter(self, obj, event):
             if event.type() == QEvent.KeyPress and isinstance(obj, QWindow):
 #                print(obj, event.text(), "GUI---------")
@@ -69,7 +69,7 @@ class View(MVPBase.BaseView):
         self.window.setCentralWidget(self.stacked_widget)
 
 
-  
+
 
         self.window.show()
 
