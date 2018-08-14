@@ -57,6 +57,7 @@ class Interactor(MVPBase.BaseInteractor):
         add((v.keyEvent,'KeyPress', p.on_keypress))
 
         add((v.page.selectionWidget,'select', p.on_select_display), 'select')
+        add((v.page.selectionWidget,'noselect', p.on_select_display_all), 'select')
         add((v.page.columns_choice,'valueChanged', p.on_columns_choice), "valueChanged")
         add((v.page.display,'imageClicked', p.on_image_clicked ), "image_signal")
         add((v.page.listWidget,'itemSelectionChanged', self.itemSelectionChanged), "itemSelectionChanged")

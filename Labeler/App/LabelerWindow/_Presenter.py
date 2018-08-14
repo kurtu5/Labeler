@@ -88,7 +88,7 @@ class Presenter(MVPBase.BasePresenter):
     def image_list_update(self):
         images = self.model.get_all_displayable_images()
 
-#            print(images)
+        print(images)
         self.view.image_list_update(images,
                                     self.model.shortcuts_labels.get(),
                                     self.model.image_features)
@@ -124,7 +124,12 @@ class Presenter(MVPBase.BasePresenter):
 #            self.observer.event_group_activate('reconfigure', True)
 
     def refresh_images(self):
+        self.reconfigure()
         self.model.load_images()
+        if len(self.model.displayed_indexes) > 1:
+            pass
+            index = list(self.model.displayed_indexes)[0]
+            self.model.image_select(index)
 
         self.scale = self.default_scale
 
@@ -145,8 +150,22 @@ class Presenter(MVPBase.BasePresenter):
 
     def on_select_display(self, features):
         self.model.images_display_deselect_all()
+        self.model.images_deselect_all()
+
         self.model.images_display_all_with_features(features)
         self.image_list_update()
+        if len(self.model.displayed_indexes) > 1:
+            index = list(self.model.displayed_indexes)[0]
+            self.model.image_select(index)
+        self.image_update()
+        
+    def on_select_display_all(self):
+        self.model.images_display_select_all()
+        self.model.images_deselect_all()
+        self.image_list_update()
+        if len(self.model.displayed_indexes) > 1:
+            index = list(self.model.displayed_indexes)[0]
+            self.model.image_select(index)
         self.image_update()
 
     def on_columns_choice(self, choice):
@@ -255,8 +274,8 @@ class Presenter(MVPBase.BasePresenter):
     def reconfigure(self):
         """ Apply new configuration options """
         print("reconfigure")
-        self.model.images_display_select_all()
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.view.page.selectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.on_columns_choice(self.model.max_columns.get())
         self.view.max_images = self.model.max_images.get()
+        self.model.images_display_select_all()

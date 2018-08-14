@@ -199,10 +199,10 @@ class Model(MVPBase.BaseModel):
 
 
     def get_all_displayable_images(self):
-        images ={}
+        images = {}
         for index in self.displayed_indexes:
-            if self.image_files[index] == index:
-                images[index] = self.image_files[index]
+#            print("index is displayable", index)
+            images[index] = self.image_files[index]
         return images
 
     def get_selected_images(self):

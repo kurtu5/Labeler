@@ -111,6 +111,7 @@ class LabelerWidget(QWidget):
             
 class SelectionWidget(QWidget):
     select = Signal(dict)
+    noselect = Signal()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.selected = {}  # shortcut => {widget => checked}
@@ -122,6 +123,9 @@ class SelectionWidget(QWidget):
         self.setLayout(self.grid_layout)
         self.selectionButton=QPushButton("Select")
         self.selectionButton.clicked.connect(self.emitter)
+        self.noSelectionButton=QPushButton("No Select")
+        self.noSelectionButton.clicked.connect(self.noselect.emit)
+
 
     def emitter(self):
 #        print("emit a signal")
@@ -149,6 +153,7 @@ class SelectionWidget(QWidget):
             self.grid_layout.addWidget(combo_w, row, col)
             self.grid_layout.addWidget(label_w, row, col+1)
         self.grid_layout.addWidget(self.selectionButton)
+        self.grid_layout.addWidget(self.noSelectionButton)
 
 
 class DisplayWidget(QStackedWidget):
