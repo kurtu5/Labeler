@@ -179,6 +179,10 @@ class Model(MVPBase.BaseModel):
 
     def images_display_deselect_all(self):
         self.displayed_indexes = set()
+        
+        
+    def images_display_select_all(self):
+        self.displayed_indexes = self.image_files.keys()
     
     
     # Set if is selected in list
@@ -194,8 +198,12 @@ class Model(MVPBase.BaseModel):
         self.selected_indexes = set()
 
 
-    def get_all_images(self):
-        return self.image_files
+    def get_all_displayable_images(self):
+        images ={}
+        for index in self.displayed_indexes:
+            if self.image_files[index] == index:
+                images[index] = self.image_files[index]
+        return images
 
     def get_selected_images(self):
         selected_images = {}

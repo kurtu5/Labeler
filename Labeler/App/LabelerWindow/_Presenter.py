@@ -86,7 +86,7 @@ class Presenter(MVPBase.BasePresenter):
 #        self.view.image_update(self.scale, self.scale_xloc, self.scale_yloc)
 
     def image_list_update(self):
-        images = self.model.get_all_images()
+        images = self.model.get_all_displayable_images()
 
 #            print(images)
         self.view.image_list_update(images,
@@ -254,6 +254,7 @@ class Presenter(MVPBase.BasePresenter):
     ### Model Observer event handlers
     def reconfigure(self):
         """ Apply new configuration options """
+        self.model.images_display_select_all()
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.view.page.selectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.on_columns_choice(self.model.max_columns.get())
