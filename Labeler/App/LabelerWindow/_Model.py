@@ -52,6 +52,7 @@ class Model(MVPBase.BaseModel):
         super().__init__(*args, **kwargs)
         self.State = FeatureState
         self.selected_indexes = set()
+        self.displayed_indexes = set()
         self.image_files = {}  # {index->image_file}
         self.image_features = {} # {index->Features}
         self.max_columns = None
@@ -105,6 +106,7 @@ class Model(MVPBase.BaseModel):
         outfile.close()
 
     def load_images(self):
+        self.displayed_indexes = set()
         self.sib('images').load_images()
         images = self.sib('images').image_files
 #        print("imags from mode", images)
@@ -134,11 +136,28 @@ class Model(MVPBase.BaseModel):
                     self.image_feature_set(index, shortcut, state)
 
             self.image_files[index] = image_file
+            self.displayed_indexes.add(index)
 #            self.image_features[index] = {}
             index += 1
 
 #        print(fr"-------------images as stored in labeler {self.image_files[1]}")
 #        print("load image features from csv")
+
+    def images_display_all_with_features(self, features):
+        print(f'check for featurs={features}')
+        for index in self.image_files.keys():
+            has_all_features = True
+            print(f'image{index}', end="")
+            for shortcut, label in self.shortcuts_labels.get().items():
+                feature = self.image_feature_get(index, shortcut)
+                print(f', {features[shortcut]} ={feature}', end="")
+                if str(feature) != str(features[shortcut]):
+                    print("missing", end="")
+                    has_all_features = False
+            print("")
+            if has_all_features == True:
+                self.displayed_indexes.add(index)
+                print(f'image{index} has all features{features}')
 
 
     def image_select_by_status(self, index, shortcut, status):
@@ -149,18 +168,31 @@ class Model(MVPBase.BaseModel):
         for index in self.image_files.keys():
             self.image_select_by_status(index, shortcut, status)
 
+    # Set if is displayed in list
+    def image_display_select(self, index):
+        if index not in self.displayed_indexes:
+            self.displayed_indexes.add(index)
+
+    def image_display_deselect(self, index):
+        if index in self.displayed_indexes:
+            self.displayed_indexes.remove(index)
+
+    def images_display_deselect_all(self):
+        self.displayed_indexes = set()
+    
+    
+    # Set if is selected in list
     def image_select(self, index):
         if index not in self.selected_indexes:
             self.selected_indexes.add(index)
-
 
     def image_deselect(self, index):
         if index in self.selected_indexes:
             self.selected_indexes.remove(index)
 
     def images_deselect_all(self):
-        for index in self.image_files.keys():
-            self.image_deselect(index)
+        self.selected_indexes = set()
+
 
     def get_all_images(self):
         return self.image_files

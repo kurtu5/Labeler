@@ -89,7 +89,9 @@ class Presenter(MVPBase.BasePresenter):
         images = self.model.get_all_images()
 
 #            print(images)
-        self.view.image_list_update(images, self.model.shortcuts_labels.get(),self.model.image_features)
+        self.view.image_list_update(images,
+                                    self.model.shortcuts_labels.get(),
+                                    self.model.image_features)
 
 ## deal with labeling shortcuts
 
@@ -134,11 +136,16 @@ class Presenter(MVPBase.BasePresenter):
 #            self.view.image_list_set(items)
 
     ### View Interactor event handlers
+    
+    def on_resized(self):
+        self.image_update()
 
-    def on_selection(self, shortcuts_status):
-        self.model.images_deselect_all()
-        for shortcut, status in shortcuts_status.items():
-            self.model.images_select_by_status(shortcut, status)
+    def on_image_clicked(self, index, event):
+        self.view.page.listWidget.setSelected(index, False)
+
+    def on_select_display(self, features):
+        self.model.images_display_deselect_all()
+        self.model.images_display_all_with_features(features)
         self.image_list_update()
         self.image_update()
 
