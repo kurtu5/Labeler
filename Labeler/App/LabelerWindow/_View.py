@@ -326,19 +326,18 @@ class ImageListWidget(QListWidget):
         else:
             self.setCurrentRow(index, QItemSelectionModel.Deselect)
             
-    def update(self, images, shortcuts, features):
+    def update(self, images, shortcuts):
         """ Put all the images in the QListWidget """
 
         self.clear()
         for index, image in images.items():
             item = ImageListItem()
-            item.set_text(f'{basename(image)}')
+            item.set_text(f'{basename(image.getFilename())}')
             item.set_shortcuts_labels(shortcuts)
-            feature = features[index]
             for shortcut in shortcuts.keys():
-                item.set_shortcuts_status(shortcut, feature.get(shortcut))
+                item.set_shortcuts_status(shortcut, image.getFeature(shortcut))
             item.set_index(index)
-            item.set_icon(image)
+            item.set_icon(image.getFilename())
             item.set_icon_size(60)
 
             self.addItem(item)
@@ -500,7 +499,7 @@ class View(MVPBase.BaseView):
     def images_load(self, images):
         self.page.display.images_load(images)
 
-    def image_list_update(self, images, shortcuts, features):
+    def image_list_update(self, images, shortcuts):
         """ Put all the images in the QListWidget """
-        self.page.listWidget.update(images, shortcuts, features)
+        self.page.listWidget.update(images, shortcuts)
    

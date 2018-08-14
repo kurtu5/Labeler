@@ -21,7 +21,7 @@ class FeatureState:
 
 class Features:
     def __init__(self, shortcuts_labels):
-        self.state = FeatureState
+        self.State = FeatureState
         self.feature_states = {}
         self.shortcuts_labels = shortcuts_labels
 
@@ -47,18 +47,62 @@ class Features:
             nameStates[feature_name] = state
         return nameStates
 
+class Image:
+    def __init__(self):
+        self._displayed = None
+        self._selected = None
+        self._selected = None
+        self._features = None
+    
+    def isDisplayed(self):
+        return self._displayed
+    def setDisplayed(self, displayed):
+        self._displayed = displayed
+
+    def isSelected(self):
+        return self._selected
+    def setSelected (self, selected):
+        self._selected = status
+        
+    def getFilename(self):
+        return self._selected
+    def setFilename(self, filename):
+        self._selected = filename
+        
+    def getFeatures(self):
+        return self._features
+    def setFeatures(self, features):
+        self._features = features
+        
+    def getFeature(self, shortcut):
+        return self._features.get(shortcut)
+    def setFeature(self, shortcut, feature):
+        self._features.set(shortcut, feature)
+        
+    def hasFeature(self, shortcut, feature):
+        if self._features[shortcut] == feature:
+            return True
+        else:
+            return False
+        
+    def hasAllFeatures(self, features):
+        has_all_features = True
+        for shortcut, feature in features.items():
+            if not self.has_feature(shortcut, feature):
+                has_all_features = False
+        return has_all_features
+    
+    
 class Model(MVPBase.BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.State = FeatureState
-        self.selected_indexes = set()
-        self.displayed_indexes = set()
-        self.image_files = {}  # {index->image_file}
-        self.image_features = {} # {index->Features}
         self.max_columns = None
         self.max_images = None
         self.shortcuts_labels = None
         self.label_file = None
+        self.images = {}   # index := Image
+        self.State = FeatureState
+
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
@@ -69,19 +113,6 @@ class Model(MVPBase.BaseModel):
         self.max_images = self.observer.event_gen('max_images', None)
         self.shortcuts_labels = self.observer.event_gen('shortcuts_labels', None)
 
-
-
-    def image_feature_get(self, index, shortcut):
-           if index not in self.image_features:
-               return self.State.unset
-           else:
-               return self.image_features[index].get(shortcut)
-
-    def image_feature_set(self, index, shortcut, state):
-        if index not in self.image_features:
-            self.image_features[index] = Features(self.shortcuts_labels.get())
-        self.image_features[index].set(shortcut, state)
-
         # load from cvs and set image_labels
 
 
@@ -90,13 +121,13 @@ class Model(MVPBase.BaseModel):
 #        self.image_features.get
         index_list = []
         features_list = []
-        for index, feature in self.image_features.items():
+        for index, image in self.images.items():
 #            print("saving images as", self.image_files[index], feature.get_all_by_name())
-            index_list.append(self.image_files[index])
-            features_list.append(feature.get_all_by_name())
+            index_list.append(image.getFilename())
+            features_list.append(image.getFeatures().get_all_by_name())
         df = pd.DataFrame(features_list, index=index_list)
         df.to_json(self.label_file, orient='index')
-        file = 'dynamicDF.csv'
+
         obj = None
         with open(self.label_file) as f:
             obj = json.load(f)
@@ -106,38 +137,37 @@ class Model(MVPBase.BaseModel):
         outfile.close()
 
     def load_images(self):
-        self.displayed_indexes = set()
         self.sib('images').load_images()
-        images = self.sib('images').image_files
-#        print("imags from mode", images)
-        index = 0
+        image_files = self.sib('images').image_files
         max_images = self.max_images.get()
         if max_images != None and max_images != 0:
-            images = images[:max_images]
+            image_files = image_files[:max_images]
+            
+        # Open labels
         import os.path
         if os.path.isfile(self.label_file):
             df = pd.read_json(self.label_file, orient='index')
         else:
             df = pd.DataFrame()
-#        print(df)
 
-#        print("images model", self.sib('images').image_files)
-        for image_file in images:
-#            print("-------------image_file", index, image_file)
-            if image_file in df.index:
-                for shortcut, name in self.shortcuts_labels.get().items():
+        index = 0
+        for image_file in image_files:
+            image = Image()
+            image.setFilename(image_file)
+            image.setDisplayed(True)
+            image.setSelected(False)
+            image.setFeatures(Features())
+
+            for shortcut, name in self.shortcuts_labels.get().items():
+                if image_file in df.index:
                     state = df.loc[image_file, name]
                     if np.isnan(state):
                         state = self.State.unset
-                    self.image_feature_set(index, shortcut, state)
-            else:
-                for shortcut, name in self.shortcuts_labels.get().items():
+                else:
                     state = self.State.unset
-                    self.image_feature_set(index, shortcut, state)
+                image.setFeature(shortcut, state)
 
-            self.image_files[index] = image_file
-            self.displayed_indexes.add(index)
-#            self.image_features[index] = {}
+            self.images[index] = image
             index += 1
 
 #        print(fr"-------------images as stored in labeler {self.image_files[1]}")
@@ -145,73 +175,78 @@ class Model(MVPBase.BaseModel):
 
     def images_display_all_with_features(self, features):
         print(f'check for featurs={features}')
-        for index in self.image_files.keys():
-            has_all_features = True
-            print(f'image{index}', end="")
-            for shortcut, label in self.shortcuts_labels.get().items():
-                feature = self.image_feature_get(index, shortcut)
-                print(f', {features[shortcut]} ={feature}', end="")
-                if str(feature) != str(features[shortcut]):
-                    print("missing", end="")
-                    has_all_features = False
-            print("")
-            if has_all_features == True:
-                self.displayed_indexes.add(index)
+        images = self.images
+        for index, image in images.items():
+            if image.hasAllFeatures(features) == True:
+                self.images[index].setDisplayed(True)
                 print(f'image{index} has all features{features}')
 
 
+    def image_select_first_displayable(self):
+        index = self.get_first_displayable_index()
+        if index != None:
+            self.model.image_select(index)
+            
     def image_select_by_status(self, index, shortcut, status):
-        if status == self.image_feature_get(index, shortcut):
-            self.image_select(index)
+        if self.images[index].hasFeature(shortcut, feature):
+            self.images[index].setSelected(True)
 
     def images_select_by_status(self, shortcut, status):
-        for index in self.image_files.keys():
-            self.image_select_by_status(index, shortcut, status)
+        images = self.images
+        for index, image in self.image.items():
+            if image.hasFeature(shortcut, status) == True:
+                images[index].setSelected(True)
 
     # Set if is displayed in list
     def image_display_select(self, index):
-        if index not in self.displayed_indexes:
-            self.displayed_indexes.add(index)
+        self.images[index].setSelected(True)
 
     def image_display_deselect(self, index):
-        if index in self.displayed_indexes:
-            self.displayed_indexes.remove(index)
+        self.images[index].setDisplayed(False)
+
 
     def images_display_deselect_all(self):
-        self.displayed_indexes = set()
-        
+        images = self.images
+        for index, image in images.items():
+            self.images[index].setDisplayed(False)    
         
     def images_display_select_all(self):
-        self.displayed_indexes = self.image_files.keys()
-    
+        images = self.images
+        for index, image in images.items():
+            self.images[index].setDisplayed(True)    
     
     # Set if is selected in list
     def image_select(self, index):
-        if index not in self.selected_indexes:
-            self.selected_indexes.add(index)
+        self.images[index].setSelected(True)
 
     def image_deselect(self, index):
-        if index in self.selected_indexes:
-            self.selected_indexes.remove(index)
+        self.images[index].setSelected(False)
+
 
     def images_deselect_all(self):
-        self.selected_indexes = set()
-
+        images = self.images
+        for index, image in images.items():
+            self.images[index].setSelected(False)   
 
     def get_all_displayable_images(self):
         images = {}
-        for index in self.displayed_indexes:
-#            print("index is displayable", index)
-            images[index] = self.image_files[index]
+        for index, image in self.images.items():
+            if image.getDisplayed() == True:
+                images[index] = image
         return images
+    
+    def get_first_displayable_index(self):
+        for index, image in self.images.items():
+            if image.getDisplayed() == True:
+                return index
+        return None
 
     def get_selected_images(self):
-        selected_images = {}
-        for selected_index in self.selected_indexes:
-            for index, image_file in self.image_files.items():
-                if selected_index == index:
-                    selected_images[index] = image_file
-        return selected_images
+        images = {}
+        for index, image in self.images.items():
+            if image.getSelected() == True:
+                images[index] = image
+        return images
 
     # Probably don't need these.  USe the listWidget select to page through images
     def image_select_next(self):

@@ -52,22 +52,22 @@ class Presenter(MVPBase.BasePresenter):
             features[shortcut] = None
 #        print("unset features are", features)
         # Go through all selected and see if they have different features for each feature
-        for index in selected_images.keys():
-            for feature in features:
-                val = self.model.image_feature_get(index, feature)
+        for index, image in selected_images.items():
+            for shortcut, feature in features.items():
+                val = selected_images(index).getFeature(shortcut)
 #                print('its in model as and features as',feature, val, features[feature])
-                if features[feature] == None:
-                    features[feature] = val
-                elif features[feature] != val:
-                    features[feature] = 'conflicting'
+                if features[shortcut] == None:
+                    features[shortcut] = val
+                elif features[shortcut] != val:
+                    features[shortcut] = 'conflicting'
 #            print("     features is now", features)
 
 #        print('features loop')
-        for feature in features:
-            if features[feature] == None:
-                features[feature] = self.model.State.unset
+        for shortcut, feature in features.items():
+            if features[shortcut] == None:
+                features[shortcut] = self.model.State.unset
 #            print('features', feature, features[feature])
-            self.view.page.labelerWidget.set_shortcuts_status(feature, features[feature] )
+            self.view.page.labelerWidget.set_shortcuts_status(feature, features[shortcut] )
 
 
         # Update status string
@@ -88,10 +88,7 @@ class Presenter(MVPBase.BasePresenter):
     def image_list_update(self):
         images = self.model.get_all_displayable_images()
 
-        print(images)
-        self.view.image_list_update(images,
-                                    self.model.shortcuts_labels.get(),
-                                    self.model.image_features)
+        self.view.image_list_update(images, self.model.shortcuts_labels.get())
 
 ## deal with labeling shortcuts
 
@@ -117,7 +114,8 @@ class Presenter(MVPBase.BasePresenter):
             self.refresh_images()
             self.reconfigure()
         if enable == False:
-            self.model.save_images()
+            print("Skipping model save images")
+           # self.model.save_images()
 
 # TODO: remove observer?  reconfig everytime page loads
 #        if enable == False:
@@ -126,13 +124,8 @@ class Presenter(MVPBase.BasePresenter):
     def refresh_images(self):
         self.reconfigure()
         self.model.load_images()
-        if len(self.model.displayed_indexes) > 1:
-            pass
-            index = list(self.model.displayed_indexes)[0]
-            self.model.image_select(index)
-
+        self.model.image_select_first_displayable()
         self.scale = self.default_scale
-
         self.image_update()
         self.image_list_update()
 #            self.view.canvas.focus_set()
@@ -154,18 +147,15 @@ class Presenter(MVPBase.BasePresenter):
 
         self.model.images_display_all_with_features(features)
         self.image_list_update()
-        if len(self.model.displayed_indexes) > 1:
-            index = list(self.model.displayed_indexes)[0]
-            self.model.image_select(index)
+        self.model.image_select_first_displayable()
+
         self.image_update()
         
     def on_select_display_all(self):
         self.model.images_display_select_all()
         self.model.images_deselect_all()
         self.image_list_update()
-        if len(self.model.displayed_indexes) > 1:
-            index = list(self.model.displayed_indexes)[0]
-            self.model.image_select(index)
+        self.model.image_select_first_displayable()
         self.image_update()
 
     def on_columns_choice(self, choice):
@@ -253,7 +243,7 @@ class Presenter(MVPBase.BasePresenter):
 
         for item in self.view.page.listWidget.selectedItems():
             item.set_shortcuts_status(shortcut, feature)
-            self.model.image_feature_set(item.index, shortcut, feature)
+            self.model.images[item.index].setFeature(shortcut, feature)
 
         # graphicsitems suck and i should replace them?
 #        for i in range (0,self.view.multiple_image_layout.count()):
