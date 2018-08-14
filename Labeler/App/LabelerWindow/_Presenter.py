@@ -254,6 +254,7 @@ class Presenter(MVPBase.BasePresenter):
     ### Model Observer event handlers
     def reconfigure(self):
         """ Apply new configuration options """
+        print("reconfigure")
         self.model.images_display_select_all()
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.view.page.selectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
