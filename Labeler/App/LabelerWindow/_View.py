@@ -109,9 +109,9 @@ class LabelerWidget(QWidget):
         
 
             
-class SelectionWidget(QWidget):
-    select = Signal(dict)
-    noselect = Signal()
+class DisplaySelectionWidget(QWidget):
+    display_features = Signal(dict)
+    display_all = Signal()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.selected = {}  # shortcut => {widget => checked}
@@ -124,7 +124,7 @@ class SelectionWidget(QWidget):
         self.selectionButton=QPushButton("Select")
         self.selectionButton.clicked.connect(self.emitter)
         self.noSelectionButton=QPushButton("No Select")
-        self.noSelectionButton.clicked.connect(self.noselect.emit)
+        self.noSelectionButton.clicked.connect(self.display_all.emit)
 
 
     def emitter(self):
@@ -133,7 +133,7 @@ class SelectionWidget(QWidget):
         for shortcut, checked_w in self.selected.items():
 #            print(f'{shortcut}={checked_w.isChecked()}')
             shortcut_emit[shortcut] = checked_w.currentText()
-        self.select.emit(shortcut_emit)
+        self.display_features.emit(shortcut_emit)
 
     def set_shortcuts_labels(self, shortcuts_labels):
         col = 0
@@ -228,7 +228,7 @@ class DisplayWidget(QStackedWidget):
         # Display images or image
         row = 0
         col = -1
-        for index, image_file in images.items():
+        for index, image in images.items():
             col += 1
             if col >= maxcol:
                 col = 0
@@ -238,14 +238,14 @@ class DisplayWidget(QStackedWidget):
             if index not in self.cached_images.keys():
                 image_reader = QImageReader()
                 image_reader.setDecideFormatFromContent(True)
-                image_reader.setFileName(image_file)
+                image_reader.setFileName(image.getFilename())
                 self.cached_images[index] = image_reader.read()
-            image = self.cached_images[index]
+            cached_image = self.cached_images[index]
 
-            pixmap = QPixmap(image)
+            pixmap = QPixmap(cached_image)
             if num > 1:
                 pixmap = pixmap.scaledToWidth(colwidth - 20)
-                rec = MultiImageWidget(pixmap, basename(image_file), index)
+                rec = MultiImageWidget(pixmap, basename(image.getFilename()), index)
                 rec.imageClicked.connect(self.emitter)
                 self.multiple_image_layout.addItem(rec, row, col)
             else:
@@ -342,6 +342,10 @@ class ImageListWidget(QListWidget):
 
             self.addItem(item)
             self.setItemWidget(item, item.widget)
+            
+            if image.isSelected() == True:
+                self.setSelected(self.row(item))
+                print("select this index", index)
             
             
 class ImageListItem(QListWidgetItem):
@@ -477,10 +481,10 @@ class View(MVPBase.BaseView):
             self.page.labelerWidget=LabelerWidget()
             self.page.leftColumn.insertWidget(1,self.page.labelerWidget)
 
-            self.page.leftColumn.removeWidget(self.page.selectionWidget)
-            self.page.selectionWidget.close()
-            self.page.selectionWidget=SelectionWidget()
-            self.page.leftColumn.insertWidget(2,self.page.selectionWidget)
+            self.page.leftColumn.removeWidget(self.page.displaySelectionWidget)
+            self.page.displaySelectionWidget.close()
+            self.page.displaySelectionWidget=DisplaySelectionWidget()
+            self.page.leftColumn.insertWidget(2,self.page.displaySelectionWidget)
 
             self.page_index = self.parent.stacked_widget.addWidget(self.page)
             self.page.columns_choice.setRange(1,10)

@@ -22,6 +22,8 @@ class Presenter(MVPBase.BasePresenter):
         self.scale_xloc = 0  # TODO maybe shove these into view
         self.scale_yloc = 0
         self.image_index = None
+        self.old_selections = []
+
         self.start()
 
     def start(self):
@@ -54,7 +56,7 @@ class Presenter(MVPBase.BasePresenter):
         # Go through all selected and see if they have different features for each feature
         for index, image in selected_images.items():
             for shortcut, feature in features.items():
-                val = selected_images(index).getFeature(shortcut)
+                val = image.getFeature(shortcut)
 #                print('its in model as and features as',feature, val, features[feature])
                 if features[shortcut] == None:
                     features[shortcut] = val
@@ -67,7 +69,7 @@ class Presenter(MVPBase.BasePresenter):
             if features[shortcut] == None:
                 features[shortcut] = self.model.State.unset
 #            print('features', feature, features[feature])
-            self.view.page.labelerWidget.set_shortcuts_status(feature, features[shortcut] )
+            self.view.page.labelerWidget.set_shortcuts_status(shortcut, features[shortcut] )
 
 
         # Update status string
@@ -112,7 +114,7 @@ class Presenter(MVPBase.BasePresenter):
         super().on_window_enable(enable)
         if enable == True:
             self.refresh_images()
-            self.reconfigure()
+            self.on_reconfigure()
         if enable == False:
             print("Skipping model save images")
            # self.model.save_images()
@@ -122,7 +124,7 @@ class Presenter(MVPBase.BasePresenter):
 #            self.observer.event_group_activate('reconfigure', True)
 
     def refresh_images(self):
-        self.reconfigure()
+        self.on_reconfigure()
         self.model.load_images()
         self.model.image_select_first_displayable()
         self.scale = self.default_scale
@@ -141,21 +143,22 @@ class Presenter(MVPBase.BasePresenter):
     def on_image_clicked(self, index, event):
         self.view.page.listWidget.setSelected(index, False)
 
-    def on_select_display(self, features):
-        self.model.images_display_deselect_all()
+    def on_select_display_features(self, features):
         self.model.images_deselect_all()
-
+        self.model.images_display_deselect_all()
         self.model.images_display_all_with_features(features)
-        self.image_list_update()
+        print("call select first")
         self.model.image_select_first_displayable()
-
+        self.model.debug_dsa("---current selection--------")
+        self.image_list_update()
         self.image_update()
+        print("done")
         
     def on_select_display_all(self):
         self.model.images_display_select_all()
         self.model.images_deselect_all()
-        self.image_list_update()
         self.model.image_select_first_displayable()
+        self.image_list_update()
         self.image_update()
 
     def on_columns_choice(self, choice):
@@ -202,7 +205,11 @@ class Presenter(MVPBase.BasePresenter):
                 else:
                     self.update_features(shortcut, feature = State.yes)
         if event.key() == Qt.Key_Space:
-            print("model image_labels=", self.model.image_labels)
+#            print("deselect all items in list")
+#            self.model.images_deselect_all()
+#            print("model selected images")
+#            self.model.debug_dsa()
+            pass
 
         return
 
@@ -210,11 +217,11 @@ class Presenter(MVPBase.BasePresenter):
 #            self.on_scroll(2)
 #        if event.keysym == 'Up':
 #            self.on_scroll(-2)
-        if key == Qt.Key_Right:
+        if event.key() == Qt.Key_Right:
 #            self.scale = self.default_scale
             self.model.next_image()
             self.image_update()
-        if key == Qt.Key_Left:
+        if event.key() == Qt.Key_Left:
 #            self.scale = self.default_scale
             self.model.prev_image()
             self.image_update()
@@ -252,20 +259,43 @@ class Presenter(MVPBase.BasePresenter):
 #        for graphicsitem in self.multiple_image_layout
         self.view.page.labelerWidget.set_shortcuts_status(shortcut, feature)
 
+    def on_selection_changed(self):
+        self.interactor.event_group_blockSignals("itemSelectionChanged", True)
+        self.interactor.event_group_blockSignals("image_signal", True)
+        new_selections = self.view.page.listWidget.selectedItems()
 
+        # Implement in
+        def isIn(item, items):
+            for i in items:
+                if id(item) == id(i):
+                    return True
+            return False
 
-    def on_row_changed(self, row):
-#        selected = self.view.page.listWidget.item(row).isSelected()
-#        print(f'the item at {row} is {selected} selected')
-        self.model.image_select(row)
+        # Find truly new items
+        for new_selection in new_selections:
+            if not isIn(new_selection, self.old_selections):
+                index = new_selection.listWidget().indexFromItem(new_selection).row()
+                self.model.image_select(index)
+
+        # Find truly removed itesm
+        for old_selection in self.old_selections:
+            if not isIn(old_selection, new_selections):
+                index = old_selection.listWidget().indexFromItem(old_selection).row()
+                self.model.image_deselect(index)
+
         self.image_update()
+        self.old_selections = new_selections
+        self.interactor.event_group_blockSignals("itemSelectionChanged", False)
+        self.interactor.event_group_blockSignals("image_signal", False)
+        self.model.debug_dsa("sections after on selection changed")
+
 
     ### Model Observer event handlers
-    def reconfigure(self):
+    def on_reconfigure(self):
         """ Apply new configuration options """
         print("reconfigure")
         self.view.page.labelerWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
-        self.view.page.selectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
+        self.view.page.displaySelectionWidget.set_shortcuts_labels(self.model.shortcuts_labels.get())
         self.on_columns_choice(self.model.max_columns.get())
         self.view.max_images = self.model.max_images.get()
         self.model.images_display_select_all()

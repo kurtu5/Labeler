@@ -62,12 +62,12 @@ class Image:
     def isSelected(self):
         return self._selected
     def setSelected (self, selected):
-        self._selected = status
+        self._selected = selected
         
     def getFilename(self):
-        return self._selected
+        return self._filename
     def setFilename(self, filename):
-        self._selected = filename
+        self._filename = filename
         
     def getFeatures(self):
         return self._features
@@ -80,7 +80,8 @@ class Image:
         self._features.set(shortcut, feature)
         
     def hasFeature(self, shortcut, feature):
-        if self._features[shortcut] == feature:
+        # TODO fix casting in file loading
+        if str(self._features.get(shortcut)) == str(feature):
             return True
         else:
             return False
@@ -88,8 +89,10 @@ class Image:
     def hasAllFeatures(self, features):
         has_all_features = True
         for shortcut, feature in features.items():
-            if not self.has_feature(shortcut, feature):
+#            print("has all features", shortcut, feature, self._features.feature_states)
+            if not self.hasFeature(shortcut, feature):
                 has_all_features = False
+#                print("nope")
         return has_all_features
     
     
@@ -156,7 +159,7 @@ class Model(MVPBase.BaseModel):
             image.setFilename(image_file)
             image.setDisplayed(True)
             image.setSelected(False)
-            image.setFeatures(Features())
+            image.setFeatures(Features(self.shortcuts_labels.get()))
 
             for shortcut, name in self.shortcuts_labels.get().items():
                 if image_file in df.index:
@@ -174,20 +177,20 @@ class Model(MVPBase.BaseModel):
 #        print("load image features from csv")
 
     def images_display_all_with_features(self, features):
-        print(f'check for featurs={features}')
+#        print(f'check for featurs={features}')
         images = self.images
         for index, image in images.items():
             if image.hasAllFeatures(features) == True:
                 self.images[index].setDisplayed(True)
-                print(f'image{index} has all features{features}')
+#                print(f'image{index} has all features{features}')
 
 
     def image_select_first_displayable(self):
         index = self.get_first_displayable_index()
         if index != None:
-            self.model.image_select(index)
+            self.image_select(index)
             
-    def image_select_by_status(self, index, shortcut, status):
+    def image_select_by_status(self, index, shortcut, feature):
         if self.images[index].hasFeature(shortcut, feature):
             self.images[index].setSelected(True)
 
@@ -225,26 +228,35 @@ class Model(MVPBase.BaseModel):
 
     def images_deselect_all(self):
         images = self.images
+        print("model deselection called")
         for index, image in images.items():
-            self.images[index].setSelected(False)   
+#            self.images[index].setSelected(False)   
+            image.setSelected(False)  
+            
+    def debug_dsa(self, text):
+        print(text, end="")
+        for index, image in self.images.items():
+            if image.isSelected():
+                print("-- selected", index, end="")
+        print(".")
 
     def get_all_displayable_images(self):
         images = {}
         for index, image in self.images.items():
-            if image.getDisplayed() == True:
+            if image.isDisplayed() == True:
                 images[index] = image
         return images
     
     def get_first_displayable_index(self):
         for index, image in self.images.items():
-            if image.getDisplayed() == True:
+            if image.isDisplayed() == True:
                 return index
         return None
 
     def get_selected_images(self):
         images = {}
         for index, image in self.images.items():
-            if image.getSelected() == True:
+            if image.isSelected() == True:
                 images[index] = image
         return images
 

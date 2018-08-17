@@ -13,39 +13,11 @@ import MVPBase
 class Interactor(MVPBase.BaseInteractor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.old_items = []
 
     def start(self, *args, **kwargs):
         super().start(*args, **kwargs)
 
-    def itemSelectionChanged(self):
-        self.event_group_blockSignals("itemSelectionChanged", True)
-        self.event_group_blockSignals("image_signal", True)
-        new_items = self.view.page.listWidget.selectedItems()
-
-        # Implement in
-        def isIn(item, items):
-            for i in items:
-                if id(item) == id(i):
-                    return True
-            return False
-
-        # Find truly new items
-        for new_item in new_items:
-            if not isIn(new_item, self.old_items):
-                index = new_item.listWidget().indexFromItem(new_item).row()
-                self.presenter.model.image_select(index)
-
-        # Find truly removed itesm
-        for old_item in self.old_items:
-            if not isIn(old_item, new_items):
-                index = old_item.listWidget().indexFromItem(old_item).row()
-                self.presenter.model.image_deselect(index)
-
-        self.presenter.image_update()
-        self.old_items = new_items
-        self.event_group_blockSignals("itemSelectionChanged", False)
-        self.event_group_blockSignals("image_signal", False)
+   
 
 
     def event_all_register(self):
@@ -56,9 +28,9 @@ class Interactor(MVPBase.BaseInteractor):
         add((v.parent.window,'resized', p.on_resized), 'resized')
         add((v.keyEvent,'KeyPress', p.on_keypress))
 
-        add((v.page.selectionWidget,'select', p.on_select_display), 'select')
-        add((v.page.selectionWidget,'noselect', p.on_select_display_all), 'select')
+        add((v.page.displaySelectionWidget,'display_features', p.on_select_display_features), 'select')
+        add((v.page.displaySelectionWidget,'display_all', p.on_select_display_all), 'select')
         add((v.page.columns_choice,'valueChanged', p.on_columns_choice), "valueChanged")
         add((v.page.display,'imageClicked', p.on_image_clicked ), "image_signal")
-        add((v.page.listWidget,'itemSelectionChanged', self.itemSelectionChanged), "itemSelectionChanged")
+        add((v.page.listWidget,'itemSelectionChanged', p.on_selection_changed), "itemSelectionChanged")
 
