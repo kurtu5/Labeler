@@ -1,4 +1,4 @@
-.spyproject
+#.spyproject
 __pycache__/
 .sed_refactorer.history
 sed_refactorer.sh
